@@ -32,6 +32,7 @@ export interface StaggeredMobileMenuProps {
   /** Auth section */
   isAuthenticated?: boolean;
   user?: { full_name?: string; email?: string } | null;
+  avatarUrl?: string | null;
   /** Path for profile/account (e.g. /account on web). Used when clicking the user block in the dropdown. */
   profilePath?: string;
   onProfile?: () => void;
@@ -55,6 +56,7 @@ export function StaggeredMobileMenu({
   displayItemNumbering = true,
   isAuthenticated = false,
   user,
+  avatarUrl,
   profilePath = '/account',
   onProfile,
   onLogout,
@@ -336,7 +338,19 @@ export function StaggeredMobileMenu({
                   }}
                   aria-label="Go to profile"
                 >
-                  <div className="sm-auth-avatar" style={{ backgroundColor: accentColor }} />
+                  <div
+                    className="sm-auth-avatar"
+                    style={
+                      avatarUrl
+                        ? ({
+                            backgroundColor: accentColor,
+                            backgroundImage: `url(${avatarUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          } as React.CSSProperties)
+                        : ({ backgroundColor: accentColor } as React.CSSProperties)
+                    }
+                  />
                   <div className="sm-auth-info">
                     <span className="sm-auth-name">{user.full_name || user.email || 'User'}</span>
                     {user.email && (
