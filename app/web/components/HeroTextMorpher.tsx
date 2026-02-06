@@ -130,7 +130,7 @@ export default function HeroTextMorpher({
   const wrapperPadding =
     Platform.OS === 'web'
       ? {
-          paddingTop: isSmallScreen ? 16 : 64,
+          paddingTop: isSmallScreen ? 4 : 64,
           paddingLeft: isSmallScreen ? 16 : 40,
         }
       : {
