@@ -515,12 +515,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
     ...Platform.select({
       web: {
         minHeight: '100vh' as any,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflowY: 'auto' as any,
+      },
+      default: {
+        alignItems: 'center',
+        justifyContent: 'center',
       },
     }),
   } as ViewStyle,
