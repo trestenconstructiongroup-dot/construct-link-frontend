@@ -924,6 +924,8 @@ const styles = StyleSheet.create({
       web: {
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' as any,
         zIndex: 1001,
+        maxHeight: '70vh' as any,
+        overflowY: 'auto' as any,
       },
     }),
   },

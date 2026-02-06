@@ -304,28 +304,6 @@ export function StaggeredMobileMenu({
         aria-hidden={!isOpen}
       >
         <div className="sm-panel-inner">
-          <ul
-            className="sm-panel-list"
-            role="list"
-            data-numbering={displayItemNumbering || undefined}
-          >
-            {items.length
-              ? items.map((it, idx) => (
-                  <li className="sm-panel-itemWrap" key={it.path + idx}>
-                    <button
-                      type="button"
-                      className="sm-panel-item"
-                      aria-label={it.ariaLabel || it.label}
-                      data-index={idx + 1}
-                      onClick={() => handleNavClick(it.path)}
-                    >
-                      <span className="sm-panel-itemLabel">{it.label}</span>
-                    </button>
-                  </li>
-                ))
-              : null}
-          </ul>
-
           <div className="sm-auth-section" aria-label="Account">
             {isAuthenticated && user ? (
               <>
@@ -394,6 +372,28 @@ export function StaggeredMobileMenu({
               </>
             )}
           </div>
+
+          <ul
+            className="sm-panel-list"
+            role="list"
+            data-numbering={displayItemNumbering || undefined}
+          >
+            {items.length
+              ? items.map((it, idx) => (
+                  <li className="sm-panel-itemWrap" key={it.path + idx}>
+                    <button
+                      type="button"
+                      className="sm-panel-item"
+                      aria-label={it.ariaLabel || it.label}
+                      data-index={idx + 1}
+                      onClick={() => handleNavClick(it.path)}
+                    >
+                      <span className="sm-panel-itemLabel">{it.label}</span>
+                    </button>
+                  </li>
+                ))
+              : null}
+          </ul>
         </div>
       </aside>
     </div>

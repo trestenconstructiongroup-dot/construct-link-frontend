@@ -399,12 +399,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-    padding: 20,
+    paddingHorizontal: 20,
     ...Platform.select({
       web: {
         minHeight: '100vh' as any,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 40,
+        paddingBottom: 40,
         overflowY: 'auto' as any,
       },
       default: {
