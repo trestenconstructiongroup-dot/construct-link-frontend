@@ -41,6 +41,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
+    // Push page content below the fixed navbar height on web
+    ...Platform.select({
+      web: {
+        paddingTop: 80 as any,
+      },
+    }),
   },
   fabBell: {
     position: 'absolute',
