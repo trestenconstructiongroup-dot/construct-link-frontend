@@ -185,7 +185,9 @@ export default function WebLanding() {
       ctx.clearRect(0, 0, cw, ch);
 
       const vwPx = typeof window !== 'undefined' ? window.innerWidth : cw;
-      const fontSize = Math.min(56, Math.max(24, vwPx * 0.045));
+      // Match the web CSS clamp used for the tagline:
+      // font-size: clamp(16px, 3.5vw, 40px);
+      const fontSize = Math.min(40, Math.max(16, vwPx * 0.035));
       const lineHeight = fontSize * LINE_HEIGHT_MULT;
       ctx.font = `${fontSize}px ${FONT_FAMILY}`;
       ctx.textAlign = 'right';
@@ -296,9 +298,10 @@ export default function WebLanding() {
                     maxWidth: '100%',
                     textAlign: 'right',
                     fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif',
-                    fontSize: 'clamp(24px, 4.5vw, 56px)',
+                    // Slightly smaller and more responsive on small screens to avoid distortion
+                    fontSize: 'clamp(16px, 3.5vw, 40px)',
                     textTransform: 'uppercase',
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
                     lineHeight: 1.4,
                     color: colors.text,
                     wordWrap: 'break-word',
@@ -354,9 +357,9 @@ export default function WebLanding() {
                   maxWidth: '100%',
                   textAlign: 'right',
                   fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif',
-                  fontSize: 'clamp(24px, 4.5vw, 56px)',
+                  fontSize: 'clamp(16px, 3.5vw, 40px)',
                   textTransform: 'uppercase',
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.3,
                   lineHeight: 1.4,
                   color: 'white',
                   wordWrap: 'break-word',
@@ -623,13 +626,12 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     alignItems: 'center',
-    paddingTop: 80,
     paddingBottom: 100,
     ...Platform.select({
       web: {
         minHeight: '100vh' as any,
         overflowY: 'auto' as any,
-  },
+      },
     }),
   } as ViewStyle,
   newHeroSection: {

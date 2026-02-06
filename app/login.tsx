@@ -399,12 +399,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
     ...Platform.select({
       web: {
         minHeight: '100vh' as any,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 40,
+        paddingBottom: 40,
+        overflowY: 'auto' as any,
+      },
+      default: {
+        alignItems: 'center',
+        justifyContent: 'center',
       },
     }),
   } as ViewStyle,

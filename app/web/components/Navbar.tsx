@@ -38,7 +38,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isDark } = useTheme();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, avatarUrl } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const pillTheme = getPillTheme(isDark);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -275,7 +275,14 @@ export default function Navbar() {
                   style={styles.userAvatar}
                   onPress={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
-                  <View style={[styles.avatarCircle, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+                  {avatarUrl ? (
+                    <Image
+                      source={{ uri: avatarUrl }}
+                      style={styles.avatarImage}
+                    />
+                  ) : (
+                    <View style={[styles.avatarCircle, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+                  )}
                 </Pressable>
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
@@ -292,7 +299,14 @@ export default function Navbar() {
                     ]}
                   >
                     <View style={styles.dropdownHeader}>
-                      <View style={[styles.dropdownAvatar, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+                      {avatarUrl ? (
+                        <Image
+                          source={{ uri: avatarUrl }}
+                          style={styles.dropdownAvatarImage}
+                        />
+                      ) : (
+                        <View style={[styles.dropdownAvatar, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+                      )}
                       <View style={styles.dropdownUserInfo}>
                         <Text style={[styles.dropdownUserName, { color: colors.text }]}>
                           {user?.full_name || user?.email || 'User'}
@@ -436,14 +450,19 @@ export default function Navbar() {
           textColor={colors.text}
           panelBackground={colors.background}
           fontFamily="Knucklehead"
-          items={PILL_NAV_LINKS.map(({ label, path }) => ({
-            label,
-            path,
-            ariaLabel: `Go to ${label}`,
-          }))}
+          items={
+            isAuthenticated
+              ? PILL_NAV_LINKS.map(({ label, path }) => ({
+                  label,
+                  path,
+                  ariaLabel: `Go to ${label}`,
+                }))
+              : []
+          }
           displayItemNumbering={true}
           isAuthenticated={isAuthenticated}
           user={user}
+          avatarUrl={avatarUrl || undefined}
           profilePath="/account"
           onProfile={() => router.push('/account' as never)}
           onLogout={handleLogout}
@@ -905,6 +924,8 @@ const styles = StyleSheet.create({
       web: {
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' as any,
         zIndex: 1001,
+        maxHeight: '70vh' as any,
+        overflowY: 'auto' as any,
       },
     }),
   },
