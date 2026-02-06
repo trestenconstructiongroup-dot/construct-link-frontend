@@ -185,7 +185,9 @@ export default function WebLanding() {
       ctx.clearRect(0, 0, cw, ch);
 
       const vwPx = typeof window !== 'undefined' ? window.innerWidth : cw;
-      const fontSize = Math.min(56, Math.max(24, vwPx * 0.045));
+      // Match the web CSS clamp used for the tagline:
+      // font-size: clamp(16px, 3.5vw, 40px);
+      const fontSize = Math.min(40, Math.max(16, vwPx * 0.035));
       const lineHeight = fontSize * LINE_HEIGHT_MULT;
       ctx.font = `${fontSize}px ${FONT_FAMILY}`;
       ctx.textAlign = 'right';
