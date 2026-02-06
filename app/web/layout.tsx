@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Platform, useWindowDimensions } from 'react-native';
 import Navbar from './components/Navbar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -8,11 +8,18 @@ import { Colors } from '../../constants/theme';
 export default function WebLayout({ children }: { children: React.ReactNode }) {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 768;
+
+  const contentPaddingTop =
+    Platform.OS === 'web'
+      ? (isSmallScreen ? 4 : 80)
+      : 0;
 
   return (
     <View style={styles.container}>
       <Navbar />
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingTop: contentPaddingTop }]}>
         {children}
       </View>
       {/* Floating notification bell - bottom-right, follows scroll */}
@@ -41,12 +48,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     width: '100%',
-    // Push page content below the fixed navbar height on web
-    ...Platform.select({
-      web: {
-        paddingTop: 80 as any,
-      },
-    }),
   },
   fabBell: {
     position: 'absolute',
