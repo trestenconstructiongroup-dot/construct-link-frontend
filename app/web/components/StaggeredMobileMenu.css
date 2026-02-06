@@ -147,8 +147,10 @@
 
 /* Auth section – same stagger treatment */
 .sm-auth-section {
-  margin-top: auto;
-  padding-top: 2rem;
+  /* Place auth (Log In / Sign Up or profile) near the top of the panel,
+     then the nav items list follows below. */
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
