@@ -74,11 +74,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    ...Platform.select({
-      web: {
-        minHeight: '100vh',
-      },
-    }),
+    ...(Platform.OS === 'web'
+      ? ({ minHeight: '100vh' } as any)
+      : null),
   },
   animationContainer: {
     width: '100%',
@@ -101,11 +99,9 @@ const styles = StyleSheet.create({
     fontSize: 72,
     fontWeight: 'bold',
     marginBottom: 8,
-    ...Platform.select({
-      web: {
-        fontSize: 'clamp(48px, 10vw, 96px)',
-      },
-    }),
+    ...(Platform.OS === 'web'
+      ? ({ fontSize: 'clamp(48px, 10vw, 96px)' } as any)
+      : null),
   },
   backButton: {
     flexDirection: 'row',
@@ -115,22 +111,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 12,
     borderWidth: 2,
-    ...Platform.select({
-      web: {
-        cursor: 'pointer',
-        transition: 'all 0.25s ease',
-        boxShadow: '0 0 20px rgba(10, 126, 164, 0.3)',
-      },
-    }),
+    ...(Platform.OS === 'web'
+      ? ({
+          cursor: 'pointer',
+          transition: 'all 0.25s ease',
+          boxShadow: '0 0 20px rgba(10, 126, 164, 0.3)',
+        } as any)
+      : null),
   },
   backButtonText: {
     fontSize: 18,
     fontWeight: '600',
     color: '#0a7ea4',
-    ...Platform.select({
-      web: {
-        fontSize: 'clamp(16px, 2.5vw, 20px)',
-      },
-    }),
+    ...(Platform.OS === 'web'
+      ? ({ fontSize: 'clamp(16px, 2.5vw, 20px)' } as any)
+      : null),
   },
 });
