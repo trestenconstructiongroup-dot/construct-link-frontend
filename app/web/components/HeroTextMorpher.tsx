@@ -130,7 +130,9 @@ export default function HeroTextMorpher({
   const wrapperPadding =
     Platform.OS === 'web'
       ? {
-          paddingTop: isSmallScreen ? 4 : 64,
+          // On small screens, push the hero text down a bit from the navbar;
+          // keep the original offset on larger screens.
+          paddingTop: isSmallScreen ? 56 : 64,
           paddingLeft: isSmallScreen ? 16 : 40,
         }
       : {
