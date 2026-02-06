@@ -623,13 +623,12 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     alignItems: 'center',
-    paddingTop: 80,
     paddingBottom: 100,
     ...Platform.select({
       web: {
         minHeight: '100vh' as any,
         overflowY: 'auto' as any,
-  },
+      },
     }),
   } as ViewStyle,
   newHeroSection: {
