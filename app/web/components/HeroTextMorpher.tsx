@@ -150,7 +150,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     paddingLeft: 40,
-    paddingTop: 80,
+    // On large screens keep a generous top offset (80px).
+    // On smaller screens, reduce the gap using a viewport-based cap,
+    // so the hero text sits closer to the navbar while still breathing.
+    ...Platform.select({
+      web: {
+        paddingTop: 'min(80px, 12vh)' as any,
+      },
+      default: {
+        paddingTop: 80,
+      },
+    }),
   },
   line: {
     flexDirection: 'row',
