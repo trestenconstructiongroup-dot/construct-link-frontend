@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Text as RNText, StyleSheet, View } from 'react-native';
+import { Platform, Text as RNText, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 const PHRASES = [
   { a: 'Create', s: 'Jobs' },
@@ -31,6 +31,9 @@ export default function HeroTextMorpher({
   style,
   showCursor = false,
 }: HeroTextMorpherProps) {
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 768;
+
   const [displayA, setDisplayA] = useState(PHRASES[0].a);
   const [displayS, setDisplayS] = useState(PHRASES[0].s);
   const [cursorVisible, setCursorVisible] = useState(showCursor);
@@ -122,10 +125,21 @@ export default function HeroTextMorpher({
       ? 'Knucklehead, system-ui, sans-serif'
       : 'Knucklehead';
 
-  const baseStyle = { color: textColor, fontSize, fontFamily: fontFamily as any };
+  const baseStyle: any = { color: textColor, fontSize, fontFamily: fontFamily as any };
+
+  const wrapperPadding =
+    Platform.OS === 'web'
+      ? {
+          paddingTop: isSmallScreen ? 16 : 64,
+          paddingLeft: isSmallScreen ? 16 : 40,
+        }
+      : {
+          paddingTop: 64,
+          paddingLeft: 40,
+        };
 
   return (
-    <View style={[styles.wrapper, style, { pointerEvents: 'none' }]}>
+    <View style={[styles.wrapper, wrapperPadding as any, style, { pointerEvents: 'none' }]}>
       <RNText style={[styles.line, baseStyle]}>
         <RNText style={styles.word}>{displayA}</RNText>
         {' '}
@@ -149,18 +163,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    paddingLeft: 40,
-    // On large screens keep a generous top offset (80px).
-    // On smaller screens, reduce the gap using a viewport-based cap,
-    // so the hero text sits closer to the navbar while still breathing.
-    ...Platform.select({
-      web: {
-        paddingTop: 'min(80px, 12vh)' as any,
-      },
-      default: {
-        paddingTop: 80,
-      },
-    }),
   },
   line: {
     flexDirection: 'row',
