@@ -418,7 +418,7 @@ export default function WebLanding() {
         </Animated.View>
 
         {/* Common Questions / FAQ section */}
-        <View style={styles.faqSection}>
+        <View style={[styles.faqSection, isSmallScreen && { marginTop: 40, paddingVertical: 40 }]}>
           <View
             style={[
               styles.faqContainer,
@@ -445,10 +445,10 @@ export default function WebLanding() {
             >
               <View style={styles.faqHeadingRow}>
                 <View>
-                  <RNText style={[styles.faqTitle, { color: colors.text }]}>
+                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
                     Common
                   </RNText>
-                  <RNText style={[styles.faqTitle, { color: colors.text }]}>
+                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
                     Questions
                   </RNText>
                 </View>
@@ -492,6 +492,7 @@ export default function WebLanding() {
               style={[
                 styles.mainHeading,
                 isSmallScreen && styles.mainHeadingCentered,
+                isSmallScreen && { marginBottom: 12 },
                 { color: colors.text },
               ]}
             >
@@ -501,6 +502,7 @@ export default function WebLanding() {
               style={[
                 styles.subheading,
                 isSmallScreen && styles.subheadingCentered,
+                isSmallScreen && { marginBottom: 16 },
                 { color: colors.text },
               ]}
             >
@@ -527,8 +529,8 @@ export default function WebLanding() {
       </Animated.View>
 
         {/* Category Buttons Grid + and so much more... */}
-        <View style={styles.categoriesSection}>
-          <View style={styles.categoriesGrid}>
+        <View style={[styles.categoriesSection, isSmallScreen && styles.categoriesSectionCompact]}>
+          <View style={[styles.categoriesGrid, isSmallScreen && styles.categoriesGridCompact]}>
             {CONSTRUCTION_CATEGORIES.map((category, index) => (
               <CategoryButton
                 key={index}
@@ -652,12 +654,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 40,
     gap: 32,
+    alignSelf: 'center',
   } as ViewStyle,
   heroStacked: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 32,
+    gap: 24,
+    paddingHorizontal: 20,
   } as ViewStyle,
   heroLeft: {
     flex: 1,
@@ -783,11 +787,23 @@ const styles = StyleSheet.create({
       },
     }),
   } as ViewStyle,
+  categoriesGridCompact: {
+    ...Platform.select({
+      web: {
+        gap: '12px' as any,
+      },
+    }),
+    paddingHorizontal: 16,
+  } as ViewStyle,
   categoriesSection: {
     width: '100%',
     alignItems: 'center',
     marginTop: 60,
     marginBottom: 24,
+  } as ViewStyle,
+  categoriesSectionCompact: {
+    marginTop: 32,
+    marginBottom: 16,
   } as ViewStyle,
   moreText: {
     marginTop: 16,
