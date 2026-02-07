@@ -1,10 +1,7 @@
 import { Asset } from 'expo-asset';
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Image, ImageStyle, Platform, Pressable, Text as RNText, StyleSheet, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
-import { Text } from '../components/Text';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Image, ImageStyle, Platform, Text as RNText, StyleSheet, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { Colors, Fonts } from '../constants/theme';
-import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import HeroCardSwap from './web/components/HeroCardSwap';
 import HeroTextMorpher from './web/components/HeroTextMorpher';
@@ -12,16 +9,13 @@ import { CONSTRUCTION_CATEGORIES, FAQ_ITEMS } from './web/components/landing/_co
 import CategoryButton from './web/components/landing/CategoryButton';
 import FaqItem from './web/components/landing/FaqItem';
 import LandingFooter from './web/components/landing/LandingFooter';
-import MagnetButton from './web/components/MagnetButton';
 import WebLayout from './web/layout';
 
 const HERO_VIDEO = require('../assets/images/transparentVideo/Cyberpunk Idle.mp4.webm');
 const HERO_MASK_IMAGE = require('../assets/images/landingPageImages/image19.png');
 
 export default function WebLanding() {
-  const router = useRouter();
   const { isDark } = useTheme();
-  const { isAuthenticated } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const { width: screenWidth } = useWindowDimensions();
   const fade = useRef(new Animated.Value(0)).current;
@@ -225,11 +219,14 @@ export default function WebLanding() {
       }
 
       if (vw > 0 && vh > 0) {
-        const scale = Math.min(cw / vw, ch / vh);
+        const isNarrow = cw < 900;
+        const maxW = isNarrow ? cw * 0.65 : cw;
+        const maxH = isNarrow ? ch * 0.70 : ch;
+        const scale = Math.min(maxW / vw, maxH / vh);
         const rw = vw * scale;
         const rh = vh * scale;
-        const destX = OBJECT_POSITION_X * (cw - rw);
-        const destY = OBJECT_POSITION_Y * (ch - rh);
+        const destX = isNarrow ? cw - rw : OBJECT_POSITION_X * (cw - rw);
+        const destY = isNarrow ? ch - rh : OBJECT_POSITION_Y * (ch - rh);
         ctx.globalCompositeOperation = 'destination-in';
         ctx.drawImage(video, 0, 0, vw, vh, destX, destY, rw, rh);
         ctx.globalCompositeOperation = 'source-over';
@@ -247,19 +244,6 @@ export default function WebLanding() {
   const isSmallScreen = screenWidth < 900;
   const showHeroImage = screenWidth >= 900;
 
-  const goHome = useCallback(() => {
-    router.push('/');
-  }, [router]);
-
-  const goLogin = useCallback(() => {
-    router.push('/login');
-  }, [router]);
-
-  const handleCtaPress = useCallback(() => {
-    if (isAuthenticated) goHome();
-    else goLogin();
-  }, [isAuthenticated, goHome, goLogin]);
-
   return (
     <WebLayout>
       <View style={[styles.page, { backgroundColor: colors.background }]}>
@@ -275,10 +259,10 @@ export default function WebLanding() {
         >
           <HeroTextMorpher
             textColor={colors.text}
-            fontSize={Platform.OS === 'web' ? ('clamp(72px, 14vw, 200px)' as any) : 160}
-            style={styles.heroTextMorpher}
+            fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(48px, 12vw, 120px)' as any : 'clamp(72px, 14vw, 200px)' as any) : 160}
+            style={[styles.heroTextMorpher, isSmallScreen && { top: '15%', left: 0, right: 0, alignItems: 'center' }]}
           />
-          <View style={[styles.heroTagline, { pointerEvents: 'none' }]}>
+          <View style={[styles.heroTagline, { pointerEvents: 'none' }, isSmallScreen && { left: 16, right: 16, bottom: 24 }]}>
             {Platform.OS === 'web' ? (
               <div
                 style={{
@@ -340,10 +324,10 @@ export default function WebLanding() {
                 boxSizing: 'border-box',
                 WebkitMaskImage: `url(${heroMaskUri})`,
                 maskImage: `url(${heroMaskUri})`,
-                WebkitMaskSize: 'contain',
-                maskSize: 'contain',
-                WebkitMaskPosition: '85% 50%',
-                maskPosition: '85% 50%',
+                WebkitMaskSize: isSmallScreen ? '65% 70%' : 'contain',
+                maskSize: isSmallScreen ? '65% 70%' : 'contain',
+                WebkitMaskPosition: isSmallScreen ? 'right bottom' : '85% 50%',
+                maskPosition: isSmallScreen ? 'right bottom' : '85% 50%',
                 WebkitMaskRepeat: 'no-repeat',
                 maskRepeat: 'no-repeat',
                 isolation: 'isolate',
@@ -390,14 +374,25 @@ export default function WebLanding() {
                 playsInline
                 style={{
                   position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  width: '100%',
-                  height: '100%',
+                  ...(isSmallScreen
+                    ? {
+                        bottom: 0,
+                        right: 0,
+                        width: '65%',
+                        height: '70%',
+                        top: 'auto',
+                        left: 'auto',
+                      }
+                    : {
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: '100%',
+                        height: '100%',
+                      }),
                   objectFit: 'contain',
-                  objectPosition: '85% 50%',
+                  objectPosition: isSmallScreen ? 'center bottom' : '85% 50%',
                 }}
               />
             </div>
@@ -511,49 +506,6 @@ export default function WebLanding() {
             >
               Connect with skilled construction professionals and discover your ideal career opportunities.
             </RNText>
-            {Platform.OS === 'web' && isAuthenticated ? (
-              <MagnetButton padding={100} magnetStrength={2}>
-                <Pressable
-                  style={[
-                    styles.ctaButton,
-                    styles.ctaButtonDashboard,
-                    isSmallScreen && styles.ctaButtonCentered,
-                  ]}
-                  onPress={goHome}
-                >
-                  <View style={[styles.ctaIcon, styles.ctaIconDashboard]} />
-                  <Text
-                    style={[
-                      styles.ctaButtonText,
-                      styles.ctaButtonTextDashboard,
-                      { color: !isDark ? colors.text : '#ffffff' },
-                    ]}
-                  >
-                    Lets go
-                  </Text>
-                </Pressable>
-              </MagnetButton>
-            ) : (
-              <Pressable
-                style={[
-                  styles.ctaButton,
-                  isAuthenticated && styles.ctaButtonDashboard,
-                  isSmallScreen && styles.ctaButtonCentered,
-                ]}
-                onPress={handleCtaPress}
-              >
-                <View style={[styles.ctaIcon, isAuthenticated && styles.ctaIconDashboard]} />
-                <Text
-                  style={[
-                    styles.ctaButtonText,
-                    isAuthenticated && styles.ctaButtonTextDashboard,
-                    { color: isAuthenticated && !isDark ? colors.text : '#ffffff' },
-                  ]}
-                >
-                  {isAuthenticated ? 'Lets go' : 'Join Us Now'}
-                </Text>
-              </Pressable>
-            )}
           </View>
           {showHeroImage && (
             <View style={styles.heroRight}>
@@ -834,7 +786,7 @@ const styles = StyleSheet.create({
   categoriesSection: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 60,
     marginBottom: 24,
   } as ViewStyle,
   moreText: {
