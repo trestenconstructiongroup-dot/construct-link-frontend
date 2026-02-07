@@ -1071,7 +1071,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
               <>
                 <View style={[styles.footerColBrand, styles.footerColBrandSmall]}>
                   <RNText style={[styles.footerBrand, { color: colors.text }]}>
-                    ConstructionLink
+                    Tresten Construction Group Inc
                   </RNText>
                   <RNText
                     style={[
@@ -1091,7 +1091,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                         { color: colors.text },
                       ]}
                     >
-                      +254 (7) 9639‑7296 · support@constructionlink.co
+                      +254 (7) 9639‑7296 · info@trestenconstruction.com
                     </Text>
                   </View>
                 </View>
@@ -1192,7 +1192,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                     <RNText
                       style={[styles.footerBrand, { color: colors.text }]}
                     >
-                      ConstructionLink
+                      Tresten Construction Group Inc
                     </RNText>
                     <RNText
                       style={[styles.footerText, { color: colors.text }]}
@@ -1204,7 +1204,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                       <Text
                         style={[styles.footerMeta, { color: colors.text }]}
                       >
-                        +254 (7) 9639‑7296 · support@constructionlink.co
+                        +254 (7) 9639‑7296 · info@trestenconstruction.com
                       </Text>
                     </View>
                   </View>
@@ -1251,7 +1251,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                   <Text
                     style={[styles.footerMeta, { color: colors.text }]}
                   >
-                    © {new Date().getFullYear()} ConstructionLink. All rights
+                    © {new Date().getFullYear()} Tresten Construction Group Inc. All rights
                     reserved.
                   </Text>
                 </View>

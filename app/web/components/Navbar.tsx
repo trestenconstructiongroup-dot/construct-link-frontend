@@ -181,7 +181,7 @@ export default function Navbar() {
           />
           {!isMobile && (
             <Text style={[styles.brandName, { color: colors.text }]}>
-              ConstructionLink
+              Tresten Construction Group Inc
             </Text>
           )}
         </Pressable>

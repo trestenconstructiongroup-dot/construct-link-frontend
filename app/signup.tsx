@@ -234,7 +234,7 @@ export default function SignupPage() {
               Create Account
             </RNText>
             <RNText style={[styles.subtitle, { color: colors.text }]}>
-              Sign up to get started with ConstructionLink
+              Sign up to get started with Tresten Construction Group Inc
             </RNText>
           </View>
 

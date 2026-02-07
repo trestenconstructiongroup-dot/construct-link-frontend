@@ -106,7 +106,7 @@ export default function SignupRolePage() {
               Choose your account type
             </RNText>
             <RNText style={[styles.subtitle, { color: colors.text }]}>
-              Tell us how you&apos;ll use ConstructionLink so we can tailor your experience for finding work, posting projects, or both.
+              Tell us how you&apos;ll use Tresten Construction Group Inc so we can tailor your experience for finding work, posting projects, or both.
             </RNText>
           </View>
 

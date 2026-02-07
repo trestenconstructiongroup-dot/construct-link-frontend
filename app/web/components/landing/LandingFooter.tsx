@@ -140,7 +140,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         <>
           <View style={[styles.footerColBrand, styles.footerColBrandSmall]} {...webId('landing-footer-col-brand')}>
             <RNText style={[styles.footerBrand, { color: colors.text }]}>
-              ConstructionLink
+              Tresten Construction Group Inc
             </RNText>
             <RNText
               style={[
@@ -160,7 +160,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
                   { color: colors.text },
                 ]}
               >
-                +254 (7) 9639‑7296 · support@constructionlink.co
+                +254 (7) 9639‑7296 · info@trestenconstruction.com
               </Text>
             </View>
           </View>
@@ -209,7 +209,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         <View style={styles.footerTopRow}>
           <View style={styles.footerColBrand} {...webId('landing-footer-col-brand')}>
             <RNText style={[styles.footerBrand, { color: colors.text }]}>
-              ConstructionLink
+              Tresten Construction Group Inc
             </RNText>
             <RNText style={[styles.footerText, { color: colors.text }]}>
               Connecting construction companies with skilled workers who are
@@ -217,7 +217,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
             </RNText>
             <View style={styles.footerContactRow}>
               <Text style={[styles.footerMeta, { color: colors.text }]}>
-                +254 (7) 9639‑7296 · support@constructionlink.co
+                +254 (7) 9639‑7296 · info@trestenconstruction.com
               </Text>
             </View>
           </View>
@@ -244,7 +244,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       <View style={styles.footerMetaRow} {...webId('landing-footer-meta')}>
         <RNText style={[styles.footerMeta, { color: colors.text }]}>
           © {new Date().getFullYear()}{' '}
-          <RNText style={styles.footerMetaBrand}>ConstructionLink</RNText>. Built for
+          <RNText style={styles.footerMetaBrand}>Tresten Construction Group Inc</RNText>. Built for
           construction work, by people who've been on site.{' '}
           <RNText style={styles.footerMetaBuiltBy}>BuiltBySisi</RNText>
         </RNText>

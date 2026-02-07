@@ -29,7 +29,7 @@ const TABS = [
     route: '/mobile/dashboard',
     icon: 'home-outline',
     component: DashboardPage,
-    title: 'ConstructionLink',
+    title: 'Tresten Construction Group Inc',
   },
   {
     key: 'workers',
