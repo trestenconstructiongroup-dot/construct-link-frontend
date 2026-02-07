@@ -6,7 +6,6 @@ import { Text } from '../components/Text';
 import { Colors, Fonts } from '../constants/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import AppStoreCard from './web/components/AppStoreCard';
 import HeroCardSwap from './web/components/HeroCardSwap';
 import HeroTextMorpher from './web/components/HeroTextMorpher';
 import { CONSTRUCTION_CATEGORIES, FAQ_ITEMS } from './web/components/landing/_constants';
@@ -148,9 +147,10 @@ export default function WebLanding() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const OBJECT_POSITION = 0.382;
+    const OBJECT_POSITION_X = 0.70;
+    const OBJECT_POSITION_Y = 0.50;
     const TAGLINE = 'THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.';
-    const FONT_FAMILY = 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif';
+    const FONT_FAMILY = Fonts.accent;
     const PAD_RIGHT = 40;
     const PAD_BOTTOM = 48;
     const TEXT_LEFT_PCT = 1 / 3;
@@ -228,8 +228,8 @@ export default function WebLanding() {
         const scale = Math.min(cw / vw, ch / vh);
         const rw = vw * scale;
         const rh = vh * scale;
-        const destX = OBJECT_POSITION * (cw - rw);
-        const destY = OBJECT_POSITION * (ch - rh);
+        const destX = OBJECT_POSITION_X * (cw - rw);
+        const destY = OBJECT_POSITION_Y * (ch - rh);
         ctx.globalCompositeOperation = 'destination-in';
         ctx.drawImage(video, 0, 0, vw, vh, destX, destY, rw, rh);
         ctx.globalCompositeOperation = 'source-over';
@@ -297,7 +297,7 @@ export default function WebLanding() {
                     width: '100%',
                     maxWidth: '100%',
                     textAlign: 'right',
-                    fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif',
+                    fontFamily: Fonts.accent,
                     // Slightly smaller and more responsive on small screens to avoid distortion
                     fontSize: 'clamp(16px, 3.5vw, 40px)',
                     textTransform: 'uppercase',
@@ -342,8 +342,8 @@ export default function WebLanding() {
                 maskImage: `url(${heroMaskUri})`,
                 WebkitMaskSize: 'contain',
                 maskSize: 'contain',
-                WebkitMaskPosition: '38.2% 38.2%',
-                maskPosition: '38.2% 38.2%',
+                WebkitMaskPosition: '70% 50%',
+                maskPosition: '70% 50%',
                 WebkitMaskRepeat: 'no-repeat',
                 maskRepeat: 'no-repeat',
                 isolation: 'isolate',
@@ -356,7 +356,7 @@ export default function WebLanding() {
                   width: '100%',
                   maxWidth: '100%',
                   textAlign: 'right',
-                  fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif',
+                  fontFamily: Fonts.accent,
                   fontSize: 'clamp(16px, 3.5vw, 40px)',
                   textTransform: 'uppercase',
                   letterSpacing: 0.3,
@@ -368,28 +368,6 @@ export default function WebLanding() {
               >
                 THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
               </p>
-            </div>
-          )}
-          {/* App Store / Play Store Coming Soon card - center of top-right on large, bottom-left on small */}
-          {Platform.OS === 'web' && (
-            <div
-              style={{
-                position: 'absolute',
-                zIndex: 5,
-                ...(isSmallScreen
-                  ? { bottom: 24, left: 24 }
-                  : {
-                      top: 0,
-                      right: 0,
-                      width: '50%',
-                      height: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }),
-              }}
-            >
-              <AppStoreCard compact={isSmallScreen} />
             </div>
           )}
           {Platform.OS === 'web' && heroVideoUri ? (
@@ -419,7 +397,7 @@ export default function WebLanding() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'contain',
-                  objectPosition: '38.2% 38.2%',
+                  objectPosition: '70% 50%',
                 }}
               />
             </div>
@@ -652,7 +630,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         objectFit: 'contain' as any,
-        objectPosition: '38.2% 38.2%' as any,
+        objectPosition: '70% 50%' as any,
       },
     }),
   } as ImageStyle,
@@ -697,7 +675,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     ...Platform.select({
       web: {
-        fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif' as any,
+        fontFamily: Fonts.accent as any,
         fontSize: 'clamp(24px, 4.5vw, 56px)' as any,
         textTransform: 'uppercase' as any,
         letterSpacing: 0.5,
@@ -707,7 +685,7 @@ const styles = StyleSheet.create({
         display: 'block' as any,
       },
       default: {
-        fontFamily: 'FreakTurbulenceBRK',
+        fontFamily: Fonts.accent,
         fontSize: 28,
         textTransform: 'uppercase',
         lineHeight: 36,
@@ -751,13 +729,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'left',
     marginBottom: 24,
+    fontFamily: Fonts.display,
     ...Platform.select({
       web: {
         fontSize: 'clamp(40px, 6vw, 88px)' as any,
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
       },
     }),
   } as TextStyle,
@@ -771,13 +746,10 @@ const styles = StyleSheet.create({
     marginBottom: 48,
     lineHeight: 28,
     fontWeight: '400',
+    fontFamily: Fonts.body,
     ...Platform.select({
       web: {
         fontSize: 'clamp(16px, 2vw, 20px)' as any,
-        fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'FreakTurbulenceBRK',
       },
     }),
   } as TextStyle,
@@ -823,32 +795,25 @@ const styles = StyleSheet.create({
   ctaButtonDashboard: {
     ...Platform.select({
       web: {
-        backgroundColor: 'rgba(0, 130, 201, 0.12)' as any,
-        border: '2px solid rgba(0, 130, 201, 0.5)' as any,
-        boxShadow: '0 0 24px rgba(0, 130, 201, 0.45), 0 0 40px rgba(0, 130, 201, 0.25), inset 0 0 0 1px rgba(255,255,255,0.08)' as any,
+        backgroundColor: `${Colors.light.accent}1F` as any,
+        border: `2px solid ${Colors.light.accent}80` as any,
+        boxShadow: `0 0 24px ${Colors.light.accent}73, 0 0 40px ${Colors.light.accent}40, inset 0 0 0 1px rgba(255,255,255,0.08)` as any,
         transform: [{ rotate: '0deg' }] as any,
       },
     }),
   } as ViewStyle,
   ctaIconDashboard: {
-    backgroundColor: 'rgb(0, 130, 201)',
+    backgroundColor: Colors.light.accent,
     ...Platform.select({
       web: {
-        backgroundImage: 'linear-gradient(135deg, rgb(0, 130, 201) 0%, rgb(0, 100, 160) 100%)' as any,
+        backgroundImage: `linear-gradient(135deg, ${Colors.light.accent} 0%, rgb(0, 100, 160) 100%)` as any,
       },
     }),
   } as ViewStyle,
   ctaButtonText: {
     fontSize: 26,
     fontWeight: 'bold',
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   ctaButtonTextDashboard: {
     letterSpacing: 0.5,
@@ -877,14 +842,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   faqSection: {
     width: '100%',
@@ -894,10 +852,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         backgroundImage:
-          'linear-gradient(135deg, rgb(209, 144, 86) 0%, rgb(247, 180, 109) 100%)' as any,
+          `linear-gradient(135deg, ${Colors.light.warmStart} 0%, ${Colors.light.warmEnd} 100%)` as any,
       },
       default: {
-        backgroundColor: 'rgb(209, 144, 86)',
+        backgroundColor: Colors.light.warmStart,
       },
     }),
   } as ViewStyle,
@@ -931,27 +889,13 @@ const styles = StyleSheet.create({
     fontSize: 56,
     fontWeight: '700',
     letterSpacing: 0.5,
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   faqSubtitle: {
     fontSize: 18,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    ...Platform.select({
-      web: {
-        fontFamily: 'FreakTurbulenceBRK, \"Freak Turbulence (BRK)\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'FreakTurbulenceBRK',
-      },
-    }),
+    fontFamily: Fonts.body,
   } as TextStyle,
   faqList: {
     marginTop: 24,
@@ -982,14 +926,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
-    ...Platform.select({
-      web: {
-        fontFamily: 'FreakTurbulenceBRK, \"Freak Turbulence (BRK)\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'FreakTurbulenceBRK',
-      },
-    }),
+    fontFamily: Fonts.body,
   } as TextStyle,
   faqQuestionCentered: {
     textAlign: 'center',
@@ -1037,14 +974,7 @@ const styles = StyleSheet.create({
     fontSize: 46,
     fontWeight: '700',
     marginBottom: 4,
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerText: {
     fontSize: 14,
@@ -1060,14 +990,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 8,
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
     textAlign: 'left',
   } as TextStyle,
   footerLink: {
@@ -1103,24 +1026,10 @@ const styles = StyleSheet.create({
   footerMetaBrand: {
     fontSize: 14,
     fontWeight: '700',
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerMetaBuiltBy: {
-    ...Platform.select({
-      web: {
-        fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'FreakTurbulenceBRK',
-      },
-    }),
+    fontFamily: Fonts.accent,
   } as TextStyle,
   categoryButton: {
     flexDirection: 'row',

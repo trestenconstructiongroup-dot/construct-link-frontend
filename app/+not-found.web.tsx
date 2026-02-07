@@ -7,12 +7,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../constants/theme';
+import { Colors, Fonts } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import WebLayout from './web/layout';
 
 const webFonts = {
-  errorCode: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif',
+  errorCode: Fonts.accent,
   button: 'Knucklehead, system-ui, sans-serif',
 };
 
@@ -55,7 +55,7 @@ export default function NotFoundScreenWeb() {
           ]}
           onPress={() => router.push('/')}
         >
-          <Ionicons name="arrow-back" size={20} color="#0a7ea4" />
+          <Ionicons name="arrow-back" size={20} color={colors.accentMuted} />
           <Text style={[styles.backButtonText, { fontFamily: webFonts.button }]}>
             Back to Home
           </Text>
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0a7ea4',
+    color: Colors.light.accentMuted,
     ...(Platform.OS === 'web'
       ? ({ fontSize: 'clamp(16px, 2.5vw, 20px)' } as any)
       : null),

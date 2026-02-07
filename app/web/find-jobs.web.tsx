@@ -28,7 +28,7 @@ import type { JobSummary } from '../../services/api';
 import JobCard from './components/find-jobs/JobCard';
 import WebLayout from './layout';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const JOB_TYPES = ['one_time', 'short_project', 'long_term'] as const;
 const JOB_TYPE_LABELS: Record<string, string> = {
   one_time: 'One-time Task',

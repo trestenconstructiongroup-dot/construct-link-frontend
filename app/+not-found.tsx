@@ -8,7 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../constants/theme';
+import { Colors, Fonts } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function NotFoundScreen() {
@@ -43,7 +43,7 @@ export default function NotFoundScreen() {
         ]}
         onPress={() => router.push('/')}
       >
-        <Ionicons name="arrow-back" size={20} color="#0a7ea4" />
+        <Ionicons name="arrow-back" size={20} color={colors.accentMuted} />
         <Text style={styles.backButtonText}>Back to Home</Text>
       </Pressable>
     </ScrollView>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
         fontSize: 'clamp(48px, 10vw, 96px)',
       },
       default: {
-        fontFamily: 'FreakTurbulenceBRK',
+        fontFamily: Fonts.accent,
       },
     }),
   },
@@ -114,13 +114,13 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0a7ea4',
+    color: Colors.light.accentMuted,
     ...Platform.select({
       web: {
         fontSize: 'clamp(16px, 2.5vw, 20px)',
       },
       default: {
-        fontFamily: 'Knucklehead',
+        fontFamily: Fonts.display,
       },
     }),
   },

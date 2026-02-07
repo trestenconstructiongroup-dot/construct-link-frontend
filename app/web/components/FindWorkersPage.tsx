@@ -29,7 +29,7 @@ import WebLayout from '../layout';
 import CompanyCard from './find-workers/CompanyCard';
 import IndividualCard from './find-workers/IndividualCard';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const EXPERIENCE_LEVELS = ['beginner', 'intermediate', 'expert', 'master'] as const;
 const EXPERIENCE_LABELS: Record<string, string> = {
   beginner: 'Beginner',

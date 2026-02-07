@@ -15,7 +15,7 @@ import {
     ViewStyle,
 } from 'react-native';
 import { Text } from '../../components/Text';
-import { Colors } from '../../constants/theme';
+import { Colors, Fonts } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
@@ -497,7 +497,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                             styles.chip,
                             {
                               backgroundColor: active
-                                ? 'rgb(0, 130, 201)'
+                                ? colors.accent
                                 : isDark
                                 ? '#0f172a'
                                 : '#e5e7eb',
@@ -617,7 +617,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                             styles.chip,
                             {
                               backgroundColor: active
-                                ? 'rgb(0, 130, 201)'
+                                ? colors.accent
                                 : isDark
                                 ? '#0f172a'
                                 : '#e5e7eb',
@@ -1282,7 +1282,7 @@ const styles = StyleSheet.create({
     fontSize: Platform.OS === 'web' ? 40 : 32,
     fontWeight: '700',
     marginBottom: 4,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
   } as TextStyle,
   pageSubtitle: {
     fontSize: 16,
@@ -1420,7 +1420,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 18,
     borderRadius: 999,
-    backgroundColor: 'rgb(0, 130, 201)',
+    backgroundColor: Colors.light.accent,
   } as ViewStyle,
   actionText: {
     fontSize: 13,
@@ -1537,15 +1537,7 @@ const styles = StyleSheet.create({
     fontSize: 46,
     fontWeight: '700',
     marginBottom: 4,
-    ...Platform.select({
-      web: {
-        fontFamily:
-          'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerText: {
     fontSize: 14,
@@ -1561,15 +1553,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 8,
-    ...Platform.select({
-      web: {
-        fontFamily:
-          'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerLink: {
     fontSize: 14,

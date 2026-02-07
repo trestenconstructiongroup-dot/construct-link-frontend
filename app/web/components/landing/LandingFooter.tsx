@@ -3,9 +3,9 @@
  */
 
 import React from 'react';
-import { Platform, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
+import { Image, Platform, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
 import { Text } from '../../../../components/Text';
-import { Colors } from '../../../../constants/theme';
+import { Colors, Fonts } from '../../../../constants/theme';
 
 export interface LandingFooterProps {
   isSmallScreen: boolean;
@@ -46,14 +46,7 @@ const styles = StyleSheet.create({
     fontSize: 46,
     fontWeight: '700',
     marginBottom: 4,
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerText: {
     fontSize: 14,
@@ -69,14 +62,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 8,
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
     textAlign: 'left',
   } as TextStyle,
   footerLink: {
@@ -112,25 +98,20 @@ const styles = StyleSheet.create({
   footerMetaBrand: {
     fontSize: 14,
     fontWeight: '700',
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerMetaBuiltBy: {
-    ...Platform.select({
-      web: {
-        fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'FreakTurbulenceBRK',
-      },
-    }),
+    fontFamily: Fonts.accent,
   } as TextStyle,
+  footerBrandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  } as ViewStyle,
+  footerLogo: {
+    width: 40,
+    height: 40,
+  },
 });
 
 function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
@@ -139,9 +120,16 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       {isSmallScreen ? (
         <>
           <View style={[styles.footerColBrand, styles.footerColBrandSmall]} {...webId('landing-footer-col-brand')}>
-            <RNText style={[styles.footerBrand, { color: colors.text }]}>
-              Tresten Construction Group Inc
-            </RNText>
+            <View style={styles.footerBrandRow}>
+              <Image
+                source={Platform.OS === 'web' ? { uri: '/logo.png' } : require('../../../../assets/images/logo.png')}
+                style={styles.footerLogo}
+                resizeMode="contain"
+              />
+              <RNText style={[styles.footerBrand, { color: colors.text }]}>
+                Tresten Construction Group Inc
+              </RNText>
+            </View>
             <RNText
               style={[
                 styles.footerText,
@@ -208,9 +196,16 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       ) : (
         <View style={styles.footerTopRow}>
           <View style={styles.footerColBrand} {...webId('landing-footer-col-brand')}>
-            <RNText style={[styles.footerBrand, { color: colors.text }]}>
-              Tresten Construction Group Inc
-            </RNText>
+            <View style={styles.footerBrandRow}>
+              <Image
+                source={Platform.OS === 'web' ? { uri: '/logo.png' } : require('../../../../assets/images/logo.png')}
+                style={styles.footerLogo}
+                resizeMode="contain"
+              />
+              <RNText style={[styles.footerBrand, { color: colors.text }]}>
+                Tresten Construction Group Inc
+              </RNText>
+            </View>
             <RNText style={[styles.footerText, { color: colors.text }]}>
               Connecting construction companies with skilled workers who are
               ready to build, repair and deliver on real projects.

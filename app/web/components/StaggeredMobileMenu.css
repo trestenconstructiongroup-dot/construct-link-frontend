@@ -117,7 +117,7 @@
 }
 
 .sm-panel-item:hover {
-  color: var(--sm-accent, rgb(0, 130, 201));
+  color: var(--sm-accent, #0082C9);
 }
 
 .sm-panel-itemLabel {
@@ -138,7 +138,7 @@
   right: 0.4em;
   font-size: 16px;
   font-weight: 400;
-  color: var(--sm-accent, rgb(0, 130, 201));
+  color: var(--sm-accent, #0082C9);
   letter-spacing: 0;
   pointer-events: none;
   user-select: none;
@@ -181,7 +181,7 @@
 }
 
 .sm-auth-user-btn:focus-visible {
-  outline: 2px solid var(--sm-accent, rgb(0, 130, 201));
+  outline: 2px solid var(--sm-accent, #0082C9);
   outline-offset: 2px;
 }
 
@@ -224,7 +224,7 @@
 }
 
 .sm-auth-link:hover {
-  color: var(--sm-accent, rgb(0, 130, 201));
+  color: var(--sm-accent, #0082C9);
 }
 
 .sm-auth-link-danger:hover {
@@ -233,7 +233,7 @@
 
 .sm-auth-link-cta {
   font-weight: 600;
-  color: var(--sm-accent, rgb(0, 130, 201));
+  color: var(--sm-accent, #0082C9);
 }
 
 @media (max-width: 640px) {

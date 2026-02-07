@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors } from '../constants/theme';
+import { Colors, Fonts } from '../constants/theme';
 import WebLayout from './web/layout';
 import { Text } from '../components/Text';
 import { Text as RNText } from 'react-native';
@@ -214,7 +214,7 @@ export default function LoginPage() {
                     borderColor: emailFocused
                       ? colors.tint
                       : errors.email
-                      ? '#ef4444'
+                      ? colors.error
                       : isDark
                       ? 'rgba(255, 255, 255, 0.1)'
                       : 'rgba(0, 0, 0, 0.1)',
@@ -263,7 +263,7 @@ export default function LoginPage() {
                     borderColor: passwordFocused
                       ? colors.tint
                       : errors.password
-                      ? '#ef4444'
+                      ? colors.error
                       : isDark
                       ? 'rgba(255, 255, 255, 0.1)'
                       : 'rgba(0, 0, 0, 0.1)',
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   title: {
     fontSize: 42,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
     fontWeight: 'normal',
     marginBottom: 8,
     textAlign: 'center',
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   } as TextStyle,
   subtitle: {
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     opacity: 0.7,
     textAlign: 'center',
   } as TextStyle,
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   label: {
     fontSize: 20,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
     fontWeight: 'normal',
     marginBottom: 10,
   } as TextStyle,
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     padding: 0,
   } as TextStyle,
   inputWebValue: {
@@ -497,10 +497,10 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   eyeText: {
     fontSize: 20,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
   } as TextStyle,
   errorText: {
-    color: '#ef4444',
+    color: Colors.light.error,
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   forgotPasswordText: {
     fontSize: 14,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     fontWeight: 'normal',
   } as TextStyle,
   loginButton: {
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   loginButtonText: {
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     fontWeight: 'normal',
   } as TextStyle,
   loginButtonDisabled: {
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 16,
     fontSize: 12,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     opacity: 0.5,
   } as TextStyle,
   ssoRow: {
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   ssoButtonText: {
     fontSize: 15,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
   } as TextStyle,
   signupContainer: {
     flexDirection: 'row',
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
   } as TextStyle,
   signupLink: {
     fontSize: 14,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     fontWeight: 'normal',
   } as TextStyle,
 });

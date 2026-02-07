@@ -4,7 +4,7 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../components/Text';
 import ThemeToggle from '../../components/ThemeToggle';
-import { Colors } from '../../constants/theme';
+import { Colors, Fonts } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -72,7 +72,7 @@ export default function MobileTopNav({
             onPress={() => setMenuOpen(!menuOpen)}
             style={styles.avatarButton}
           >
-            <View style={[styles.avatarCircle, { backgroundColor: 'rgb(0, 130, 201)' }]}>
+            <View style={[styles.avatarCircle, { backgroundColor: colors.accent }]}>
               <Text style={styles.avatarText}>{initial}</Text>
             </View>
             <Ionicons
@@ -99,7 +99,7 @@ export default function MobileTopNav({
             ]}
           >
             <View style={styles.menuHeader}>
-              <View style={[styles.avatarCircle, { backgroundColor: 'rgb(0, 130, 201)' }]}>
+              <View style={[styles.avatarCircle, { backgroundColor: colors.accent }]}>
                 <Text style={styles.avatarText}>{initial}</Text>
               </View>
               <View style={styles.menuTextContainer}>
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
     marginTop: 2,
   },
   backButton: {
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   logoutText: {
-    color: '#ef4444',
+    color: Colors.light.error,
   },
 });
 

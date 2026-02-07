@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { Colors } from '../../constants/theme';
+import { Colors, Fonts } from '../../constants/theme';
 import { Text } from '../../components/Text';
 import {
   createJob,
@@ -285,7 +285,7 @@ export default function CreateWorkPage() {
                         styles.chip,
                         {
                           backgroundColor: active
-                            ? 'rgb(0, 130, 201)'
+                            ? colors.accent
                             : isDark
                             ? '#0f172a'
                             : '#e5e7eb',
@@ -333,7 +333,7 @@ export default function CreateWorkPage() {
                     styles.chip,
                     {
                       backgroundColor: active
-                        ? 'rgb(0, 130, 201)'
+                        ? colors.accent
                         : isDark
                         ? '#0f172a'
                         : '#e5e7eb',
@@ -443,7 +443,7 @@ export default function CreateWorkPage() {
                     styles.chip,
                     {
                       backgroundColor: active
-                        ? 'rgb(0, 130, 201)'
+                        ? colors.accent
                         : isDark
                         ? '#0f172a'
                         : '#e5e7eb',
@@ -719,7 +719,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 4,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
   },
   stepSubtitle: {
     fontSize: 15,
@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 999,
-    backgroundColor: 'rgb(0, 130, 201)',
+    backgroundColor: Colors.light.accent,
   },
   actionText: {
     fontSize: 13,

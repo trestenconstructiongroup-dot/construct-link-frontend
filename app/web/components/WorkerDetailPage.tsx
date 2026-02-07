@@ -27,7 +27,7 @@ import {
   type WorkerSearchResultCompany,
 } from '../../../services/api';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const EXPERIENCE_LABELS: Record<string, string> = {
   beginner: 'Beginner',
   intermediate: 'Intermediate',

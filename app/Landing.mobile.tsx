@@ -14,7 +14,7 @@ import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-g
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors } from '../constants/theme';
+import { Colors, Fonts } from '../constants/theme';
 import ThemeToggle from '../components/ThemeToggle';
 import { Text } from '../components/Text';
 import AnimatedImageSlot from '../components/mobile/AnimatedImageSlot';
@@ -247,7 +247,7 @@ export default function MobileLanding() {
             <Text
               style={[
                 styles.heading,
-                { color: colors.text, fontFamily: 'Knucklehead' },
+                { color: colors.text, fontFamily: Fonts.display },
               ]}
             >
               Connect to Real Construction Work Faster

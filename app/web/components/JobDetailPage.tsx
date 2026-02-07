@@ -29,7 +29,7 @@ import {
   type JobSummaryRole,
 } from '../../../services/api';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const JOB_TYPE_LABELS: Record<string, string> = {
   one_time: 'One-time Task',
   short_project: 'Short Project',
