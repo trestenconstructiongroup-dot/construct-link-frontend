@@ -147,7 +147,7 @@ export default function WebLanding() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const OBJECT_POSITION_X = 0.70;
+    const OBJECT_POSITION_X = 0.85;
     const OBJECT_POSITION_Y = 0.50;
     const TAGLINE = 'THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.';
     const FONT_FAMILY = Fonts.accent;
@@ -342,8 +342,8 @@ export default function WebLanding() {
                 maskImage: `url(${heroMaskUri})`,
                 WebkitMaskSize: 'contain',
                 maskSize: 'contain',
-                WebkitMaskPosition: '70% 50%',
-                maskPosition: '70% 50%',
+                WebkitMaskPosition: '85% 50%',
+                maskPosition: '85% 50%',
                 WebkitMaskRepeat: 'no-repeat',
                 maskRepeat: 'no-repeat',
                 isolation: 'isolate',
@@ -397,7 +397,7 @@ export default function WebLanding() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'contain',
-                  objectPosition: '70% 50%',
+                  objectPosition: '85% 50%',
                 }}
               />
             </div>
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         objectFit: 'contain' as any,
-        objectPosition: '70% 50%' as any,
+        objectPosition: '85% 50%' as any,
       },
     }),
   } as ImageStyle,
