@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     flex: 1,
   } as ViewStyle,
   footerBrand: {
-    fontSize: 46,
+    fontSize: 28,
     fontWeight: '700',
     marginBottom: 4,
     fontFamily: Fonts.display,
@@ -59,10 +59,10 @@ const styles = StyleSheet.create({
     marginTop: 14,
   } as ViewStyle,
   footerColTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '700',
     marginBottom: 8,
-    fontFamily: Fonts.display,
+    fontFamily: Fonts.heading,
     textAlign: 'left',
   } as TextStyle,
   footerLink: {

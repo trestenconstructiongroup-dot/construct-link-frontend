@@ -16,9 +16,9 @@ const PILL_NAV_LINKS: { label: string; path: string }[] = [
   { label: 'Feed', path: '/feed' },
 ];
 
-const PILL_H = 44;
-const PILL_GAP = 14;
-const PILL_PAD_X = 28;
+const PILL_H = 36;
+const PILL_GAP = 10;
+const PILL_PAD_X = 22;
 const CIRCLE_D = 150;
 const EASE_OUT = Easing.bezier(0, 0, 0.58, 1);
 
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     height: 32,
   },
   brandName: {
-    fontSize: 48,
+    fontSize: 24,
     fontFamily: Fonts.display,
     fontWeight: 'normal',
   },
@@ -683,9 +683,9 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   pillNavText: {
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: '600',
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
     ...Platform.select({
       web: {
         textTransform: 'uppercase' as any,

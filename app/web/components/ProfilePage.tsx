@@ -1592,7 +1592,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   pageTitle: {
-    fontSize: Platform.OS === 'web' ? 48 : 40,
+    fontSize: Platform.OS === 'web' ? 32 : 28,
     fontWeight: '700',
     marginBottom: 8,
     fontFamily: Fonts.display,
@@ -1624,9 +1624,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   summaryName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
-    fontFamily: Fonts.accent,
+    fontFamily: Fonts.heading,
   },
   summaryMeta: {
     fontSize: 14,

@@ -25,7 +25,7 @@ export interface StaggeredMobileMenuProps {
   textColor?: string;
   /** Background of the main panel. */
   panelBackground?: string;
-  /** Font family (e.g. FreakTurbulenceBRK). */
+  /** Font family (e.g. Inter_600SemiBold). */
   fontFamily?: string;
   items: StaggeredMobileMenuItem[];
   displayItemNumbering?: boolean;
@@ -51,7 +51,7 @@ export function StaggeredMobileMenu({
   accentColor = '#0082C9',
   textColor = '#11181C',
   panelBackground = '#ffffff',
-  fontFamily = 'Knucklehead, system-ui, sans-serif',
+  fontFamily = 'Inter_600SemiBold',
   items = [],
   displayItemNumbering = true,
   isAuthenticated = false,

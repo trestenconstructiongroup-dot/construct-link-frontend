@@ -7,14 +7,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { usePathname, useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import FuzzyText from '../components/FuzzyText';
-import { Colors } from '../constants/theme';
+import { Colors, Fonts } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import WebLayout from './web/layout';
 
 const webFonts = {
-  heading: 'Knucklehead, system-ui, sans-serif',
-  button: 'Knucklehead, system-ui, sans-serif',
-  body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  heading: Fonts.display,
+  button: Fonts.display,
+  body: Fonts.body,
 };
 
 export default function NotFoundScreenWeb() {

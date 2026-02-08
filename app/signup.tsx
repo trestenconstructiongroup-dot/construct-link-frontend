@@ -556,14 +556,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   } as ViewStyle,
   title: {
-    fontSize: 40,
+    fontSize: 28,
     fontFamily: Fonts.display,
     fontWeight: 'normal',
     marginBottom: 8,
     textAlign: 'center',
     ...Platform.select({
       web: {
-        fontSize: 'clamp(28px, 4.5vw, 40px)' as any,
+        fontSize: 'clamp(22px, 3vw, 28px)' as any,
       },
     }),
   } as TextStyle,
@@ -580,10 +580,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   } as ViewStyle,
   label: {
-    fontSize: 20,
-    fontFamily: Fonts.display,
+    fontSize: 14,
+    fontFamily: Fonts.heading,
     fontWeight: 'normal',
-    marginBottom: 10,
+    marginBottom: 8,
   } as TextStyle,
   inputWrapper: {
     flexDirection: 'row',
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
     padding: 0,
   } as TextStyle,
   inputWebValue: {
-    fontFamily: 'system-ui',
+    fontFamily: Fonts.body,
   } as TextStyle,
   eyeButton: {
     padding: 4,

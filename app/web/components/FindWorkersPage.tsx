@@ -19,7 +19,7 @@ import {
     View,
     ViewStyle,
 } from 'react-native';
-import { Colors } from '../../../constants/theme';
+import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useFindWorkers } from '../../../hooks/useFindWorkers';
@@ -123,10 +123,8 @@ export default function FindWorkersPage() {
     refetch,
   } = useFindWorkers(appliedParams, token ?? null, isLoggedIn);
 
-  const fontHeading = Platform.OS === 'web' ? 'Knucklehead, system-ui, sans-serif' : 'Knucklehead';
-  const fontBody = Platform.OS === 'web'
-    ? 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif'
-    : 'FreakTurbulenceBRK';
+  const fontHeading = Fonts.display;
+  const fontBody = Fonts.body;
 
   const handleViewProfile = useCallback((userId: number) => {
     router.push(`/workers/${userId}`);

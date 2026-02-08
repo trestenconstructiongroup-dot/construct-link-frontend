@@ -1,9 +1,7 @@
 /**
- * Theme configuration with Freak Turbulence (BRK) font family
+ * Theme configuration with Inter font family
  * Colors: Black background for dark mode, White background for light mode
  */
-
-import { Platform } from 'react-native';
 
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
@@ -69,39 +67,21 @@ export const Colors = {
   },
 };
 
-// Font families
-// - body: clean sans-serif for UI text, form labels, paragraphs
-// - display: large headings (Knucklehead)
-// - accent: decorative brand text at 20px+ (FreakTurbulenceBRK)
-// - sans/serif/rounded/mono: legacy compat
-export const Fonts = Platform.select({
-  ios: {
-    body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    display: 'Knucklehead',
-    accent: 'FreakTurbulenceBRK',
-    sans: 'FreakTurbulenceBRK',
-    serif: 'ui-serif',
-    rounded: 'ui-rounded',
-    mono: 'ui-monospace',
-  },
-  default: {
-    body: 'Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif',
-    display: 'Knucklehead',
-    accent: 'FreakTurbulenceBRK',
-    sans: 'FreakTurbulenceBRK',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    display: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    accent: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif',
-    sans: 'FreakTurbulenceBRK',
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+// Font families — Inter across all platforms
+// - display: page titles, hero headings (Bold 700)
+// - heading: sub-headings, card titles, nav (SemiBold 600)
+// - body: paragraphs, form text, descriptions (Regular 400)
+// - accent: buttons, emphasis, highlighted text (Medium 500)
+export const Fonts = {
+  display: 'Inter_700Bold',
+  heading: 'Inter_600SemiBold',
+  body: 'Inter_400Regular',
+  accent: 'Inter_500Medium',
+  // Legacy compat
+  sans: 'Inter_400Regular',
+  serif: 'Inter_400Regular',
+  rounded: 'Inter_400Regular',
+  mono: 'Inter_400Regular',
+};
 
 export type Theme = 'light' | 'dark';

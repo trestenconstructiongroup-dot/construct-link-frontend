@@ -259,7 +259,7 @@ export default function WebLanding() {
         >
           <HeroTextMorpher
             textColor={colors.text}
-            fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(48px, 12vw, 120px)' as any : 'clamp(72px, 14vw, 200px)' as any) : 160}
+            fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(36px, 10vw, 72px)' as any : 'clamp(48px, 10vw, 100px)' as any) : 80}
             style={[styles.heroTextMorpher, isSmallScreen && { top: '15%', left: 0, right: 0, alignItems: 'center' }]}
           />
           <View style={[styles.heroTagline, { pointerEvents: 'none' }, isSmallScreen && { left: 16, right: 16, bottom: 24 }]}>
@@ -283,7 +283,7 @@ export default function WebLanding() {
                     textAlign: 'right',
                     fontFamily: Fonts.accent,
                     // Slightly smaller and more responsive on small screens to avoid distortion
-                    fontSize: 'clamp(16px, 3.5vw, 40px)',
+                    fontSize: 'clamp(14px, 2.5vw, 24px)',
                     textTransform: 'uppercase',
                     letterSpacing: 0.3,
                     lineHeight: 1.4,
@@ -341,7 +341,7 @@ export default function WebLanding() {
                   maxWidth: '100%',
                   textAlign: 'right',
                   fontFamily: Fonts.accent,
-                  fontSize: 'clamp(16px, 3.5vw, 40px)',
+                  fontSize: 'clamp(14px, 2.5vw, 24px)',
                   textTransform: 'uppercase',
                   letterSpacing: 0.3,
                   lineHeight: 1.4,
@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         fontFamily: Fonts.accent as any,
-        fontSize: 'clamp(24px, 4.5vw, 56px)' as any,
+        fontSize: 'clamp(16px, 3vw, 32px)' as any,
         textTransform: 'uppercase' as any,
         letterSpacing: 0.5,
         lineHeight: 1.4,
@@ -691,14 +691,14 @@ const styles = StyleSheet.create({
     aspectRatio: 1.2,
   } as ImageStyle,
   mainHeading: {
-    fontSize: 120,
+    fontSize: 64,
     fontWeight: 'bold',
     textAlign: 'left',
     marginBottom: 24,
     fontFamily: Fonts.display,
     ...Platform.select({
       web: {
-        fontSize: 'clamp(40px, 6vw, 88px)' as any,
+        fontSize: 'clamp(32px, 5vw, 56px)' as any,
       },
     }),
   } as TextStyle,
@@ -857,9 +857,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   } as ViewStyle,
   faqTitle: {
-    fontSize: 56,
+    fontSize: 36,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
     fontFamily: Fonts.display,
   } as TextStyle,
   faqSubtitle: {

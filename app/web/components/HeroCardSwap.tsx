@@ -22,7 +22,7 @@ export interface HeroCardSwapProps {
   cardBackground?: string;
   /** Text color for card labels (use theme text color). */
   cardTextColor?: string;
-  /** Font family for card labels (e.g. FreakTurbulenceBRK). */
+  /** Font family for card labels (e.g. Fonts.body). */
   cardFontFamily?: string;
   /** Background for the image/margin area inside the card. */
   cardMarginBackground?: string;

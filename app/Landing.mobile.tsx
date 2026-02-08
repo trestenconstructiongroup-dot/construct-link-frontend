@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   subHeading: {
     fontSize: 16,
-    // Use normal weight so custom fonts (like FreakTurbulenceBRK) are applied correctly
+    // Use normal weight so Inter variant weight is applied correctly
     fontWeight: 'normal',
     textAlign: 'center',
     lineHeight: 22,
