@@ -262,49 +262,50 @@ export default function WebLanding() {
             fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(36px, 10vw, 72px)' as any : 'clamp(48px, 10vw, 100px)' as any) : 80}
             style={[styles.heroTextMorpher, isSmallScreen && { top: '15%', left: 0, right: 0, alignItems: 'center' }]}
           />
-          <View style={[styles.heroTagline, { pointerEvents: 'none' }, isSmallScreen && { left: 16, right: 16, bottom: 24 }]}>
-            {Platform.OS === 'web' ? (
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: '100%',
-                  minWidth: 0,
-                  alignSelf: 'stretch',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                <p
+          {!isSmallScreen && (
+            <View style={[styles.heroTagline, { pointerEvents: 'none' }]}>
+              {Platform.OS === 'web' ? (
+                <div
                   style={{
-                    margin: 0,
-                    padding: 0,
                     width: '100%',
                     maxWidth: '100%',
-                    textAlign: 'right',
-                    fontFamily: Fonts.accent,
-                    // Slightly smaller and more responsive on small screens to avoid distortion
-                    fontSize: 'clamp(14px, 2.5vw, 24px)',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.3,
-                    lineHeight: 1.4,
-                    color: colors.text,
-                    wordWrap: 'break-word',
-                    overflowWrap: 'break-word',
+                    minWidth: 0,
+                    alignSelf: 'stretch',
+                    position: 'relative',
+                    zIndex: 1,
                   }}
                 >
-                  THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
-                </p>
-              </div>
-            ) : (
-              <View style={styles.heroTaglineTextWrap}>
-                <RNText style={[styles.heroTaglineText, { color: colors.text }]}>
-                  THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
-                </RNText>
-              </View>
-            )}
-          </View>
+                  <p
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      width: '100%',
+                      maxWidth: '100%',
+                      textAlign: 'right',
+                      fontFamily: Fonts.accent,
+                      fontSize: 'clamp(14px, 2.5vw, 24px)',
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.3,
+                      lineHeight: 1.4,
+                      color: colors.text,
+                      wordWrap: 'break-word',
+                      overflowWrap: 'break-word',
+                    }}
+                  >
+                    THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
+                  </p>
+                </div>
+              ) : (
+                <View style={styles.heroTaglineTextWrap}>
+                  <RNText style={[styles.heroTaglineText, { color: colors.text }]}>
+                    THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
+                  </RNText>
+                </View>
+              )}
+            </View>
+          )}
           {/* Light mode, no video: fallback static mask by image */}
-          {Platform.OS === 'web' && !isDark && heroMaskUri && !heroVideoUri && (
+          {Platform.OS === 'web' && !isDark && heroMaskUri && !heroVideoUri && !isSmallScreen && (
             <div
               style={{
                 position: 'absolute',
@@ -398,7 +399,7 @@ export default function WebLanding() {
             </div>
           ) : null}
           {/* Light + video: white text only where character is – above tagline so white is visible */}
-          {Platform.OS === 'web' && !isDark && heroVideoUri && (
+          {Platform.OS === 'web' && !isDark && heroVideoUri && !isSmallScreen && (
             <canvas
               ref={heroMaskCanvasRef}
               style={{
