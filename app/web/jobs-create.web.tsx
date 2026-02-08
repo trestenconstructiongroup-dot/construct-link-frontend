@@ -446,10 +446,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
 
           {/* Wizard layout: centered step content */}
           <View
-            style={[
-              styles.wizardRow,
-              isLargeScreen && styles.wizardRowRaised,
-            ]}
+            style={styles.wizardRow}
           >
             <View style={styles.formColumn}>
             {/* Step 1: basics */}
@@ -1334,9 +1331,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginTop: 0,
-  } as ViewStyle,
-  wizardRowRaised: {
-    marginTop: -220,
   } as ViewStyle,
   card: {
     borderRadius: 16,
