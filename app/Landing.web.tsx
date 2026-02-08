@@ -487,7 +487,20 @@ export default function WebLanding() {
             },
           ]}
         >
-          <View style={[styles.heroLeft, isSmallScreen && styles.heroLeftCentered]}>
+          <View
+            style={[
+              styles.heroLeft,
+              isSmallScreen && styles.heroLeftCentered,
+              isSmallScreen && {
+                borderWidth: 1,
+                borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)',
+                borderRadius: 20,
+                paddingHorizontal: 24,
+                paddingVertical: 28,
+                backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+              },
+            ]}
+          >
             <RNText
               style={[
                 styles.mainHeading,
@@ -502,7 +515,7 @@ export default function WebLanding() {
               style={[
                 styles.subheading,
                 isSmallScreen && styles.subheadingCentered,
-                isSmallScreen && { marginBottom: 16 },
+                isSmallScreen && { marginBottom: 0 },
                 { color: colors.text },
               ]}
             >
@@ -542,9 +555,6 @@ export default function WebLanding() {
               />
             ))}
           </View>
-          <RNText style={[styles.moreText, { color: colors.text }]}>
-            and so much more...
-          </RNText>
         </View>
 
         <LandingFooter isSmallScreen={isSmallScreen} colors={colors} />
@@ -661,7 +671,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 24,
-    paddingHorizontal: 20,
+    paddingHorizontal: 48,
   } as ViewStyle,
   heroLeft: {
     flex: 1,
@@ -805,13 +815,6 @@ const styles = StyleSheet.create({
     marginTop: 32,
     marginBottom: 16,
   } as ViewStyle,
-  moreText: {
-    marginTop: 16,
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
-    fontFamily: Fonts.display,
-  } as TextStyle,
   faqSection: {
     width: '100%',
     marginTop: 80,

@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     height: '100%',
   } as ImageStyle,
   categoryLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     marginRight: 12,
     flexShrink: 0,
