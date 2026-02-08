@@ -16,12 +16,13 @@ export function useFindJobs(params: UseFindJobsParams, token: string | null | un
   const queryClient = useQueryClient();
   const query = useInfiniteQuery({
     queryKey: ['findJobs', params, !!token],
-    queryFn: async ({ pageParam = 1 }): Promise<FindJobsResponse> => {
+    queryFn: async ({ pageParam }): Promise<FindJobsResponse> => {
       return findJobs(
         { ...params, page: pageParam, page_size: PAGE_SIZE },
         token ?? undefined
       );
     },
+    initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.next ?? undefined,
     enabled: enabled && !!token,
   });
@@ -54,7 +55,7 @@ export function useFindJobs(params: UseFindJobsParams, token: string | null | un
     results,
     count,
     nextPage: query.data?.pages.at(-1)?.next ?? null,
-    loading: query.isLoading,
+    loading: query.isPending,
     loadingMore: query.isFetchingNextPage,
     error: query.error ? (query.error instanceof Error ? query.error.message : 'Failed to load jobs.') : null,
     fetchNextPage: query.fetchNextPage,

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Image, StyleSheet } from 'react-native';
+import { logger } from '../../utils/logger';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -83,7 +84,7 @@ export default function AnimatedImageSlot({
         style={styles.image}
         resizeMode="cover"
         onError={(error) => {
-          console.log('Image load error for slot', index, error.nativeEvent.error);
+          logger.log('Image load error for slot', index, error.nativeEvent.error);
         }}
       />
     </Animated.View>

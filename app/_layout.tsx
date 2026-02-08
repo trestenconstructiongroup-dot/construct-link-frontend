@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { useEffect, type PropsWithChildren } from 'react';
 import { WebFontLoader } from '../components/WebFontLoader';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 
@@ -50,19 +51,21 @@ function AuthGate({ children }: PropsWithChildren) {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <WebFontLoader />
-          <AuthGate>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            />
-          </AuthGate>
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <WebFontLoader />
+            <AuthGate>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+              />
+            </AuthGate>
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

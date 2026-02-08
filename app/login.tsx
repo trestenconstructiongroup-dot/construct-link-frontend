@@ -1,14 +1,17 @@
 import { View, StyleSheet, Pressable, TextInput, Platform, ViewStyle, TextStyle, Animated, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Fonts } from '../constants/theme';
 import WebLayout from './web/layout';
-import { Text } from '../components/Text';
 import { Text as RNText } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemeToggle from '../components/ThemeToggle';
+import { logger } from '../utils/logger';
+import { loginSchema, type LoginFormData } from '../lib/schemas/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,17 +24,18 @@ export default function LoginPage() {
   useEffect(() => {
     if (isAuthenticated) router.replace('/');
   }, [isAuthenticated]);
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const { control, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [isLoading, setIsLoading] = useState(false);
   type SsoProviderId = 'google' | 'apple';
   const [ssoLoading, setSsoLoading] = useState<SsoProviderId | null>(null);
-  
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -50,96 +54,53 @@ export default function LoginPage() {
     ]).start();
   }, []);
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      await authLogin(data.email, data.password);
+      router.replace('/');
+    } catch (error: any) {
+      logger.error('Login error:', error);
+      let errorMessage = 'Login failed. Please try again.';
 
-  const handleLogin = async () => {
-    const newErrors: { email?: string; password?: string } = {};
-    
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length === 0) {
-      setIsLoading(true);
       try {
-        // Use auth context to handle login
-        await authLogin(email, password);
-        
-        // Navigate to home/dashboard
-        router.replace('/');
-      } catch (error: any) {
-        console.error('Login error:', error);
-        let errorMessage = 'Login failed. Please try again.';
-        const newErrors: { email?: string; password?: string } = {};
-        
-        // Try to parse error message if it's JSON
-        try {
-          const errorText = error.message || error.toString();
-          const errorData = JSON.parse(errorText);
-          
-          // Handle non_field_errors (general errors from DRF)
-          if (errorData.non_field_errors) {
-            const generalError = Array.isArray(errorData.non_field_errors) 
-              ? errorData.non_field_errors[0] 
-              : errorData.non_field_errors;
-            newErrors.email = generalError;
-            newErrors.password = generalError;
-          }
-          // Handle field-specific errors
-          else if (errorData.email) {
-            const emailError = Array.isArray(errorData.email) ? errorData.email[0] : errorData.email;
-            newErrors.email = emailError;
-          }
-          else if (errorData.password) {
-            const passwordError = Array.isArray(errorData.password) ? errorData.password[0] : errorData.password;
-            newErrors.password = passwordError;
-          }
-          
-          // If there's a general error message
-          if (errorData.message || errorData.error) {
-            errorMessage = errorData.message || errorData.error;
-          }
-          
-          // Set field errors if any
-          if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-          } else {
-            Alert.alert('Login Error', errorMessage);
-            setErrors({ email: errorMessage });
-          }
-        } catch (parseError) {
-          // If it's not JSON, show the raw error message
-          const errorText = error.message || error.toString();
-          if (errorText.toLowerCase().includes('email') || errorText.toLowerCase().includes('password')) {
-            newErrors.email = 'Invalid email or password.';
-            newErrors.password = 'Invalid email or password.';
-          } else {
-            errorMessage = errorText || errorMessage;
-          }
-          
-          if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-          } else {
-            Alert.alert('Login Error', errorMessage);
-            setErrors({ email: errorMessage });
-          }
+        const errorText = error.message || error.toString();
+        const errorData = JSON.parse(errorText);
+
+        if (errorData.non_field_errors) {
+          const generalError = Array.isArray(errorData.non_field_errors)
+            ? errorData.non_field_errors[0]
+            : errorData.non_field_errors;
+          setError('email', { message: generalError });
+          setError('password', { message: generalError });
+          return;
         }
-      } finally {
-        setIsLoading(false);
+        if (errorData.email) {
+          setError('email', {
+            message: Array.isArray(errorData.email) ? errorData.email[0] : errorData.email,
+          });
+          return;
+        }
+        if (errorData.password) {
+          setError('password', {
+            message: Array.isArray(errorData.password) ? errorData.password[0] : errorData.password,
+          });
+          return;
+        }
+        if (errorData.message || errorData.error) {
+          errorMessage = errorData.message || errorData.error;
+        }
+      } catch {
+        const errorText = error.message || error.toString();
+        if (errorText.toLowerCase().includes('email') || errorText.toLowerCase().includes('password')) {
+          setError('email', { message: 'Invalid email or password.' });
+          setError('password', { message: 'Invalid email or password.' });
+          return;
+        }
+        errorMessage = errorText || errorMessage;
       }
+
+      Alert.alert('Login Error', errorMessage);
+      setError('email', { message: errorMessage });
     }
   };
 
@@ -207,48 +168,53 @@ export default function LoginPage() {
               <RNText style={[styles.label, { color: colors.text }]}>
                 Email
               </RNText>
-              <Pressable
-                style={[
-                  styles.inputWrapper,
-                  {
-                    borderColor: emailFocused
-                      ? colors.tint
-                      : errors.email
-                      ? colors.error
-                      : isDark
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(0, 0, 0, 0.1)',
-                    backgroundColor: isDark
-                      ? 'rgba(255, 255, 255, 0.05)'
-                      : 'rgba(0, 0, 0, 0.02)',
-                  },
-                ]}
-                onPress={() => emailInputRef.current?.focus()}
-              >
-                <TextInput
-                  ref={emailInputRef}
-                  style={[
-                    styles.input,
-                    isWeb && email.length > 0 && styles.inputWebValue,
-                    { color: colors.text },
-                  ]}
-                  placeholder="Enter your email"
-                  placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'}
-                  value={email}
-                  onChangeText={(text) => {
-                    setEmail(text);
-                    if (errors.email) setErrors({ ...errors, email: undefined });
-                  }}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                />
-              </Pressable>
-              {errors.email && (
-                <RNText style={styles.errorText}>{errors.email}</RNText>
-              )}
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <>
+                    <Pressable
+                      style={[
+                        styles.inputWrapper,
+                        {
+                          borderColor: emailFocused
+                            ? colors.tint
+                            : errors.email
+                            ? colors.error
+                            : isDark
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.1)',
+                          backgroundColor: isDark
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(0, 0, 0, 0.02)',
+                        },
+                      ]}
+                      onPress={() => emailInputRef.current?.focus()}
+                    >
+                      <TextInput
+                        ref={emailInputRef}
+                        style={[
+                          styles.input,
+                          isWeb && value.length > 0 && styles.inputWebValue,
+                          { color: colors.text },
+                        ]}
+                        placeholder="Enter your email"
+                        placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'}
+                        value={value}
+                        onChangeText={onChange}
+                        onFocus={() => setEmailFocused(true)}
+                        onBlur={() => { onBlur(); setEmailFocused(false); }}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoComplete="email"
+                      />
+                    </Pressable>
+                    {errors.email && (
+                      <RNText style={styles.errorText}>{errors.email.message}</RNText>
+                    )}
+                  </>
+                )}
+              />
             </View>
 
             {/* Password Input */}
@@ -256,56 +222,61 @@ export default function LoginPage() {
               <RNText style={[styles.label, { color: colors.text }]}>
                 Password
               </RNText>
-              <Pressable
-                style={[
-                  styles.inputWrapper,
-                  {
-                    borderColor: passwordFocused
-                      ? colors.tint
-                      : errors.password
-                      ? colors.error
-                      : isDark
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(0, 0, 0, 0.1)',
-                    backgroundColor: isDark
-                      ? 'rgba(255, 255, 255, 0.05)'
-                      : 'rgba(0, 0, 0, 0.02)',
-                  },
-                ]}
-                onPress={() => passwordInputRef.current?.focus()}
-              >
-                <TextInput
-                  ref={passwordInputRef}
-                  style={[
-                    styles.input,
-                    isWeb && password.length > 0 && styles.inputWebValue,
-                    { color: colors.text },
-                  ]}
-                  placeholder="Enter your password"
-                  placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'}
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    if (errors.password) setErrors({ ...errors, password: undefined });
-                  }}
-                  onFocus={() => setPasswordFocused(true)}
-                  onBlur={() => setPasswordFocused(false)}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoComplete="password"
-                />
-                <Pressable
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeButton}
-                >
-                  <RNText style={[styles.eyeText, { color: colors.text }]}>
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
-                  </RNText>
-                </Pressable>
-              </Pressable>
-              {errors.password && (
-                <RNText style={styles.errorText}>{errors.password}</RNText>
-              )}
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <>
+                    <Pressable
+                      style={[
+                        styles.inputWrapper,
+                        {
+                          borderColor: passwordFocused
+                            ? colors.tint
+                            : errors.password
+                            ? colors.error
+                            : isDark
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.1)',
+                          backgroundColor: isDark
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(0, 0, 0, 0.02)',
+                        },
+                      ]}
+                      onPress={() => passwordInputRef.current?.focus()}
+                    >
+                      <TextInput
+                        ref={passwordInputRef}
+                        style={[
+                          styles.input,
+                          isWeb && value.length > 0 && styles.inputWebValue,
+                          { color: colors.text },
+                        ]}
+                        placeholder="Enter your password"
+                        placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'}
+                        value={value}
+                        onChangeText={onChange}
+                        onFocus={() => setPasswordFocused(true)}
+                        onBlur={() => { onBlur(); setPasswordFocused(false); }}
+                        secureTextEntry={!showPassword}
+                        autoCapitalize="none"
+                        autoComplete="password"
+                      />
+                      <Pressable
+                        onPress={() => setShowPassword(!showPassword)}
+                        style={styles.eyeButton}
+                      >
+                        <RNText style={[styles.eyeText, { color: colors.text }]}>
+                          {showPassword ? '👁️' : '👁️‍🗨️'}
+                        </RNText>
+                      </Pressable>
+                    </Pressable>
+                    {errors.password && (
+                      <RNText style={styles.errorText}>{errors.password.message}</RNText>
+                    )}
+                  </>
+                )}
+              />
             </View>
 
             {/* Forgot Password */}
@@ -318,15 +289,15 @@ export default function LoginPage() {
             {/* Login Button */}
             <Pressable
               style={[
-                styles.loginButton, 
+                styles.loginButton,
                 { backgroundColor: colors.tint },
-                isLoading && styles.loginButtonDisabled
+                isSubmitting && styles.loginButtonDisabled
               ]}
-              onPress={handleLogin}
-              disabled={isLoading}
+              onPress={handleSubmit(onSubmit)}
+              disabled={isSubmitting}
             >
               <RNText style={[styles.loginButtonText, { color: colors.background }]}>
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isSubmitting ? 'Signing In...' : 'Sign In'}
               </RNText>
             </Pressable>
 

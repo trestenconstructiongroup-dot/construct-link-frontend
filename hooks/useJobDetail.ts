@@ -9,7 +9,7 @@ export function useJobDetail(jobId: number | null | undefined, token: string | n
   });
   return {
     job: query.data ?? null,
-    loading: query.isLoading,
+    loading: query.isPending,
     error: query.error,
     refetch: query.refetch,
   };

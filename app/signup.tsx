@@ -9,6 +9,7 @@ import { Text } from '../components/Text';
 import { Text as RNText } from 'react-native';
 import ThemeToggle from '../components/ThemeToggle';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { logger } from '../utils/logger';
 
 type SignupField = 'name' | 'email' | 'password' | 'confirmPassword';
 
@@ -115,7 +116,7 @@ export default function SignupPage() {
           confirm_password: formData.confirmPassword,
         });
         
-        console.log('Signup successful:', response);
+        logger.log('Signup successful:', response);
 
         // Automatically log in the user using auth context
         authSignup(response);
@@ -127,7 +128,7 @@ export default function SignupPage() {
           router.replace('/');
         }
       } catch (error: any) {
-        console.error('Signup error:', error);
+        logger.error('Signup error:', error);
         let errorMessage = 'Signup failed. Please try again.';
         const fieldErrors: Partial<Record<SignupField, string>> = {};
         

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import * as Font from 'expo-font';
+import { logger } from '../utils/logger';
 
 /**
  * Global web/native font loader.
@@ -18,9 +19,9 @@ export function WebFontLoader() {
           // Knucklehead display font (lives in /web)
           Knucklehead: require('../assets/fonts/Knucklehead2.otf'),
         });
-        console.log('Custom fonts loaded: FreakTurbulenceBRK, Knucklehead');
+        logger.log('Custom fonts loaded: FreakTurbulenceBRK, Knucklehead');
       } catch (error) {
-        console.warn('Error loading custom fonts:', error);
+        logger.warn('Error loading custom fonts:', error);
       }
     };
 

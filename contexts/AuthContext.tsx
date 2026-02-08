@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Platform } from 'react-native';
 import { login, logout, getUserProfile, AuthResponse } from '../services/api';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { logger } from '../utils/logger';
+import {
+  getStoredToken,
+  getStoredUser,
+  setStoredToken,
+  setStoredUser,
+  clearStoredAuth,
+} from '../utils/tokenStorage';
 
 interface User {
   id: number;
@@ -19,7 +26,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (userData: AuthResponse) => void;
+  signup: (userData: AuthResponse) => Promise<void>;
   logout: () => Promise<void>;
   /** Sign in with Google (web: redirects to Google and back). */
   signInWithGoogle: () => Promise<void>;
@@ -27,7 +34,7 @@ interface AuthContextType {
   signInWithApple: () => Promise<void>;
   /** True if Supabase URL/anon key are set (SSO buttons can be shown). */
   isSupabaseSSOEnabled: boolean;
-  updateUserFromServer: (user: User) => void;
+  updateUserFromServer: (user: User) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,56 +44,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load auth state: Supabase OAuth callback (hash) or localStorage
+  // Load auth state: Supabase OAuth callback (hash) or persisted token
   useEffect(() => {
     const loadAuthState = async () => {
-      if (Platform.OS === 'web') {
-        try {
-          // 1) After OAuth redirect, Supabase puts session in URL hash; recover it first
-          if (supabase) {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.access_token) {
-              try {
-                const profileUser = await getUserProfile(session.access_token);
-                setToken(session.access_token);
-                setUser(profileUser);
-                localStorage.setItem('auth_token', session.access_token);
-                localStorage.setItem('user_data', JSON.stringify(profileUser));
-                setIsLoading(false);
-                return;
-              } catch (e: any) {
-                if (e?.status !== 401) {
-                  console.error('Supabase session but profile fetch failed:', e);
-                }
-              }
-            }
-          }
-
-          // 2) Fallback: stored Django token
-          const storedToken = localStorage.getItem('auth_token');
-          const storedUser = localStorage.getItem('user_data');
-
-          if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
+      try {
+        // 1) After OAuth redirect, Supabase puts session in URL hash; recover it first
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
             try {
-              await getUserProfile(storedToken);
-            } catch (error: any) {
-              if (error?.status === 401) {
-                localStorage.removeItem('auth_token');
-                localStorage.removeItem('user_data');
-                setToken(null);
-                setUser(null);
+              const profileUser = await getUserProfile(session.access_token);
+              setToken(session.access_token);
+              setUser(profileUser);
+              await setStoredToken(session.access_token);
+              await setStoredUser(JSON.stringify(profileUser));
+              setIsLoading(false);
+              return;
+            } catch (e: any) {
+              if (e?.status !== 401) {
+                logger.error('Supabase session but profile fetch failed:', e);
               }
             }
-          }
-        } catch (error) {
-          console.error('Error loading auth state:', error);
-          if (Platform.OS === 'web') {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user_data');
           }
         }
+
+        // 2) Fallback: stored token (localStorage on web, SecureStore on native)
+        const storedToken = await getStoredToken();
+        const storedUserJson = await getStoredUser();
+
+        if (storedToken && storedUserJson) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUserJson));
+          try {
+            await getUserProfile(storedToken);
+          } catch (error: any) {
+            if (error?.status === 401) {
+              await clearStoredAuth();
+              setToken(null);
+              setUser(null);
+            }
+          }
+        }
+      } catch (error) {
+        logger.error('Error loading auth state:', error);
+        await clearStoredAuth();
       }
       setIsLoading(false);
     };
@@ -98,21 +99,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await login({ email, password });
     setUser(response.user);
     setToken(response.token);
-    
-    if (Platform.OS === 'web') {
-      localStorage.setItem('auth_token', response.token);
-      localStorage.setItem('user_data', JSON.stringify(response.user));
-    }
+    await setStoredToken(response.token);
+    await setStoredUser(JSON.stringify(response.user));
   };
 
-  const handleSignup = (response: AuthResponse) => {
+  const handleSignup = async (response: AuthResponse) => {
     setUser(response.user);
     setToken(response.token);
-    
-    if (Platform.OS === 'web') {
-      localStorage.setItem('auth_token', response.token);
-      localStorage.setItem('user_data', JSON.stringify(response.user));
-    }
+    await setStoredToken(response.token);
+    await setStoredUser(JSON.stringify(response.user));
   };
 
   const handleLogout = async () => {
@@ -120,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         await logout(token);
       } catch (error) {
-        console.error('Logout error:', error);
+        logger.error('Logout error:', error);
       }
     }
     if (supabase) {
@@ -132,10 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setUser(null);
     setToken(null);
-    if (Platform.OS === 'web') {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_data');
-    }
+    await clearStoredAuth();
   };
 
   const signInWithGoogle = async () => {
@@ -163,14 +155,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  const updateUserFromServer = (nextUser: User) => {
+  const updateUserFromServer = async (nextUser: User) => {
     setUser(nextUser);
-    if (Platform.OS === 'web') {
-      try {
-        localStorage.setItem('user_data', JSON.stringify(nextUser));
-      } catch (error) {
-        console.error('Error persisting updated user:', error);
-      }
+    try {
+      await setStoredUser(JSON.stringify(nextUser));
+    } catch (error) {
+      logger.error('Error persisting updated user:', error);
     }
   };
 

@@ -13,12 +13,13 @@ export interface UseFindWorkersParams extends Omit<FindWorkersParams, 'page' | '
 export function useFindWorkers(params: UseFindWorkersParams, token: string | null | undefined, enabled: boolean) {
   const query = useInfiniteQuery({
     queryKey: ['findWorkers', params, !!token],
-    queryFn: async ({ pageParam = 1 }): Promise<FindWorkersResponse> => {
+    queryFn: async ({ pageParam }): Promise<FindWorkersResponse> => {
       return findWorkers(
         { ...params, page: pageParam, page_size: PAGE_SIZE },
         token ?? undefined
       );
     },
+    initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.next ?? undefined,
     enabled: enabled && !!token,
   });
@@ -30,7 +31,7 @@ export function useFindWorkers(params: UseFindWorkersParams, token: string | nul
     results,
     count,
     nextPage: query.data?.pages.at(-1)?.next ?? null,
-    loading: query.isLoading,
+    loading: query.isPending,
     loadingMore: query.isFetchingNextPage,
     error: query.error ? (query.error instanceof Error ? query.error.message : 'Failed to load workers.') : null,
     fetchNextPage: query.fetchNextPage,
