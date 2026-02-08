@@ -8,7 +8,10 @@ import HeroTextMorpher from './web/components/HeroTextMorpher';
 import { CONSTRUCTION_CATEGORIES, FAQ_ITEMS } from './web/components/landing/_constants';
 import CategoryButton from './web/components/landing/CategoryButton';
 import FaqItem from './web/components/landing/FaqItem';
+import DownloadApp from './web/components/landing/DownloadApp';
+import HowItWorks from './web/components/landing/HowItWorks';
 import LandingFooter from './web/components/landing/LandingFooter';
+import VideoShowcase from './web/components/landing/VideoShowcase';
 import WebLayout from './web/layout';
 
 const HERO_VIDEO = require('../assets/images/transparentVideo/Cyberpunk Idle.mp4.webm');
@@ -163,80 +166,43 @@ export default function WebLanding() {
                       }
                     : {
                         top: 0,
-                        left: 0,
                         right: 0,
                         bottom: 0,
-                        width: '100%',
+                        width: '55%',
                         height: '100%',
+                        left: 'auto',
                       }),
                   objectFit: 'contain',
-                  objectPosition: isSmallScreen ? 'center bottom' : '85% 50%',
+                  objectPosition: isSmallScreen ? 'center bottom' : 'right center',
                 }}
               />
             </div>
           ) : null}
         </Animated.View>
 
-        {/* Common Questions / FAQ section */}
-        <View style={[styles.faqSection, isSmallScreen && { marginTop: 40, paddingVertical: 40 }]}>
-          <View
-            style={[
-              styles.faqContainer,
-              isSmallScreen && styles.faqContainerStacked,
-            ]}
-          >
-            {/* Image on the left for large screens */}
-            {!isSmallScreen && (
-              <View style={styles.faqImageWrapper}>
-                <Image
-                  source={require('../assets/images/landingPageImages/image17.png')}
-                  style={styles.faqSideImage}
-                  resizeMode="contain"
-                />
-              </View>
-            )}
+        {/* Video Showcase */}
+        <VideoShowcase isSmallScreen={isSmallScreen} />
 
-            {/* Text on the right */}
-            <View
-              style={[
-                styles.faqContent,
-                isSmallScreen && styles.faqContentCentered,
-              ]}
-            >
-              <View style={styles.faqHeadingRow}>
-                <View>
-                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
-                    Common
-                  </RNText>
-                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
-                    Questions
-                  </RNText>
-                </View>
-                {!isSmallScreen && (
-                  <RNText
-                    style={[styles.faqSubtitle, { color: colors.text }]}
-                  >
-                    Some questions people usually ask
-                  </RNText>
-                )}
-              </View>
+        {/* How It Works */}
+        <HowItWorks isSmallScreen={isSmallScreen} />
 
-              <View style={styles.faqList}>
-                {FAQ_ITEMS.map((item, index) => (
-                  <FaqItem
-                    key={index}
-                    item={item}
-                    isSmallScreen={isSmallScreen}
-                    colors={colors}
-                    itemId={Platform.OS === 'web' ? `landing-faq-item-${index}` : undefined}
-                  />
-                ))}
-              </View>
-            </View>
+        {/* Category Buttons Grid */}
+        <View style={[styles.categoriesSection, isSmallScreen && styles.categoriesSectionCompact]}>
+          <View style={[styles.categoriesGrid, isSmallScreen && styles.categoriesGridCompact]}>
+            {CONSTRUCTION_CATEGORIES.map((category, index) => (
+              <CategoryButton
+                key={index}
+                label={category}
+                isDark={isDark}
+                colors={colors}
+                isCompact={isSmallScreen}
+                buttonId={Platform.OS === 'web' ? `landing-cat-${index}` : undefined}
+              />
+            ))}
           </View>
         </View>
 
-        {/* Unlock Opportunities hero + CardSwap (below Q&A) */}
+        {/* Unlock Opportunities hero + CardSwap */}
         <Animated.View
           style={[
             styles.hero,
@@ -299,21 +265,63 @@ export default function WebLanding() {
               />
             </View>
           )}
-      </Animated.View>
+        </Animated.View>
 
-        {/* Category Buttons Grid + and so much more... */}
-        <View style={[styles.categoriesSection, isSmallScreen && styles.categoriesSectionCompact]}>
-          <View style={[styles.categoriesGrid, isSmallScreen && styles.categoriesGridCompact]}>
-            {CONSTRUCTION_CATEGORIES.map((category, index) => (
-              <CategoryButton
-                key={index}
-                label={category}
-                isDark={isDark}
-                colors={colors}
-                isCompact={isSmallScreen}
-                buttonId={Platform.OS === 'web' ? `landing-cat-${index}` : undefined}
-              />
-            ))}
+        {/* Download the App */}
+        <DownloadApp isSmallScreen={isSmallScreen} />
+
+        {/* Common Questions / FAQ section */}
+        <View style={[styles.faqSection, isSmallScreen && { marginTop: 40, paddingVertical: 40 }]}>
+          <View
+            style={[
+              styles.faqContainer,
+              isSmallScreen && styles.faqContainerStacked,
+            ]}
+          >
+            {!isSmallScreen && (
+              <View style={styles.faqImageWrapper}>
+                <Image
+                  source={require('../assets/images/landingPageImages/image17.png')}
+                  style={styles.faqSideImage}
+                  resizeMode="contain"
+                />
+              </View>
+            )}
+            <View
+              style={[
+                styles.faqContent,
+                isSmallScreen && styles.faqContentCentered,
+              ]}
+            >
+              <View style={styles.faqHeadingRow}>
+                <View>
+                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
+                    Common
+                  </RNText>
+                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
+                    Questions
+                  </RNText>
+                </View>
+                {!isSmallScreen && (
+                  <RNText
+                    style={[styles.faqSubtitle, { color: colors.text }]}
+                  >
+                    Some questions people usually ask
+                  </RNText>
+                )}
+              </View>
+              <View style={styles.faqList}>
+                {FAQ_ITEMS.map((item, index) => (
+                  <FaqItem
+                    key={index}
+                    item={item}
+                    isSmallScreen={isSmallScreen}
+                    colors={colors}
+                    itemId={Platform.OS === 'web' ? `landing-faq-item-${index}` : undefined}
+                  />
+                ))}
+              </View>
+            </View>
           </View>
         </View>
 
@@ -381,6 +389,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     gap: 32,
     alignSelf: 'center',
+    marginTop: 80,
   } as ViewStyle,
   heroStacked: {
     flexDirection: 'column',
@@ -388,6 +397,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 24,
     paddingHorizontal: 48,
+    marginTop: 48,
   } as ViewStyle,
   heroLeft: {
     flex: 1,

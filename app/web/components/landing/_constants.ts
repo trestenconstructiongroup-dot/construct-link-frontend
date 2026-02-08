@@ -47,3 +47,24 @@ export const FAQ_ITEMS = [
 ] as const;
 
 export type FaqItemEntry = (typeof FAQ_ITEMS)[number];
+
+export const HOW_IT_WORKS_STEPS = [
+  {
+    icon: 'briefcase-outline',
+    title: 'Post a Job',
+    description:
+      'Describe the work, set your budget, and choose the trades you need.',
+  },
+  {
+    icon: 'people-outline',
+    title: 'Get Matched',
+    description:
+      'Workers that fit your requirements get notified and apply directly.',
+  },
+  {
+    icon: 'checkmark-circle-outline',
+    title: 'Hire & Build',
+    description:
+      'Review profiles, chat with candidates, and start building.',
+  },
+] as const;
