@@ -12,7 +12,6 @@ import LandingFooter from './web/components/landing/LandingFooter';
 import WebLayout from './web/layout';
 
 const HERO_VIDEO = require('../assets/images/transparentVideo/Cyberpunk Idle.mp4.webm');
-const HERO_MASK_IMAGE = require('../assets/images/landingPageImages/image19.png');
 
 export default function WebLanding() {
   const { isDark } = useTheme();
@@ -21,10 +20,8 @@ export default function WebLanding() {
   const fade = useRef(new Animated.Value(0)).current;
   const rise = useRef(new Animated.Value(40)).current;
   const [heroVideoUri, setHeroVideoUri] = useState<string | null>(null);
-  const [heroMaskUri, setHeroMaskUri] = useState<string | null>(null);
   const heroVideoRef = useRef<HTMLVideoElement | null>(null);
   const heroVideoContainerRef = useRef<HTMLDivElement | null>(null);
-  const heroMaskCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Current hero section (top) – entrance on page load
   const heroOpacity = useRef(new Animated.Value(0)).current;
@@ -72,23 +69,6 @@ export default function WebLanding() {
     asset.downloadAsync().then(() => setHeroVideoUri(asset.uri));
   }, []);
 
-  // Resolve hero mask image URI (for light-mode text mask: white text only where hero visual is)
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    const resolved = typeof Image.resolveAssetSource === 'function'
-      ? (Image.resolveAssetSource as (x: number) => { uri?: string })(HERO_MASK_IMAGE)?.uri
-      : null;
-    if (resolved) {
-      setHeroMaskUri(resolved);
-      return;
-    }
-    const asset = Asset.fromModule(HERO_MASK_IMAGE);
-    if (asset.uri) {
-      setHeroMaskUri(asset.uri);
-      return;
-    }
-    asset.downloadAsync().then(() => setHeroMaskUri(asset.uri));
-  }, []);
 
   // Ping-pong loop at 1x: play forward to end, then scrub backward (visible frame steps), then play forward again (web only)
   useEffect(() => {
@@ -130,116 +110,6 @@ export default function WebLanding() {
     };
   }, [heroVideoUri]);
 
-  // Light mode only: canvas overlay – white text only where character (video) is, so it follows motion
-  useEffect(() => {
-    if (Platform.OS !== 'web' || isDark || !heroVideoUri) return;
-    const video = heroVideoRef.current;
-    const container = heroVideoContainerRef.current;
-    const canvas = heroMaskCanvasRef.current;
-    if (!video || !container || !canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const OBJECT_POSITION_X = 0.85;
-    const OBJECT_POSITION_Y = 0.50;
-    const TAGLINE = 'THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.';
-    const FONT_FAMILY = Fonts.accent;
-    const PAD_RIGHT = 40;
-    const PAD_BOTTOM = 48;
-    const TEXT_LEFT_PCT = 1 / 3;
-    const LETTER_SPACING = 0.5;
-    const LINE_HEIGHT_MULT = 1.4;
-    const OFFSET_X = 10;
-    const OFFSET_Y = 12;
-
-    let rafId: number | null = null;
-
-    const measureWithSpacing = (ctx: CanvasRenderingContext2D, s: string) =>
-      (ctx.measureText(s).width + (s.length > 0 ? (s.length - 1) * LETTER_SPACING : 0));
-
-    const draw = () => {
-      const cw = container.clientWidth;
-      const ch = container.clientHeight;
-      const vw = video.videoWidth;
-      const vh = video.videoHeight;
-
-      if (cw <= 0 || ch <= 0) {
-        rafId = requestAnimationFrame(draw);
-        return;
-      }
-
-      const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2);
-      canvas.width = cw * dpr;
-      canvas.height = ch * dpr;
-      canvas.style.width = `${cw}px`;
-      canvas.style.height = `${ch}px`;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, cw, ch);
-
-      const vwPx = typeof window !== 'undefined' ? window.innerWidth : cw;
-      // Match the web CSS clamp used for the tagline:
-      // font-size: clamp(16px, 3.5vw, 40px);
-      const fontSize = Math.min(40, Math.max(16, vwPx * 0.035));
-      const lineHeight = fontSize * LINE_HEIGHT_MULT;
-      ctx.font = `${fontSize}px ${FONT_FAMILY}`;
-      ctx.textAlign = 'right';
-      ctx.fillStyle = 'white';
-
-      const textRight = cw - PAD_RIGHT + OFFSET_X;
-      const maxWidth = cw * (1 - TEXT_LEFT_PCT) - PAD_RIGHT;
-      const words = TAGLINE.split(' ');
-      const lines: string[] = [];
-      let line = '';
-      for (let i = 0; i < words.length; i++) {
-        const test = line ? `${line} ${words[i]}` : words[i];
-        const w = measureWithSpacing(ctx, test);
-        if (w > maxWidth && line) {
-          lines.push(line);
-          line = words[i];
-        } else {
-          line = test;
-        }
-      }
-      if (line) lines.push(line);
-
-      ctx.textBaseline = 'bottom';
-      let y = ch - PAD_BOTTOM - OFFSET_Y;
-      for (let i = lines.length - 1; i >= 0; i--) {
-        const ln = lines[i];
-        let x = textRight;
-        for (let j = ln.length - 1; j >= 0; j--) {
-          const char = ln[j];
-          const w = ctx.measureText(char).width;
-          ctx.fillText(char, x, y);
-          x -= w + LETTER_SPACING;
-        }
-        y -= lineHeight;
-      }
-
-      if (vw > 0 && vh > 0) {
-        const isNarrow = cw < 900;
-        const maxW = isNarrow ? cw * 0.65 : cw;
-        const maxH = isNarrow ? ch * 0.70 : ch;
-        const scale = Math.min(maxW / vw, maxH / vh);
-        const rw = vw * scale;
-        const rh = vh * scale;
-        const destX = isNarrow ? cw - rw : OBJECT_POSITION_X * (cw - rw);
-        const destY = isNarrow ? ch - rh : OBJECT_POSITION_Y * (ch - rh);
-        ctx.globalCompositeOperation = 'destination-in';
-        ctx.drawImage(video, 0, 0, vw, vh, destX, destY, rw, rh);
-        ctx.globalCompositeOperation = 'source-over';
-      }
-
-      rafId = requestAnimationFrame(draw);
-    };
-
-    rafId = requestAnimationFrame(draw);
-    return () => {
-      if (rafId != null) cancelAnimationFrame(rafId);
-    };
-  }, [heroVideoUri, isDark]);
 
   const isSmallScreen = screenWidth < 900;
   const showHeroImage = screenWidth >= 900;
@@ -262,99 +132,6 @@ export default function WebLanding() {
             fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(36px, 10vw, 72px)' as any : 'clamp(48px, 10vw, 100px)' as any) : 80}
             style={[styles.heroTextMorpher, isSmallScreen && { top: '15%', left: 0, right: 0, alignItems: 'center' }]}
           />
-          {!isSmallScreen && (
-            <View style={[styles.heroTagline, { pointerEvents: 'none' }]}>
-              {Platform.OS === 'web' ? (
-                <div
-                  style={{
-                    width: '100%',
-                    maxWidth: '100%',
-                    minWidth: 0,
-                    alignSelf: 'stretch',
-                    position: 'relative',
-                    zIndex: 1,
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      padding: 0,
-                      width: '100%',
-                      maxWidth: '100%',
-                      textAlign: 'right',
-                      fontFamily: Fonts.accent,
-                      fontSize: 'clamp(14px, 2.5vw, 24px)',
-                      textTransform: 'uppercase',
-                      letterSpacing: 0.3,
-                      lineHeight: 1.4,
-                      color: colors.text,
-                      wordWrap: 'break-word',
-                      overflowWrap: 'break-word',
-                    }}
-                  >
-                    THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
-                  </p>
-                </div>
-              ) : (
-                <View style={styles.heroTaglineTextWrap}>
-                  <RNText style={[styles.heroTaglineText, { color: colors.text }]}>
-                    THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
-                  </RNText>
-                </View>
-              )}
-            </View>
-          )}
-          {/* Light mode, no video: fallback static mask by image */}
-          {Platform.OS === 'web' && !isDark && heroMaskUri && !heroVideoUri && !isSmallScreen && (
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 4,
-                pointerEvents: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-end',
-                justifyContent: 'flex-end',
-                paddingBottom: 48,
-                paddingRight: 40,
-                paddingLeft: '33.333%',
-                boxSizing: 'border-box',
-                WebkitMaskImage: `url(${heroMaskUri})`,
-                maskImage: `url(${heroMaskUri})`,
-                WebkitMaskSize: isSmallScreen ? '65% 70%' : 'contain',
-                maskSize: isSmallScreen ? '65% 70%' : 'contain',
-                WebkitMaskPosition: isSmallScreen ? 'right bottom' : '85% 50%',
-                maskPosition: isSmallScreen ? 'right bottom' : '85% 50%',
-                WebkitMaskRepeat: 'no-repeat',
-                maskRepeat: 'no-repeat',
-                isolation: 'isolate',
-              } as React.CSSProperties}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  width: '100%',
-                  maxWidth: '100%',
-                  textAlign: 'right',
-                  fontFamily: Fonts.accent,
-                  fontSize: 'clamp(14px, 2.5vw, 24px)',
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.3,
-                  lineHeight: 1.4,
-                  color: 'white',
-                  wordWrap: 'break-word',
-                  overflowWrap: 'break-word',
-                }}
-              >
-                THE ALL-IN-ONE ECOSYSTEM FOR THE MODERN WORKFORCE.
-              </p>
-            </div>
-          )}
           {Platform.OS === 'web' && heroVideoUri ? (
             <div
               ref={heroVideoContainerRef}
@@ -398,24 +175,6 @@ export default function WebLanding() {
               />
             </div>
           ) : null}
-          {/* Light + video: white text only where character is – above tagline so white is visible */}
-          {Platform.OS === 'web' && !isDark && heroVideoUri && !isSmallScreen && (
-            <canvas
-              ref={heroMaskCanvasRef}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 4,
-                pointerEvents: 'none',
-                width: '100%',
-                height: '100%',
-              }}
-              aria-hidden
-            />
-          )}
         </Animated.View>
 
         {/* Common Questions / FAQ section */}
@@ -613,50 +372,6 @@ const styles = StyleSheet.create({
     left: 0,
     zIndex: 1,
   } as ViewStyle,
-  heroTagline: {
-    position: 'absolute',
-    bottom: 48,
-    right: 40,
-    left: '33.333%' as any,
-    top: 0,
-    zIndex: 3,
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-    ...Platform.select({
-      web: {
-        maxHeight: '100%' as any,
-        minWidth: 0,
-      },
-    }),
-  } as ViewStyle,
-  heroTaglineTextWrap: {
-    width: '100%',
-    alignSelf: 'stretch',
-    maxWidth: '100%',
-    minWidth: 0,
-  } as ViewStyle,
-  heroTaglineText: {
-    textAlign: 'right',
-    ...Platform.select({
-      web: {
-        fontFamily: Fonts.accent as any,
-        fontSize: 'clamp(16px, 3vw, 32px)' as any,
-        textTransform: 'uppercase' as any,
-        letterSpacing: 0.5,
-        lineHeight: 1.4,
-        width: '100%' as any,
-        maxWidth: '100%' as any,
-        display: 'block' as any,
-      },
-      default: {
-        fontFamily: Fonts.accent,
-        fontSize: 28,
-        textTransform: 'uppercase',
-        lineHeight: 36,
-      },
-    }),
-  } as TextStyle,
   hero: {
     width: '100%',
     maxWidth: 1200,
