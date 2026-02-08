@@ -1,23 +1,25 @@
 /**
  * 404 Not Found Page (web)
- * Uses WebLayout (Navbar) like jobs-create; Lottie 404.json at center; theme + web fonts.
+ * Uses WebLayout (Navbar); FuzzyText canvas effect for "404"; theme + web fonts.
  */
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
-import LottieView from 'lottie-react-native';
+import { usePathname, useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Colors, Fonts } from '../constants/theme';
+import FuzzyText from '../components/FuzzyText';
+import { Colors } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import WebLayout from './web/layout';
 
 const webFonts = {
-  errorCode: Fonts.accent,
+  heading: 'Knucklehead, system-ui, sans-serif',
   button: 'Knucklehead, system-ui, sans-serif',
+  body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 };
 
 export default function NotFoundScreenWeb() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
 
@@ -28,20 +30,26 @@ export default function NotFoundScreenWeb() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
       >
-        {/* Lottie 404 - same integration as jobs-create.web.tsx */}
-        <View style={styles.animationContainer}>
-          <LottieView
-            source={require('../assets/images/transparentVideo/404.json')}
-            autoPlay
-            loop
-            style={styles.lottie}
-          />
+        {/* FuzzyText 404 */}
+        <View style={styles.fuzzyContainer}>
+          <FuzzyText
+            baseIntensity={0.2}
+            hoverIntensity={0.5}
+            enableHover
+            color={colors.text}
+            fontFamily={webFonts.heading}
+          >
+            404
+          </FuzzyText>
         </View>
 
-        {/* 404 copy */}
+        {/* Error messages */}
         <View style={styles.textContainer}>
-          <Text style={[styles.errorCode, { color: colors.text, fontFamily: webFonts.errorCode }]}>
-            404
+          <Text style={[styles.heading, { color: colors.text, fontFamily: webFonts.heading }]}>
+            Page Not Found
+          </Text>
+          <Text style={[styles.pathText, { color: colors.textSecondary, fontFamily: webFonts.body }]}>
+            The page <Text style={[styles.pathHighlight, { color: colors.accentMuted }]}>{pathname}</Text> could not be found
           </Text>
         </View>
 
@@ -78,30 +86,33 @@ const styles = StyleSheet.create({
       ? ({ minHeight: '100vh' } as any)
       : null),
   },
-  animationContainer: {
-    width: '100%',
-    maxWidth: 500,
-    aspectRatio: 1,
+  fuzzyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  lottie: {
-    width: '100%',
-    height: '100%',
-  },
   textContainer: {
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 8,
     marginBottom: 32,
     paddingHorizontal: 20,
+    gap: 8,
   },
-  errorCode: {
-    fontSize: 72,
+  heading: {
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 8,
     ...(Platform.OS === 'web'
-      ? ({ fontSize: 'clamp(48px, 10vw, 96px)' } as any)
+      ? ({ fontSize: 'clamp(24px, 4vw, 36px)' } as any)
       : null),
+  },
+  pathText: {
+    fontSize: 16,
+    textAlign: 'center',
+    ...(Platform.OS === 'web'
+      ? ({ fontSize: 'clamp(14px, 2vw, 18px)' } as any)
+      : null),
+  },
+  pathHighlight: {
+    fontWeight: '600',
   },
   backButton: {
     flexDirection: 'row',
