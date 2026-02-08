@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
   footerSection: {
     width: '100%',
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 32,
     paddingBottom: 32,
     borderTopWidth: 1,
     borderTopColor: 'rgba(148, 163, 184, 0.35)',
@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   footerColBrandSmall: {
     alignItems: 'center',
+    gap: 10,
   } as ViewStyle,
   footerCol: {
     flex: 1,
@@ -61,14 +62,14 @@ const styles = StyleSheet.create({
   footerColTitle: {
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: 8,
+    marginBottom: 14,
     fontFamily: Fonts.heading,
     textAlign: 'left',
   } as TextStyle,
   footerLink: {
     fontSize: 14,
     opacity: 0.9,
-    marginBottom: 10,
+    marginBottom: 14,
   } as TextStyle,
   footerLinkCentered: {
     textAlign: 'center',
@@ -78,9 +79,12 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     alignSelf: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 24,
-    marginTop: 20,
+    justifyContent: 'space-evenly',
+    gap: 32,
+    marginTop: 32,
+    paddingTop: 24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.15)',
   } as ViewStyle,
   footerMetaRow: {
     width: '100%',
@@ -89,7 +93,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 28,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.15)',
   } as ViewStyle,
   footerMeta: {
     fontSize: 12,
