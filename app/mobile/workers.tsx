@@ -30,7 +30,7 @@ import {
 } from '../../services/api';
 
 const PAGE_SIZE = 12;
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const EXPERIENCE_LEVELS = ['beginner', 'intermediate', 'expert', 'master'] as const;
 const EXPERIENCE_LABELS: Record<string, string> = {
   beginner: 'Beginner',

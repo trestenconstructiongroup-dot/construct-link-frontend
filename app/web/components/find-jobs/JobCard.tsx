@@ -17,7 +17,7 @@ import {
 import { Colors } from '../../../../constants/theme';
 import { applyJob, type JobSummary, type JobSummaryRole } from '../../../../services/api';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const PAY_TYPE_LABELS: Record<string, string> = {
   hourly: 'Hourly',
   fixed: 'Fixed',

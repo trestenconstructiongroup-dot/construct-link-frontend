@@ -4,8 +4,8 @@
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
-import { Colors } from '../../../../constants/theme';
+import { Animated, Pressable, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
+import { Colors, Fonts } from '../../../../constants/theme';
 import type { FaqItemEntry } from './_constants';
 
 export interface FaqItemProps {
@@ -32,14 +32,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
-    ...Platform.select({
-      web: {
-        fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'FreakTurbulenceBRK',
-      },
-    }),
+    fontFamily: Fonts.body,
   } as TextStyle,
   faqQuestionCentered: {
     textAlign: 'center',

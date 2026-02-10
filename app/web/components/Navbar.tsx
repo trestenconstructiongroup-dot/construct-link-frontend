@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../../components/Text';
 import ThemeToggle from '../../../components/ThemeToggle';
-import { Colors } from '../../../constants/theme';
+import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import StaggeredMobileMenu from './StaggeredMobileMenu';
@@ -16,9 +16,9 @@ const PILL_NAV_LINKS: { label: string; path: string }[] = [
   { label: 'Feed', path: '/feed' },
 ];
 
-const PILL_H = 44;
-const PILL_GAP = 14;
-const PILL_PAD_X = 28;
+const PILL_H = 36;
+const PILL_GAP = 10;
+const PILL_PAD_X = 22;
 const CIRCLE_D = 150;
 const EASE_OUT = Easing.bezier(0, 0, 0.58, 1);
 
@@ -154,11 +154,9 @@ export default function Navbar() {
     outputRange: [-10, 0],
   });
 
-  // For web, use the public folder path
-  // For mobile, we'll need to move the logo to assets or use a different approach
-  const logoSource = Platform.OS === 'web' 
+  const logoSource = Platform.OS === 'web'
     ? { uri: '/logo.png' }
-    : require('../../../assets/images/icon.png'); // Fallback for mobile
+    : require('../../../assets/images/logo.png');
 
   return (
     <View style={[
@@ -181,7 +179,7 @@ export default function Navbar() {
           />
           {!isMobile && (
             <Text style={[styles.brandName, { color: colors.text }]}>
-              ConstructionLink
+              Tresten Construction Group Inc
             </Text>
           )}
         </Pressable>
@@ -205,7 +203,7 @@ export default function Navbar() {
                   >
                     {/* In-flow label so pill gets correct width (pillInner is absolute and doesn't affect layout) */}
                     <Text
-                      style={[styles.pillNavText, styles.pillWidthSpacer, { fontFamily: 'Knucklehead', color: pillTheme.pillText }]}
+                      style={[styles.pillNavText, styles.pillWidthSpacer, { fontFamily: Fonts.display, color: pillTheme.pillText }]}
                       numberOfLines={1}
                     >
                       {label}
@@ -229,7 +227,7 @@ export default function Navbar() {
                         <Animated.Text
                           style={[
                             styles.pillNavText,
-                            { fontFamily: 'Knucklehead', color: pillTheme.pillText },
+                            { fontFamily: Fonts.display, color: pillTheme.pillText },
                             { transform: [{ translateY: a.defaultLabelY }] },
                           ]}
                         >
@@ -239,7 +237,7 @@ export default function Navbar() {
                           style={[
                             styles.pillNavText,
                             styles.pillLabelHover,
-                            { fontFamily: 'Knucklehead', color: pillTheme.hoverText },
+                            { fontFamily: Fonts.display, color: pillTheme.hoverText },
                             {
                               opacity: a.hoverLabelOpacity,
                               transform: [{ translateY: a.hoverLabelY }],
@@ -281,7 +279,7 @@ export default function Navbar() {
                       style={styles.avatarImage}
                     />
                   ) : (
-                    <View style={[styles.avatarCircle, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+                    <View style={[styles.avatarCircle, { backgroundColor: colors.accent }]} />
                   )}
                 </Pressable>
                 {/* Dropdown Menu */}
@@ -305,7 +303,7 @@ export default function Navbar() {
                           style={styles.dropdownAvatarImage}
                         />
                       ) : (
-                        <View style={[styles.dropdownAvatar, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+                        <View style={[styles.dropdownAvatar, { backgroundColor: colors.accent }]} />
                       )}
                       <View style={styles.dropdownUserInfo}>
                         <Text style={[styles.dropdownUserName, { color: colors.text }]}>
@@ -332,7 +330,7 @@ export default function Navbar() {
                       style={styles.dropdownItem}
                       onPress={handleLogout}
                     >
-                      <Text style={[styles.dropdownItemText, { color: '#ef4444' }]}>
+                      <Text style={[styles.dropdownItemText, { color: colors.error }]}>
                         Log Out
                       </Text>
                     </Pressable>
@@ -443,13 +441,13 @@ export default function Navbar() {
           position="right"
           prelayerColors={
             isDark
-              ? ['#005580', '#006ba3', '#0082C9']
-              : ['#66b3e3', '#3399d6', '#0082C9']
+              ? ['#005580', '#006ba3', colors.accent]
+              : ['#66b3e3', '#3399d6', colors.accent]
           }
-          accentColor="rgb(0, 130, 201)"
+          accentColor={colors.accent}
           textColor={colors.text}
           panelBackground={colors.background}
-          fontFamily="Knucklehead"
+          fontFamily={Fonts.display}
           items={
             isAuthenticated
               ? PILL_NAV_LINKS.map(({ label, path }) => ({
@@ -504,7 +502,7 @@ export default function Navbar() {
             <>
               <View style={styles.mobileUserInfo}>
                 <View
-                  style={[styles.mobileAvatar, { backgroundColor: 'rgb(0, 130, 201)' }]}
+                  style={[styles.mobileAvatar, { backgroundColor: colors.accent }]}
                 />
                 <View>
                   <Text style={[styles.mobileUserName, { color: colors.text }]}>
@@ -534,7 +532,7 @@ export default function Navbar() {
                   router.replace('/');
                 }}
               >
-                <Text style={[styles.mobileLogoutText, { color: '#ef4444' }]}>
+                <Text style={[styles.mobileLogoutText, { color: colors.error }]}>
                   Log Out
                 </Text>
               </Pressable>
@@ -622,8 +620,8 @@ const styles = StyleSheet.create({
     height: 32,
   },
   brandName: {
-    fontSize: 48,
-    fontFamily: 'Knucklehead',
+    fontSize: 24,
+    fontFamily: Fonts.display,
     fontWeight: 'normal',
   },
   pillNavWrapper: {
@@ -685,9 +683,9 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   pillNavText: {
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: '600',
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
     ...Platform.select({
       web: {
         textTransform: 'uppercase' as any,

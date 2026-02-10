@@ -3,9 +3,9 @@
  */
 
 import React from 'react';
-import { Platform, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
+import { Image, Platform, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
 import { Text } from '../../../../components/Text';
-import { Colors } from '../../../../constants/theme';
+import { Colors, Fonts } from '../../../../constants/theme';
 
 export interface LandingFooterProps {
   isSmallScreen: boolean;
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
   footerSection: {
     width: '100%',
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 32,
     paddingBottom: 32,
     borderTopWidth: 1,
     borderTopColor: 'rgba(148, 163, 184, 0.35)',
@@ -38,22 +38,16 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   footerColBrandSmall: {
     alignItems: 'center',
+    gap: 10,
   } as ViewStyle,
   footerCol: {
     flex: 1,
   } as ViewStyle,
   footerBrand: {
-    fontSize: 46,
+    fontSize: 28,
     fontWeight: '700',
     marginBottom: 4,
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerText: {
     fontSize: 14,
@@ -66,23 +60,16 @@ const styles = StyleSheet.create({
     marginTop: 14,
   } as ViewStyle,
   footerColTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '700',
-    marginBottom: 8,
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    marginBottom: 14,
+    fontFamily: Fonts.heading,
     textAlign: 'left',
   } as TextStyle,
   footerLink: {
     fontSize: 14,
     opacity: 0.9,
-    marginBottom: 10,
+    marginBottom: 14,
   } as TextStyle,
   footerLinkCentered: {
     textAlign: 'center',
@@ -92,9 +79,12 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     alignSelf: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 24,
-    marginTop: 20,
+    justifyContent: 'space-evenly',
+    gap: 32,
+    marginTop: 32,
+    paddingTop: 24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.15)',
   } as ViewStyle,
   footerMetaRow: {
     width: '100%',
@@ -103,7 +93,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 28,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(148, 163, 184, 0.15)',
   } as ViewStyle,
   footerMeta: {
     fontSize: 12,
@@ -112,25 +105,20 @@ const styles = StyleSheet.create({
   footerMetaBrand: {
     fontSize: 14,
     fontWeight: '700',
-    ...Platform.select({
-      web: {
-        fontFamily: 'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerMetaBuiltBy: {
-    ...Platform.select({
-      web: {
-        fontFamily: 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'FreakTurbulenceBRK',
-      },
-    }),
+    fontFamily: Fonts.accent,
   } as TextStyle,
+  footerBrandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  } as ViewStyle,
+  footerLogo: {
+    width: 40,
+    height: 40,
+  },
 });
 
 function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
@@ -139,9 +127,16 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       {isSmallScreen ? (
         <>
           <View style={[styles.footerColBrand, styles.footerColBrandSmall]} {...webId('landing-footer-col-brand')}>
-            <RNText style={[styles.footerBrand, { color: colors.text }]}>
-              ConstructionLink
-            </RNText>
+            <View style={styles.footerBrandRow}>
+              <Image
+                source={Platform.OS === 'web' ? { uri: '/logo.png' } : require('../../../../assets/images/logo.png')}
+                style={styles.footerLogo}
+                resizeMode="contain"
+              />
+              <RNText style={[styles.footerBrand, { color: colors.text }]}>
+                Tresten Construction Group Inc
+              </RNText>
+            </View>
             <RNText
               style={[
                 styles.footerText,
@@ -160,7 +155,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
                   { color: colors.text },
                 ]}
               >
-                +254 (7) 9639‑7296 · support@constructionlink.co
+                +254 (7) 9639‑7296 · info@trestenconstruction.com
               </Text>
             </View>
           </View>
@@ -208,16 +203,23 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       ) : (
         <View style={styles.footerTopRow}>
           <View style={styles.footerColBrand} {...webId('landing-footer-col-brand')}>
-            <RNText style={[styles.footerBrand, { color: colors.text }]}>
-              ConstructionLink
-            </RNText>
+            <View style={styles.footerBrandRow}>
+              <Image
+                source={Platform.OS === 'web' ? { uri: '/logo.png' } : require('../../../../assets/images/logo.png')}
+                style={styles.footerLogo}
+                resizeMode="contain"
+              />
+              <RNText style={[styles.footerBrand, { color: colors.text }]}>
+                Tresten Construction Group Inc
+              </RNText>
+            </View>
             <RNText style={[styles.footerText, { color: colors.text }]}>
               Connecting construction companies with skilled workers who are
               ready to build, repair and deliver on real projects.
             </RNText>
             <View style={styles.footerContactRow}>
               <Text style={[styles.footerMeta, { color: colors.text }]}>
-                +254 (7) 9639‑7296 · support@constructionlink.co
+                +254 (7) 9639‑7296 · info@trestenconstruction.com
               </Text>
             </View>
           </View>
@@ -244,7 +246,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       <View style={styles.footerMetaRow} {...webId('landing-footer-meta')}>
         <RNText style={[styles.footerMeta, { color: colors.text }]}>
           © {new Date().getFullYear()}{' '}
-          <RNText style={styles.footerMetaBrand}>ConstructionLink</RNText>. Built for
+          <RNText style={styles.footerMetaBrand}>Tresten Construction Group Inc</RNText>. Built for
           construction work, by people who've been on site.{' '}
           <RNText style={styles.footerMetaBuiltBy}>BuiltBySisi</RNText>
         </RNText>

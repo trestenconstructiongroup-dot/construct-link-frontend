@@ -3,12 +3,13 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors } from '../constants/theme';
+import { Colors, Fonts } from '../constants/theme';
 import WebLayout from './web/layout';
 import { Text } from '../components/Text';
 import { Text as RNText } from 'react-native';
 import ThemeToggle from '../components/ThemeToggle';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { logger } from '../utils/logger';
 
 type SignupField = 'name' | 'email' | 'password' | 'confirmPassword';
 
@@ -115,7 +116,7 @@ export default function SignupPage() {
           confirm_password: formData.confirmPassword,
         });
         
-        console.log('Signup successful:', response);
+        logger.log('Signup successful:', response);
 
         // Automatically log in the user using auth context
         authSignup(response);
@@ -127,7 +128,7 @@ export default function SignupPage() {
           router.replace('/');
         }
       } catch (error: any) {
-        console.error('Signup error:', error);
+        logger.error('Signup error:', error);
         let errorMessage = 'Signup failed. Please try again.';
         const fieldErrors: Partial<Record<SignupField, string>> = {};
         
@@ -234,7 +235,7 @@ export default function SignupPage() {
               Create Account
             </RNText>
             <RNText style={[styles.subtitle, { color: colors.text }]}>
-              Sign up to get started with ConstructionLink
+              Sign up to get started with Tresten Construction Group Inc
             </RNText>
           </View>
 
@@ -252,7 +253,7 @@ export default function SignupPage() {
                     borderColor: focused.name
                       ? colors.tint
                       : errors.name
-                      ? '#ef4444'
+                      ? colors.error
                       : isDark
                       ? 'rgba(255, 255, 255, 0.1)'
                       : 'rgba(0, 0, 0, 0.1)',
@@ -295,7 +296,7 @@ export default function SignupPage() {
                     borderColor: focused.email
                       ? colors.tint
                       : errors.email
-                      ? '#ef4444'
+                      ? colors.error
                       : isDark
                       ? 'rgba(255, 255, 255, 0.1)'
                       : 'rgba(0, 0, 0, 0.1)',
@@ -340,7 +341,7 @@ export default function SignupPage() {
                     borderColor: focused.password
                       ? colors.tint
                       : errors.password
-                      ? '#ef4444'
+                      ? colors.error
                       : isDark
                       ? 'rgba(255, 255, 255, 0.1)'
                       : 'rgba(0, 0, 0, 0.1)',
@@ -392,7 +393,7 @@ export default function SignupPage() {
                     borderColor: focused.confirmPassword
                       ? colors.tint
                       : errors.confirmPassword
-                      ? '#ef4444'
+                      ? colors.error
                       : isDark
                       ? 'rgba(255, 255, 255, 0.1)'
                       : 'rgba(0, 0, 0, 0.1)',
@@ -555,20 +556,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   } as ViewStyle,
   title: {
-    fontSize: 40,
-    fontFamily: 'Knucklehead',
+    fontSize: 28,
+    fontFamily: Fonts.display,
     fontWeight: 'normal',
     marginBottom: 8,
     textAlign: 'center',
     ...Platform.select({
       web: {
-        fontSize: 'clamp(28px, 4.5vw, 40px)' as any,
+        fontSize: 'clamp(22px, 3vw, 28px)' as any,
       },
     }),
   } as TextStyle,
   subtitle: {
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     opacity: 0.7,
     textAlign: 'center',
   } as TextStyle,
@@ -579,10 +580,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   } as ViewStyle,
   label: {
-    fontSize: 20,
-    fontFamily: 'Knucklehead',
+    fontSize: 14,
+    fontFamily: Fonts.heading,
     fontWeight: 'normal',
-    marginBottom: 10,
+    marginBottom: 8,
   } as TextStyle,
   inputWrapper: {
     flexDirection: 'row',
@@ -601,11 +602,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     padding: 0,
   } as TextStyle,
   inputWebValue: {
-    fontFamily: 'system-ui',
+    fontFamily: Fonts.body,
   } as TextStyle,
   eyeButton: {
     padding: 4,
@@ -613,10 +614,10 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   eyeText: {
     fontSize: 20,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
   } as TextStyle,
   errorText: {
-    color: '#ef4444',
+    color: Colors.light.error,
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
@@ -642,7 +643,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   signupButtonText: {
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     fontWeight: 'normal',
   } as TextStyle,
   signupButtonDisabled: {
@@ -660,7 +661,7 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 16,
     fontSize: 12,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     opacity: 0.5,
   } as TextStyle,
   ssoRow: {
@@ -678,7 +679,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   ssoButtonText: {
     fontSize: 15,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
   } as TextStyle,
   loginContainer: {
     flexDirection: 'row',
@@ -690,7 +691,7 @@ const styles = StyleSheet.create({
   } as TextStyle,
   loginLink: {
     fontSize: 14,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     fontWeight: 'normal',
   } as TextStyle,
 });

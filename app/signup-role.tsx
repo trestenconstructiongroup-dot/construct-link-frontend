@@ -3,13 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors } from '../constants/theme';
+import { Colors, Fonts } from '../constants/theme';
 import WebLayout from './web/layout';
 import { Text } from '../components/Text';
 import { Text as RNText } from 'react-native';
 import ThemeToggle from '../components/ThemeToggle';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { setUserRole, UserRole } from '../services/api';
+import { logger } from '../utils/logger';
 
 type Role = UserRole;
 
@@ -58,7 +59,7 @@ export default function SignupRolePage() {
       updateUserFromServer(updatedUser as any);
       router.replace('/');
     } catch (error: any) {
-      console.error('Set role error:', error);
+      logger.error('Set role error:', error);
       let errorMessage = 'Unable to save your role. Please try again.';
 
       try {
@@ -106,7 +107,7 @@ export default function SignupRolePage() {
               Choose your account type
             </RNText>
             <RNText style={[styles.subtitle, { color: colors.text }]}>
-              Tell us how you&apos;ll use ConstructionLink so we can tailor your experience for finding work, posting projects, or both.
+              Tell us how you&apos;ll use Tresten Construction Group Inc so we can tailor your experience for finding work, posting projects, or both.
             </RNText>
           </View>
 
@@ -257,14 +258,14 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   title: {
     fontSize: 32,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
     fontWeight: 'normal',
     marginBottom: 8,
     textAlign: 'left',
   } as TextStyle,
   subtitle: {
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     opacity: 0.8,
   } as TextStyle,
   cardsRow: {
@@ -299,12 +300,12 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   cardTitle: {
     fontSize: 20,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
     marginBottom: 8,
   } as TextStyle,
   cardDescription: {
     fontSize: 14,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     opacity: 0.9,
     lineHeight: 20,
   } as TextStyle,
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   continueButtonText: {
     fontSize: 16,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
   } as TextStyle,
   continueButtonDisabled: {
     opacity: 0.6,
@@ -339,7 +340,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   backLinkText: {
     fontSize: 14,
-    fontFamily: 'FreakTurbulenceBRK',
+    fontFamily: Fonts.body,
     opacity: 0.8,
   } as TextStyle,
 });

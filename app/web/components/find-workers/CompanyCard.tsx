@@ -8,7 +8,7 @@ import { Image, ImageStyle, Pressable, Text as RNText, StyleSheet, View, type Te
 import { Colors } from '../../../../constants/theme';
 import type { WorkerSearchResultCompany } from '../../../../services/api';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 
 export interface CompanyCardProps {
   item: WorkerSearchResultCompany;

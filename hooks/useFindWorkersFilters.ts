@@ -22,7 +22,7 @@ export function useFindWorkersFilters(enabled = true) {
   });
   return {
     filtersData: query.data ?? null,
-    isLoading: query.isLoading,
+    isLoading: query.isPending,
     error: query.error,
     refetch: query.refetch,
   };

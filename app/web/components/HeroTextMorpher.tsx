@@ -6,6 +6,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform, Text as RNText, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Fonts } from '../../../constants/theme';
 
 const PHRASES = [
   { a: 'Create', s: 'Jobs' },
@@ -120,10 +121,7 @@ export default function HeroTextMorpher({
     return () => clearInterval(id);
   }, [showCursor]);
 
-  const fontFamily =
-    Platform.OS === 'web'
-      ? 'Knucklehead, system-ui, sans-serif'
-      : 'Knucklehead';
+  const fontFamily = Fonts.display;
 
   const baseStyle: any = { color: textColor, fontSize, fontFamily: fontFamily as any };
 

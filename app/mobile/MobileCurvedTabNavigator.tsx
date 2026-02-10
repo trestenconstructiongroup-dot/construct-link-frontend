@@ -20,7 +20,7 @@ import JobsPage from './jobs';
 import ProfilePage from './profile';
 import WorkersPage from './workers';
 
-const COMPANY_BLUE = 'rgb(0, 130, 201)';
+const COMPANY_BLUE = Colors.light.accent;
 const COMPANY_ORANGE = 'rgb(249, 147, 36)';
 
 const TABS = [
@@ -29,7 +29,7 @@ const TABS = [
     route: '/mobile/dashboard',
     icon: 'home-outline',
     component: DashboardPage,
-    title: 'ConstructionLink',
+    title: 'Tresten Construction Group Inc',
   },
   {
     key: 'workers',

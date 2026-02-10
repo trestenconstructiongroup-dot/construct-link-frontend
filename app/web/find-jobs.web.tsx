@@ -1,6 +1,6 @@
 /**
  * Find Jobs – web page: list published jobs with filters and pagination.
- * Uses theme (Colors, Knucklehead/FreakTurbulence) and WebLayout.
+ * Uses theme (Colors, Fonts) and WebLayout.
  */
 
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -19,7 +19,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Fonts } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useFindJobs } from '../../hooks/useFindJobs';
@@ -28,7 +28,7 @@ import type { JobSummary } from '../../services/api';
 import JobCard from './components/find-jobs/JobCard';
 import WebLayout from './layout';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const JOB_TYPES = ['one_time', 'short_project', 'long_term'] as const;
 const JOB_TYPE_LABELS: Record<string, string> = {
   one_time: 'One-time Task',
@@ -91,14 +91,8 @@ export default function FindJobsWebPage() {
     setFiltersOpen((o) => !o);
   }, []);
 
-  const fontHeading =
-    Platform.OS === 'web'
-      ? 'Knucklehead, system-ui, sans-serif'
-      : 'Knucklehead';
-  const fontBody =
-    Platform.OS === 'web'
-      ? 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif'
-      : 'FreakTurbulenceBRK';
+  const fontHeading = Fonts.display;
+  const fontBody = Fonts.body;
 
   const renderItem = useCallback(
     ({ item }: { item: JobSummary }) => (

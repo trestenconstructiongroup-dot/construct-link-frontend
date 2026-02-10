@@ -11,7 +11,7 @@ import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Colors } from '../../../constants/theme';
+import { Colors, Fonts } from '../../../constants/theme';
 import { Text } from '../../../components/Text';
 import {
   getFullProfile,
@@ -190,14 +190,14 @@ function ActivitiesSection({ token, accountType }: ActivitiesSectionProps) {
               style={({ pressed }) => [
                 styles.activityCard,
                 {
-                  backgroundColor: isDark ? 'rgba(15,23,42,0.6)' : 'rgba(0,130,201,0.08)',
-                  borderColor: isDark ? 'rgba(148,163,184,0.25)' : 'rgba(0,130,201,0.2)',
+                  backgroundColor: isDark ? 'rgba(15,23,42,0.6)' : colors.accent + '14',
+                  borderColor: isDark ? 'rgba(148,163,184,0.25)' : colors.accent + '33',
                   opacity: pressed ? 0.85 : 1,
                 },
               ]}
             >
               <View style={styles.activityCardHeader}>
-                <Text style={[styles.activityCardType, { color: 'rgb(0, 130, 201)' }]}>
+                <Text style={[styles.activityCardType, { color: colors.accent }]}>
                   Job created
                 </Text>
                 <View style={[styles.activityCardEditHint, { backgroundColor: colors.tint + '20' }]}>
@@ -572,7 +572,7 @@ function ProfileSummaryCard({
       ]}
     >
       <View style={styles.summaryRow}>
-        <View style={[styles.summaryAvatar, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+        <View style={[styles.summaryAvatar, { backgroundColor: colors.accent }]} />
         <View style={styles.summaryText}>
           {editing ? (
             <>
@@ -746,7 +746,7 @@ function SkillsSection({ profile, onSave }: SkillsProps) {
                   style={[
                     styles.chip,
                     {
-                      backgroundColor: active ? 'rgb(0, 130, 201)' : 'transparent',
+                      backgroundColor: active ? colors.accent : 'transparent',
                       borderColor: 'rgba(148,163,184,0.6)',
                       borderWidth: 1,
                     },
@@ -1078,7 +1078,7 @@ function CompanyDetailsSection({ profile, hiringFocus, onSaveProfile }: CompanyD
                   style={[
                     styles.chip,
                     {
-                      backgroundColor: active ? 'rgb(0, 130, 201)' : 'transparent',
+                      backgroundColor: active ? colors.accent : 'transparent',
                       borderColor: 'rgba(148,163,184,0.6)',
                       borderWidth: 1,
                     },
@@ -1592,10 +1592,10 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   pageTitle: {
-    fontSize: Platform.OS === 'web' ? 48 : 40,
+    fontSize: Platform.OS === 'web' ? 32 : 28,
     fontWeight: '700',
     marginBottom: 8,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
   },
   card: {
     borderRadius: 16,
@@ -1624,9 +1624,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   summaryName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
-    fontFamily: Platform.OS === 'web' ? undefined : 'FreakTurbulenceBRK',
+    fontFamily: Fonts.heading,
   },
   summaryMeta: {
     fontSize: 14,
@@ -1662,7 +1662,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 999,
-    backgroundColor: 'rgb(0, 130, 201)',
+    backgroundColor: Colors.light.accent,
   },
   actionText: {
     fontSize: 13,

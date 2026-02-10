@@ -15,7 +15,7 @@ import {
     ViewStyle,
 } from 'react-native';
 import { Text } from '../../components/Text';
-import { Colors } from '../../constants/theme';
+import { Colors, Fonts } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
@@ -446,10 +446,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
 
           {/* Wizard layout: centered step content */}
           <View
-            style={[
-              styles.wizardRow,
-              isLargeScreen && styles.wizardRowRaised,
-            ]}
+            style={styles.wizardRow}
           >
             <View style={styles.formColumn}>
             {/* Step 1: basics */}
@@ -497,7 +494,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                             styles.chip,
                             {
                               backgroundColor: active
-                                ? 'rgb(0, 130, 201)'
+                                ? colors.accent
                                 : isDark
                                 ? '#0f172a'
                                 : '#e5e7eb',
@@ -617,7 +614,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                             styles.chip,
                             {
                               backgroundColor: active
-                                ? 'rgb(0, 130, 201)'
+                                ? colors.accent
                                 : isDark
                                 ? '#0f172a'
                                 : '#e5e7eb',
@@ -1071,7 +1068,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
               <>
                 <View style={[styles.footerColBrand, styles.footerColBrandSmall]}>
                   <RNText style={[styles.footerBrand, { color: colors.text }]}>
-                    ConstructionLink
+                    Tresten Construction Group Inc
                   </RNText>
                   <RNText
                     style={[
@@ -1091,7 +1088,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                         { color: colors.text },
                       ]}
                     >
-                      +254 (7) 9639‑7296 · support@constructionlink.co
+                      +254 (7) 9639‑7296 · info@trestenconstruction.com
                     </Text>
                   </View>
                 </View>
@@ -1192,7 +1189,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                     <RNText
                       style={[styles.footerBrand, { color: colors.text }]}
                     >
-                      ConstructionLink
+                      Tresten Construction Group Inc
                     </RNText>
                     <RNText
                       style={[styles.footerText, { color: colors.text }]}
@@ -1204,7 +1201,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                       <Text
                         style={[styles.footerMeta, { color: colors.text }]}
                       >
-                        +254 (7) 9639‑7296 · support@constructionlink.co
+                        +254 (7) 9639‑7296 · info@trestenconstruction.com
                       </Text>
                     </View>
                   </View>
@@ -1251,7 +1248,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                   <Text
                     style={[styles.footerMeta, { color: colors.text }]}
                   >
-                    © {new Date().getFullYear()} ConstructionLink. All rights
+                    © {new Date().getFullYear()} Tresten Construction Group Inc. All rights
                     reserved.
                   </Text>
                 </View>
@@ -1282,7 +1279,7 @@ const styles = StyleSheet.create({
     fontSize: Platform.OS === 'web' ? 40 : 32,
     fontWeight: '700',
     marginBottom: 4,
-    fontFamily: 'Knucklehead',
+    fontFamily: Fonts.display,
   } as TextStyle,
   pageSubtitle: {
     fontSize: 16,
@@ -1334,9 +1331,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginTop: 0,
-  } as ViewStyle,
-  wizardRowRaised: {
-    marginTop: -220,
   } as ViewStyle,
   card: {
     borderRadius: 16,
@@ -1420,7 +1414,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 18,
     borderRadius: 999,
-    backgroundColor: 'rgb(0, 130, 201)',
+    backgroundColor: Colors.light.accent,
   } as ViewStyle,
   actionText: {
     fontSize: 13,
@@ -1537,15 +1531,7 @@ const styles = StyleSheet.create({
     fontSize: 46,
     fontWeight: '700',
     marginBottom: 4,
-    ...Platform.select({
-      web: {
-        fontFamily:
-          'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerText: {
     fontSize: 14,
@@ -1561,15 +1547,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 8,
-    ...Platform.select({
-      web: {
-        fontFamily:
-          'Knucklehead, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' as any,
-      },
-      default: {
-        fontFamily: 'Knucklehead',
-      },
-    }),
+    fontFamily: Fonts.display,
   } as TextStyle,
   footerLink: {
     fontSize: 14,

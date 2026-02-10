@@ -19,7 +19,7 @@ import { useRouter } from 'expo-router';
 import WebLayout from '../layout';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Colors } from '../../../constants/theme';
+import { Colors, Fonts } from '../../../constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   getFindWorkerDetail,
@@ -27,7 +27,7 @@ import {
   type WorkerSearchResultCompany,
 } from '../../../services/api';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const EXPERIENCE_LABELS: Record<string, string> = {
   beginner: 'Beginner',
   intermediate: 'Intermediate',
@@ -53,10 +53,8 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const fontHeading = Platform.OS === 'web' ? 'Knucklehead, system-ui, sans-serif' : 'Knucklehead';
-  const fontBody = Platform.OS === 'web'
-    ? 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif'
-    : 'FreakTurbulenceBRK';
+  const fontHeading = Fonts.display;
+  const fontBody = Fonts.body;
 
   const loadWorker = useCallback(async () => {
     if (!userId) {

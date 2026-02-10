@@ -5,7 +5,7 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  transform: translate(5%, 8%);
+  transform: translate(5%, 0);
   transform-origin: bottom right;
 
   perspective: 900px;
@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgb(0, 130, 201);
+  color: #0082C9;
 }
 
 .card-label {
@@ -79,12 +79,12 @@
 
 @media (max-width: 768px) {
   .card-swap-container {
-    transform: scale(0.75) translate(25%, 25%);
+    transform: scale(0.75) translate(25%, 0);
   }
 }
 
 @media (max-width: 480px) {
   .card-swap-container {
-    transform: scale(0.55) translate(25%, 25%);
+    transform: scale(0.55) translate(25%, 0);
   }
 }

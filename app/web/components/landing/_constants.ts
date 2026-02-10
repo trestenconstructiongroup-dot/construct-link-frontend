@@ -20,7 +20,7 @@ export const FAQ_ITEMS = [
       'Create a job post with your location, trade and timeline, then use our filters to shortlist workers by experience, rating and recent activity before messaging them directly.',
   },
   {
-    question: 'Can workers and companies both use ConstructionLink?',
+    question: 'Can workers and companies both use Tresten Construction Group Inc?',
     answer:
       'Yes. Workers can build profiles and apply to jobs, while companies can post openings, manage applicants and build shortlists of trusted crews.',
   },
@@ -47,3 +47,24 @@ export const FAQ_ITEMS = [
 ] as const;
 
 export type FaqItemEntry = (typeof FAQ_ITEMS)[number];
+
+export const HOW_IT_WORKS_STEPS = [
+  {
+    icon: 'briefcase-outline',
+    title: 'Post a Job',
+    description:
+      'Describe the work, set your budget, and choose the trades you need.',
+  },
+  {
+    icon: 'people-outline',
+    title: 'Get Matched',
+    description:
+      'Workers that fit your requirements get notified and apply directly.',
+  },
+  {
+    icon: 'checkmark-circle-outline',
+    title: 'Hire & Build',
+    description:
+      'Review profiles, chat with candidates, and start building.',
+  },
+] as const;

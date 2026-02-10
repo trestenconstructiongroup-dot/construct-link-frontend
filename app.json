@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "construct_link_frontend",
-    "slug": "construct_link_frontend",
+    "name": "Tresten Construction Group Inc",
+    "slug": "tresten-construction-group",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "constructlinkfrontend",
+    "icon": "./assets/images/logo.png",
+    "scheme": "trestenconstructiongroup",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -38,7 +38,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

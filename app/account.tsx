@@ -17,7 +17,7 @@ function AccountContent() {
   return (
     <ScrollView contentContainerStyle={[styles.page, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <View style={[styles.avatar, { backgroundColor: 'rgb(0, 130, 201)' }]} />
+        <View style={[styles.avatar, { backgroundColor: colors.accent }]} />
         <View style={styles.headerText}>
           <Text style={[styles.name, { color: colors.text }]}>
             {user?.full_name || user?.email || 'Your profile'}

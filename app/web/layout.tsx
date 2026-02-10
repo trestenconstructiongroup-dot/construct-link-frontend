@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Colors } from '../../constants/theme';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 
 export default function WebLayout({ children }: { children: React.ReactNode }) {
   const { isDark } = useTheme();
@@ -19,9 +20,11 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
   return (
     <View style={styles.container}>
       <Navbar />
-      <View style={[styles.content, { paddingTop: contentPaddingTop }]}>
-        {children}
-      </View>
+      <ErrorBoundary>
+        <View style={[styles.content, { paddingTop: contentPaddingTop }]}>
+          {children}
+        </View>
+      </ErrorBoundary>
       {/* Floating notification bell - bottom-right, follows scroll */}
       <Pressable
         style={[

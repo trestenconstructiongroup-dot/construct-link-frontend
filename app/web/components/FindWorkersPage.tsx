@@ -19,7 +19,7 @@ import {
     View,
     ViewStyle,
 } from 'react-native';
-import { Colors } from '../../../constants/theme';
+import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useFindWorkers } from '../../../hooks/useFindWorkers';
@@ -29,7 +29,7 @@ import WebLayout from '../layout';
 import CompanyCard from './find-workers/CompanyCard';
 import IndividualCard from './find-workers/IndividualCard';
 
-const BRAND_BLUE = '#0a7ea4';
+const BRAND_BLUE = Colors.light.accentMuted;
 const EXPERIENCE_LEVELS = ['beginner', 'intermediate', 'expert', 'master'] as const;
 const EXPERIENCE_LABELS: Record<string, string> = {
   beginner: 'Beginner',
@@ -123,10 +123,8 @@ export default function FindWorkersPage() {
     refetch,
   } = useFindWorkers(appliedParams, token ?? null, isLoggedIn);
 
-  const fontHeading = Platform.OS === 'web' ? 'Knucklehead, system-ui, sans-serif' : 'Knucklehead';
-  const fontBody = Platform.OS === 'web'
-    ? 'FreakTurbulenceBRK, "Freak Turbulence (BRK)", system-ui, sans-serif'
-    : 'FreakTurbulenceBRK';
+  const fontHeading = Fonts.display;
+  const fontBody = Fonts.body;
 
   const handleViewProfile = useCallback((userId: number) => {
     router.push(`/workers/${userId}`);

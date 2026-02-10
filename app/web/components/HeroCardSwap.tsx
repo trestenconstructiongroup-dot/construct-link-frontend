@@ -7,6 +7,7 @@ import React from 'react';
 import { View, Image, Text, ImageSourcePropType } from 'react-native';
 import CardSwap, { Card } from './CardSwap';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Colors } from '../../../constants/theme';
 
 export interface HeroCardSwapProps {
   /** require() or source for Find workers card (image17) */
@@ -21,7 +22,7 @@ export interface HeroCardSwapProps {
   cardBackground?: string;
   /** Text color for card labels (use theme text color). */
   cardTextColor?: string;
-  /** Font family for card labels (e.g. FreakTurbulenceBRK). */
+  /** Font family for card labels (e.g. Fonts.body). */
   cardFontFamily?: string;
   /** Background for the image/margin area inside the card. */
   cardMarginBackground?: string;
@@ -65,7 +66,7 @@ export default function HeroCardSwap({
                 ...(cardIconRowBorderColor ? [{ borderBottomColor: cardIconRowBorderColor }] : []),
               ]}
             >
-              <Ionicons name="people-outline" size={28} color="rgb(0, 130, 201)" />
+              <Ionicons name="people-outline" size={28} color={Colors.light.accent} />
               <Text
                 style={[
                   cardLabelStyle,
@@ -89,7 +90,7 @@ export default function HeroCardSwap({
                 ...(cardIconRowBorderColor ? [{ borderBottomColor: cardIconRowBorderColor }] : []),
               ]}
             >
-              <Ionicons name="search-outline" size={28} color="rgb(0, 130, 201)" />
+              <Ionicons name="search-outline" size={28} color={Colors.light.accent} />
               <Text
                 style={[
                   cardLabelStyle,
@@ -113,7 +114,7 @@ export default function HeroCardSwap({
                 ...(cardIconRowBorderColor ? [{ borderBottomColor: cardIconRowBorderColor }] : []),
               ]}
             >
-              <Ionicons name="add-circle-outline" size={28} color="rgb(0, 130, 201)" />
+              <Ionicons name="add-circle-outline" size={28} color={Colors.light.accent} />
               <Text
                 style={[
                   cardLabelStyle,
