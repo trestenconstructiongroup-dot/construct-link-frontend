@@ -12,12 +12,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemColorScheme = useColorScheme();
-  const [theme, setTheme] = useState<Theme>(systemColorScheme === 'dark' ? 'dark' : 'light');
-
-  useEffect(() => {
-    // Sync with system theme on mount
-    setTheme(systemColorScheme === 'dark' ? 'dark' : 'light');
-  }, [systemColorScheme]);
+  const [theme, setTheme] = useState<Theme>('light');
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
