@@ -74,6 +74,7 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
             {...(Platform.OS === 'web' ? { className: 'hiw-card' } as any : {})}
             style={[
               styles.card,
+              isSmallScreen && { padding: 16 },
               {
                 backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
                 borderColor: colors.border,
@@ -139,7 +140,10 @@ const styles = {
     marginBottom: 40,
   } as TextStyle,
   headingSmall: {
-    fontSize: 28,
+    ...Platform.select({
+      web: { fontSize: 'clamp(20px, 6vw, 28px)' as any },
+      default: { fontSize: 28 },
+    }),
     marginBottom: 24,
   } as TextStyle,
   stepsRow: {

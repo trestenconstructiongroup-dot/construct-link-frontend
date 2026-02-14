@@ -88,7 +88,7 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
                   className="vs-word"
                   style={{
                     display: 'inline-block',
-                    fontSize: isSmallScreen ? 28 : 36,
+                    fontSize: isSmallScreen ? 'clamp(20px, 6vw, 28px)' : 36,
                     fontFamily: Fonts.display,
                     fontWeight: 700,
                     color: colors.text,

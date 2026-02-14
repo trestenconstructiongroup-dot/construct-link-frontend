@@ -105,7 +105,7 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
                 className="tm-letter"
                 style={{
                   display: 'inline-block',
-                  fontSize: isSmallScreen ? 28 : 42,
+                  fontSize: isSmallScreen ? 'clamp(22px, 6vw, 28px)' : 42,
                   fontFamily: Fonts.display,
                   fontWeight: 700,
                   color: colors.text,
@@ -137,7 +137,7 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
                 flexShrink: 0,
                 width: isSmallScreen ? '80vw' : '45vw',
                 maxWidth: 600,
-                padding: isSmallScreen ? 24 : 40,
+                padding: isSmallScreen ? 16 : 40,
                 borderRadius: 20,
                 border: `1px solid ${colors.border}`,
                 backgroundColor: isDark
@@ -151,7 +151,7 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
             >
               <span
                 style={{
-                  fontSize: isSmallScreen ? 18 : 22,
+                  fontSize: isSmallScreen ? 16 : 22,
                   fontFamily: Fonts.body,
                   color: colors.text,
                   lineHeight: 1.6,

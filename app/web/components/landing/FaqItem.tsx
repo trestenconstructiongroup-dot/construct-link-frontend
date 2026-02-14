@@ -39,12 +39,12 @@ const styles = StyleSheet.create({
   } as TextStyle,
   faqItemBody: {
     overflow: 'hidden',
-    paddingTop: 12,
-    paddingBottom: 12,
   } as ViewStyle,
   faqAnswer: {
     fontSize: 17,
     lineHeight: 26,
+    paddingTop: 12,
+    paddingBottom: 12,
   } as TextStyle,
   faqAnswerCentered: {
     textAlign: 'center',
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
 
 function FaqItemComponent({ item, isSmallScreen, colors, itemId }: FaqItemProps) {
   const [open, setOpen] = useState(false);
+  const [contentHeight, setContentHeight] = useState(200);
   const anim = useRef(new Animated.Value(0)).current;
 
   const toggle = useCallback(() => {
@@ -69,7 +70,7 @@ function FaqItemComponent({ item, isSmallScreen, colors, itemId }: FaqItemProps)
 
   const bodyHeight = anim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 140],
+    outputRange: [0, contentHeight],
   });
 
   const iconRotation = anim.interpolate({
@@ -96,15 +97,17 @@ function FaqItemComponent({ item, isSmallScreen, colors, itemId }: FaqItemProps)
       <Animated.View
         style={[styles.faqItemBody, { maxHeight: bodyHeight, opacity: anim }]}
       >
-        <RNText
-          style={[
-            styles.faqAnswer,
-            isSmallScreen && styles.faqAnswerCentered,
-            { color: colors.text },
-          ]}
-        >
-          {item.answer}
-        </RNText>
+        <View onLayout={(e) => setContentHeight(e.nativeEvent.layout.height)}>
+          <RNText
+            style={[
+              styles.faqAnswer,
+              isSmallScreen && styles.faqAnswerCentered,
+              { color: colors.text },
+            ]}
+          >
+            {item.answer}
+          </RNText>
+        </View>
       </Animated.View>
     </View>
   );

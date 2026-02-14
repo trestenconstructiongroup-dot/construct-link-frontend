@@ -142,7 +142,7 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
                       className="da-word"
                       style={{
                         display: 'inline-block',
-                        fontSize: 36,
+                        fontSize: isSmallScreen ? 'clamp(22px, 5vw, 36px)' : 36,
                         fontFamily: Fonts.display,
                         fontWeight: 700,
                         color: '#ffffff',
@@ -250,6 +250,7 @@ const styles = {
   } as ViewStyle,
   badgeRowSmall: {
     justifyContent: 'center',
+    flexWrap: 'wrap',
   } as ViewStyle,
   badge: {
     flexDirection: 'row',

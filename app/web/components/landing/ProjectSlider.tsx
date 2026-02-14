@@ -64,7 +64,7 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
       const track = trackRef.current;
       if (track) {
         const gap = isSmallScreen ? 12 : 16;
-        const cardW = isSmallScreen ? 260 : 380;
+        const cardW = isSmallScreen ? Math.min(260, window.innerWidth * 0.75) : 380;
         const totalTrackWidth = SLIDER_IMAGES.length * (cardW + gap) - gap;
         const viewportWidth = containerRef.current!.offsetWidth;
         const scrollDistance = Math.max(0, totalTrackWidth - viewportWidth);
@@ -108,7 +108,7 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
                 className="ps-word"
                 style={{
                   display: 'inline-block',
-                  fontSize: isSmallScreen ? 28 : 36,
+                  fontSize: isSmallScreen ? 'clamp(20px, 6vw, 28px)' : 36,
                   fontFamily: Fonts.display,
                   fontWeight: 700,
                   color: colors.text,
@@ -135,7 +135,7 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
               key={i}
               style={{
                 flexShrink: 0,
-                width: isSmallScreen ? 260 : 380,
+                width: isSmallScreen ? 'min(260px, 75vw)' : 380,
                 height: isSmallScreen ? 180 : 260,
                 borderRadius: 16,
                 overflow: 'hidden',

@@ -51,16 +51,26 @@ const styles = StyleSheet.create({
     }),
   } as ViewStyle,
   categoryButtonCompact: {
+    padding: 10,
     ...Platform.select({
       web: {
-        flexBasis: 'calc(50% - 12px)' as any,
-        maxWidth: 'calc(50% - 12px)' as any,
+        flexBasis: 'calc(50% - 6px)' as any,
+        maxWidth: 'calc(50% - 6px)' as any,
       },
       default: {
         width: '48%',
       },
     }),
   } as ViewStyle,
+  categoryImageAreaCompact: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    marginRight: 10,
+  } as ViewStyle,
+  categoryLabelCompact: {
+    fontSize: 12,
+  } as TextStyle,
   noiseOverlay: {
     position: 'absolute',
     top: 0,
@@ -146,12 +156,12 @@ function CategoryButtonComponent({
           Platform.OS === 'web' && { backgroundImage: `url("${NOISE_SVG}")` as any },
         ]}
       />
-      <View style={[styles.categoryImageArea, { backgroundColor: imageAreaBg }]}>
+      <View style={[styles.categoryImageArea, isCompact && styles.categoryImageAreaCompact, { backgroundColor: imageAreaBg }]}>
         {imageSource != null && (
           <Image source={imageSource} style={styles.categoryImage} resizeMode="cover" />
         )}
       </View>
-      <Text style={[styles.categoryLabel, { color: colors.text }]}>{label}</Text>
+      <Text style={[styles.categoryLabel, isCompact && styles.categoryLabelCompact, { color: colors.text }]}>{label}</Text>
     </Pressable>
   );
 }

@@ -94,6 +94,8 @@ function PageLoaderComponent() {
           fontWeight: 700,
           color: colors.text,
           userSelect: 'none',
+          textAlign: 'center',
+          maxWidth: '90%',
         }}
       >
         {LOADER_WORDS[0]}

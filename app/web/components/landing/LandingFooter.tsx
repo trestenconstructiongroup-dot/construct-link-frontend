@@ -50,10 +50,13 @@ const styles = StyleSheet.create({
     flex: 1,
   } as ViewStyle,
   footerBrand: {
-    fontSize: 28,
     fontWeight: '700',
     marginBottom: 4,
     fontFamily: Fonts.display,
+    ...Platform.select({
+      web: { fontSize: 'clamp(18px, 5vw, 28px)' as any },
+      default: { fontSize: 28 },
+    }),
   } as TextStyle,
   footerText: {
     fontSize: 14,
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    gap: 32,
+    gap: 20,
     marginTop: 32,
     paddingTop: 24,
     borderTopWidth: 1,

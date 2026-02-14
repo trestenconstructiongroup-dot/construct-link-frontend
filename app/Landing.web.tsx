@@ -142,7 +142,7 @@ export default function WebLanding() {
 
     // On small screens, keep elements visible after reveal (no reverse on leave)
     // On desktop, full reverse-on-scroll effect
-    const small = window.innerWidth < 900;
+    const small = window.innerWidth < 768;
     const ta = small ? 'play none none reverse' : 'play reverse play reverse';
 
     const ctx = gsap.context(() => {
@@ -252,8 +252,8 @@ export default function WebLanding() {
     };
   }, []);
 
-  const isSmallScreen = screenWidth < 900;
-  const showHeroImage = screenWidth >= 900;
+  const isSmallScreen = screenWidth < 768;
+  const showHeroImage = screenWidth >= 768;
 
   const unlockHeadingWords = 'Unlock Opportunities'.split(' ');
 
@@ -372,13 +372,13 @@ export default function WebLanding() {
               ref={unlockRef}
               style={{
                 width: '100%',
-                maxWidth: 1200,
+                maxWidth: isSmallScreen ? '100%' : 1200,
                 display: 'flex',
                 flexDirection: isSmallScreen ? 'column' : 'row',
                 alignItems: 'center',
                 justifyContent: isSmallScreen ? 'center' : 'space-between',
-                paddingLeft: isSmallScreen ? 20 : 40,
-                paddingRight: isSmallScreen ? 20 : 40,
+                paddingLeft: isSmallScreen ? 16 : 40,
+                paddingRight: isSmallScreen ? 16 : 40,
                 gap: isSmallScreen ? 24 : 32,
                 alignSelf: 'center',
                 margin: '0 auto',

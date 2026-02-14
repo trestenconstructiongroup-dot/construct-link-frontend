@@ -112,7 +112,7 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: 32,
+                padding: isSmallScreen ? 20 : 32,
                 borderRadius: 16,
                 border: `1px solid ${colors.border}`,
                 backgroundColor: isDark
@@ -123,7 +123,7 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
               <span
                 ref={(el) => { numberRefs.current[i] = el; }}
                 style={{
-                  fontSize: isSmallScreen ? 36 : 48,
+                  fontSize: isSmallScreen ? 'clamp(28px, 8vw, 36px)' : 48,
                   fontFamily: Fonts.display,
                   fontWeight: 700,
                   color: colors.accent,
