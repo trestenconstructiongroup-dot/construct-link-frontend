@@ -4,6 +4,7 @@
  */
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -37,6 +38,7 @@ const JOB_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function FindJobsWebPage() {
+  const router = useRouter();
   const { isDark } = useTheme();
   const { token, user, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
@@ -122,20 +124,26 @@ export default function FindJobsWebPage() {
     );
   }
 
-  if (!isLoggedIn) {
-    return (
-      <WebLayout>
-        <View style={[styles.center, { backgroundColor: colors.background }]}>
-          <RNText style={[styles.centerText, { color: colors.text }]}>
-            You need to be logged in to view the Find Jobs page.
-          </RNText>
-        </View>
-      </WebLayout>
-    );
-  }
-
   return (
     <WebLayout>
+      {!isLoggedIn && (
+        <View style={styles.authOverlay}>
+          <Pressable style={styles.authBackdrop} onPress={() => router.back()} />
+          <View style={[styles.authModal, { backgroundColor: isDark ? '#1e293b' : '#ffffff' }]}>
+            <Ionicons name="lock-closed-outline" size={36} color={colors.tint} style={{ marginBottom: 12 }} />
+            <RNText style={[styles.authTitle, { color: colors.text }]}>Sign in required</RNText>
+            <RNText style={[styles.authDesc, { color: colors.icon }]}>
+              Log in or create an account to browse available jobs.
+            </RNText>
+            <Pressable style={[styles.authBtn, { backgroundColor: BRAND_BLUE }]} onPress={() => router.push('/login')}>
+              <RNText style={styles.authBtnText}>Log In</RNText>
+            </Pressable>
+            <Pressable style={[styles.authBtnOutline, { borderColor: colors.tint }]} onPress={() => router.push('/signup')}>
+              <RNText style={[styles.authBtnOutlineText, { color: colors.tint }]}>Sign Up</RNText>
+            </Pressable>
+          </View>
+        </View>
+      )}
       <ScrollView
         style={[styles.scrollView, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.scrollContent}
@@ -580,4 +588,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   } as TextStyle,
+  authOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, alignItems: 'center', justifyContent: 'center' } as ViewStyle,
+  authBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' } as ViewStyle,
+  authModal: { width: '90%', maxWidth: 380, borderRadius: 16, padding: 32, alignItems: 'center', ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(0,0,0,0.3)' as any } }) } as ViewStyle,
+  authTitle: { fontSize: 22, fontWeight: '700', marginBottom: 8, fontFamily: Fonts.display } as TextStyle,
+  authDesc: { fontSize: 15, textAlign: 'center', lineHeight: 22, marginBottom: 24 } as TextStyle,
+  authBtn: { width: '100%', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginBottom: 12 } as ViewStyle,
+  authBtnText: { fontSize: 16, fontWeight: '600', color: '#fff' } as TextStyle,
+  authBtnOutline: { width: '100%', paddingVertical: 14, borderRadius: 10, alignItems: 'center', borderWidth: 2 } as ViewStyle,
+  authBtnOutlineText: { fontSize: 16, fontWeight: '600' } as TextStyle,
 });

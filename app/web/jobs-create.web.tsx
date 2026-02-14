@@ -391,14 +391,30 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
 
   return (
     <WebLayout>
-      {!isLoggedIn ? (
-        <View style={[styles.center, { backgroundColor: colors.background }]}>
-          <Text style={{ color: colors.text }}>
-            You need to be logged in to create a job.
-          </Text>
+      {!isLoggedIn && (
+        <View style={styles.authOverlay}>
+          <Pressable style={styles.authBackdrop} onPress={() => router.back()} />
+          <View style={[styles.authModal, { backgroundColor: isDark ? '#1e293b' : '#ffffff' }]}>
+            <Text style={[styles.authTitle, { color: colors.text }]}>Sign in required</Text>
+            <Text style={[styles.authDesc, { color: colors.icon || colors.text }]}>
+              Log in or create an account to post jobs.
+            </Text>
+            <Pressable
+              style={[styles.authBtn, { backgroundColor: Colors.light.accentMuted }]}
+              onPress={() => router.push('/login')}
+            >
+              <RNText style={styles.authBtnText}>Log In</RNText>
+            </Pressable>
+            <Pressable
+              style={[styles.authBtnOutline, { borderColor: colors.tint }]}
+              onPress={() => router.push('/signup')}
+            >
+              <RNText style={[styles.authBtnOutlineText, { color: colors.tint }]}>Sign Up</RNText>
+            </Pressable>
+          </View>
         </View>
-      ) : (
-        <ScrollView
+      )}
+      <ScrollView
           contentContainerStyle={[
             styles.page,
             { backgroundColor: colors.background },
@@ -1256,7 +1272,6 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
             )}
           </View>
         </ScrollView>
-      )}
     </WebLayout>
   );
 }
@@ -1578,5 +1593,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 20,
   } as ViewStyle,
+  authOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, alignItems: 'center', justifyContent: 'center' } as ViewStyle,
+  authBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' } as ViewStyle,
+  authModal: { width: '90%', maxWidth: 380, borderRadius: 16, padding: 32, alignItems: 'center', ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(0,0,0,0.3)' as any } }) } as ViewStyle,
+  authTitle: { fontSize: 22, fontWeight: '700', marginBottom: 8, fontFamily: Fonts.display } as TextStyle,
+  authDesc: { fontSize: 15, textAlign: 'center', lineHeight: 22, marginBottom: 24 } as TextStyle,
+  authBtn: { width: '100%', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginBottom: 12 } as ViewStyle,
+  authBtnText: { fontSize: 16, fontWeight: '600', color: '#fff' } as TextStyle,
+  authBtnOutline: { width: '100%', paddingVertical: 14, borderRadius: 10, alignItems: 'center', borderWidth: 2 } as ViewStyle,
+  authBtnOutlineText: { fontSize: 16, fontWeight: '600' } as TextStyle,
 });
 
