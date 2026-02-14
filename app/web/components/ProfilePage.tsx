@@ -33,6 +33,9 @@ import type { Job } from '../../../services/api';
 
 type Skill = { name: string; standardized?: boolean };
 
+type CertificationEntry = { name: string; issuer?: string; year?: number };
+type WorkProcessStep = { step?: number; title: string; description?: string };
+
 type IndividualProfile = {
   id: number;
   name: string;
@@ -42,6 +45,11 @@ type IndividualProfile = {
   experience_years?: number;
   location: string;
   photo_url: string;
+  hourly_rate?: string | null;
+  daily_rate?: string | null;
+  availability?: string;
+  certifications?: CertificationEntry[];
+  work_process?: WorkProcessStep[];
 };
 
 type CompanyProfile = {
@@ -53,6 +61,10 @@ type CompanyProfile = {
   team_size?: number;
   location: string;
   logo_url: string;
+  founded_year?: number | null;
+  certifications?: string[];
+  notable_projects?: Array<string | { name: string; value?: string; duration?: string }>;
+  min_project_budget?: string | null;
 };
 
 type ExperienceItem = {
@@ -358,6 +370,30 @@ export default function ProfilePage() {
               setData((prev) => (prev ? { ...prev, individual_profile: next } : prev));
             }}
           />
+          <RatesAvailabilitySection
+            profile={individual}
+            onSave={async (payload) => {
+              if (!token) return;
+              const next = await updateIndividualProfile(token, payload as any);
+              setData((prev) => (prev ? { ...prev, individual_profile: next } : prev));
+            }}
+          />
+          <CertificationsSection
+            certifications={individual.certifications || []}
+            onSave={async (certifications) => {
+              if (!token) return;
+              const next = await updateIndividualProfile(token, { certifications } as any);
+              setData((prev) => (prev ? { ...prev, individual_profile: next } : prev));
+            }}
+          />
+          <WorkProcessSection
+            steps={individual.work_process || []}
+            onSave={async (work_process) => {
+              if (!token) return;
+              const next = await updateIndividualProfile(token, { work_process } as any);
+              setData((prev) => (prev ? { ...prev, individual_profile: next } : prev));
+            }}
+          />
           <ExperienceSection
             items={experience}
             onAdd={async (payload) => {
@@ -502,6 +538,14 @@ export default function ProfilePage() {
                     }
                   : prev,
               );
+            }}
+          />
+          <CompanyExtrasSection
+            profile={company}
+            onSave={async (payload) => {
+              if (!token) return;
+              const next = await updateCompanyProfile(token, payload as any);
+              setData((prev) => (prev ? { ...prev, company_profile: next } : prev));
             }}
           />
         </>
@@ -1220,6 +1264,544 @@ function CompanyHiringFocusSection({
     </View>
   );
 }
+const AVAILABILITY_OPTIONS = [
+  { value: '', label: 'Not set' },
+  { value: 'available', label: 'Available' },
+  { value: 'busy', label: 'Busy' },
+  { value: 'available_soon', label: 'Available Soon' },
+  { value: 'unavailable', label: 'Unavailable' },
+];
+
+type RatesAvailabilityProps = {
+  profile: IndividualProfile;
+  onSave: (payload: Partial<IndividualProfile>) => Promise<void>;
+};
+
+function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
+  const { isDark } = useTheme();
+  const colors = Colors[isDark ? 'dark' : 'light'];
+  const [editing, setEditing] = useState(false);
+  const [hourlyRate, setHourlyRate] = useState(profile.hourly_rate ?? '');
+  const [dailyRate, setDailyRate] = useState(profile.daily_rate ?? '');
+  const [availability, setAvailability] = useState(profile.availability ?? '');
+
+  const handleSave = async () => {
+    await onSave({
+      hourly_rate: hourlyRate?.toString().trim() || null,
+      daily_rate: dailyRate?.toString().trim() || null,
+      availability,
+    });
+    setEditing(false);
+  };
+
+  const currentLabel = AVAILABILITY_OPTIONS.find((o) => o.value === availability)?.label || 'Not set';
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
+          ...(Platform.OS !== 'web' && !isDark
+            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
+            : {}),
+        },
+      ]}
+    >
+      <View style={styles.cardHeader}>
+        <Text style={[styles.cardTitle, { color: colors.text }]}>Rates & Availability</Text>
+        <Pressable onPress={() => setEditing((prev) => !prev)}>
+          <Text style={[styles.cardAction, { color: colors.text }]}>
+            {editing ? 'Cancel' : 'Edit'}
+          </Text>
+        </Pressable>
+      </View>
+
+      {!editing ? (
+        <View style={{ gap: 8 }}>
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
+            Hourly rate: {profile.hourly_rate ? `$${profile.hourly_rate}/hr` : 'Not set'}
+          </Text>
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
+            Daily rate: {profile.daily_rate ? `$${profile.daily_rate}/day` : 'Not set'}
+          </Text>
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
+            Availability: {currentLabel}
+          </Text>
+        </View>
+      ) : (
+        <View style={{ gap: 8 }}>
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Hourly rate ($)</Text>
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            value={String(hourlyRate ?? '')}
+            onChangeText={setHourlyRate}
+            placeholder="e.g. 45.00"
+            keyboardType="numeric"
+            placeholderTextColor="#9ca3af"
+          />
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Daily rate ($)</Text>
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            value={String(dailyRate ?? '')}
+            onChangeText={setDailyRate}
+            placeholder="e.g. 350.00"
+            keyboardType="numeric"
+            placeholderTextColor="#9ca3af"
+          />
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Availability</Text>
+          <View style={styles.chipRow}>
+            {AVAILABILITY_OPTIONS.map((opt) => {
+              const active = availability === opt.value;
+              return (
+                <Pressable
+                  key={opt.value}
+                  onPress={() => setAvailability(opt.value)}
+                  style={[
+                    styles.chip,
+                    {
+                      backgroundColor: active ? colors.accent : 'transparent',
+                      borderColor: 'rgba(148,163,184,0.6)',
+                      borderWidth: 1,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.chipText, { color: active ? '#ffffff' : colors.text }]}>
+                    {opt.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <View style={styles.sectionActions}>
+            <Pressable style={styles.saveButton} onPress={handleSave}>
+              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
+type CertificationsSectionProps = {
+  certifications: CertificationEntry[];
+  onSave: (certifications: CertificationEntry[]) => Promise<void>;
+};
+
+function CertificationsSection({ certifications, onSave }: CertificationsSectionProps) {
+  const { isDark } = useTheme();
+  const colors = Colors[isDark ? 'dark' : 'light'];
+  const [editing, setEditing] = useState(false);
+  const [items, setItems] = useState<CertificationEntry[]>(certifications || []);
+  const [name, setName] = useState('');
+  const [issuer, setIssuer] = useState('');
+  const [year, setYear] = useState('');
+
+  const handleAdd = () => {
+    if (!name.trim()) return;
+    const entry: CertificationEntry = { name: name.trim() };
+    if (issuer.trim()) entry.issuer = issuer.trim();
+    if (year.trim() && !Number.isNaN(Number(year))) entry.year = Number(year);
+    setItems([...items, entry]);
+    setName('');
+    setIssuer('');
+    setYear('');
+  };
+
+  const handleRemove = (idx: number) => {
+    setItems(items.filter((_, i) => i !== idx));
+  };
+
+  const handleSave = async () => {
+    await onSave(items);
+    setEditing(false);
+  };
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
+          ...(Platform.OS !== 'web' && !isDark
+            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
+            : {}),
+        },
+      ]}
+    >
+      <View style={styles.cardHeader}>
+        <Text style={[styles.cardTitle, { color: colors.text }]}>Certifications</Text>
+        <Pressable onPress={() => setEditing((prev) => !prev)}>
+          <Text style={[styles.cardAction, { color: colors.text }]}>
+            {editing ? 'Cancel' : 'Edit'}
+          </Text>
+        </Pressable>
+      </View>
+
+      {items.length === 0 && !editing ? (
+        <Text style={[styles.bodyText, { color: colors.text }]}>
+          Add certifications like OSHA 30, LEED, PMP, or trade licenses.
+        </Text>
+      ) : (
+        items.map((cert, i) => (
+          <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.summaryName, { fontSize: 15, color: colors.text }]}>{cert.name}</Text>
+              {(cert.issuer || cert.year) ? (
+                <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.7 }]}>
+                  {[cert.issuer, cert.year].filter(Boolean).join(' · ')}
+                </Text>
+              ) : null}
+            </View>
+            {editing && (
+              <Pressable onPress={() => handleRemove(i)}>
+                <Text style={[styles.cardAction, { color: '#f97373' }]}>Remove</Text>
+              </Pressable>
+            )}
+          </View>
+        ))
+      )}
+
+      {editing && (
+        <View style={{ marginTop: 12, gap: 8 }}>
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            value={name}
+            onChangeText={setName}
+            placeholder="Certification name (e.g. OSHA 30)"
+            placeholderTextColor="#9ca3af"
+          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TextInput
+              style={[styles.input, { flex: 2, color: colors.text }]}
+              value={issuer}
+              onChangeText={setIssuer}
+              placeholder="Issuer (optional)"
+              placeholderTextColor="#9ca3af"
+            />
+            <TextInput
+              style={[styles.input, { flex: 1, color: colors.text }]}
+              value={year}
+              onChangeText={setYear}
+              placeholder="Year"
+              keyboardType="numeric"
+              placeholderTextColor="#9ca3af"
+            />
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)' }]} onPress={handleAdd}>
+              <Text style={[styles.actionText, { color: colors.text }]}>+ Add</Text>
+            </Pressable>
+            <Pressable style={styles.saveButton} onPress={handleSave}>
+              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save certifications</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
+type WorkProcessSectionProps = {
+  steps: WorkProcessStep[];
+  onSave: (steps: WorkProcessStep[]) => Promise<void>;
+};
+
+function WorkProcessSection({ steps, onSave }: WorkProcessSectionProps) {
+  const { isDark } = useTheme();
+  const colors = Colors[isDark ? 'dark' : 'light'];
+  const [editing, setEditing] = useState(false);
+  const [items, setItems] = useState<WorkProcessStep[]>(steps || []);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  const handleAdd = () => {
+    if (!title.trim()) return;
+    setItems([...items, { step: items.length + 1, title: title.trim(), description: description.trim() || undefined }]);
+    setTitle('');
+    setDescription('');
+  };
+
+  const handleRemove = (idx: number) => {
+    const next = items.filter((_, i) => i !== idx).map((s, i) => ({ ...s, step: i + 1 }));
+    setItems(next);
+  };
+
+  const handleSave = async () => {
+    await onSave(items);
+    setEditing(false);
+  };
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
+          ...(Platform.OS !== 'web' && !isDark
+            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
+            : {}),
+        },
+      ]}
+    >
+      <View style={styles.cardHeader}>
+        <Text style={[styles.cardTitle, { color: colors.text }]}>How I Work</Text>
+        <Pressable onPress={() => setEditing((prev) => !prev)}>
+          <Text style={[styles.cardAction, { color: colors.text }]}>
+            {editing ? 'Cancel' : 'Edit'}
+          </Text>
+        </Pressable>
+      </View>
+
+      {items.length === 0 && !editing ? (
+        <Text style={[styles.bodyText, { color: colors.text }]}>
+          Outline your work process so clients know what to expect (e.g. 1. Consultation, 2. Estimate, 3. Execution).
+        </Text>
+      ) : (
+        items.map((step, i) => (
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10, gap: 10 }}>
+            <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>{step.step ?? i + 1}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.summaryName, { fontSize: 15, color: colors.text }]}>{step.title}</Text>
+              {step.description ? <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.7 }]}>{step.description}</Text> : null}
+            </View>
+            {editing && (
+              <Pressable onPress={() => handleRemove(i)}>
+                <Text style={[styles.cardAction, { color: '#f97373' }]}>Remove</Text>
+              </Pressable>
+            )}
+          </View>
+        ))
+      )}
+
+      {editing && (
+        <View style={{ marginTop: 12, gap: 8 }}>
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Step title (e.g. Site Assessment)"
+            placeholderTextColor="#9ca3af"
+          />
+          <TextInput
+            style={[styles.textArea, { color: colors.text, minHeight: 60 }]}
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={2}
+            placeholder="Brief description (optional)"
+            placeholderTextColor="#9ca3af"
+          />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)' }]} onPress={handleAdd}>
+              <Text style={[styles.actionText, { color: colors.text }]}>+ Add step</Text>
+            </Pressable>
+            <Pressable style={styles.saveButton} onPress={handleSave}>
+              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save work process</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
+type CompanyExtrasProps = {
+  profile: CompanyProfile;
+  onSave: (payload: Partial<CompanyProfile>) => Promise<void>;
+};
+
+function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
+  const { isDark } = useTheme();
+  const colors = Colors[isDark ? 'dark' : 'light'];
+  const [editing, setEditing] = useState(false);
+  const [foundedYear, setFoundedYear] = useState(profile.founded_year != null ? String(profile.founded_year) : '');
+  const [minBudget, setMinBudget] = useState(profile.min_project_budget ?? '');
+  const [certs, setCerts] = useState<string[]>(profile.certifications || []);
+  const [certInput, setCertInput] = useState('');
+  const [projects, setProjects] = useState<Array<{ name: string; value?: string; duration?: string }>>(
+    (profile.notable_projects || []).map((p) => (typeof p === 'string' ? { name: p } : p))
+  );
+  const [projName, setProjName] = useState('');
+  const [projValue, setProjValue] = useState('');
+  const [projDuration, setProjDuration] = useState('');
+
+  const handleAddCert = () => {
+    if (!certInput.trim()) return;
+    setCerts([...certs, certInput.trim()]);
+    setCertInput('');
+  };
+
+  const handleAddProject = () => {
+    if (!projName.trim()) return;
+    const entry: { name: string; value?: string; duration?: string } = { name: projName.trim() };
+    if (projValue.trim()) entry.value = projValue.trim();
+    if (projDuration.trim()) entry.duration = projDuration.trim();
+    setProjects([...projects, entry]);
+    setProjName('');
+    setProjValue('');
+    setProjDuration('');
+  };
+
+  const handleSave = async () => {
+    const yr = foundedYear.trim() ? Number(foundedYear) : null;
+    await onSave({
+      founded_year: Number.isNaN(yr as number) ? null : yr,
+      min_project_budget: minBudget?.toString().trim() || null,
+      certifications: certs,
+      notable_projects: projects,
+    } as any);
+    setEditing(false);
+  };
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
+          ...(Platform.OS !== 'web' && !isDark
+            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
+            : {}),
+        },
+      ]}
+    >
+      <View style={styles.cardHeader}>
+        <Text style={[styles.cardTitle, { color: colors.text }]}>Company Extras</Text>
+        <Pressable onPress={() => setEditing((prev) => !prev)}>
+          <Text style={[styles.cardAction, { color: colors.text }]}>
+            {editing ? 'Cancel' : 'Edit'}
+          </Text>
+        </Pressable>
+      </View>
+
+      {!editing ? (
+        <View style={{ gap: 8 }}>
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
+            Founded: {profile.founded_year || 'Not set'}
+          </Text>
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
+            Min project budget: {profile.min_project_budget ? `$${profile.min_project_budget}` : 'Not set'}
+          </Text>
+          {certs.length > 0 && (
+            <View>
+              <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8, marginBottom: 4 }]}>Certifications</Text>
+              <View style={styles.chipRow}>
+                {certs.map((c, i) => (
+                  <View key={i} style={[styles.chip, { backgroundColor: isDark ? '#0f172a' : '#e5e7eb' }]}>
+                    <Text style={[styles.chipText, { color: isDark ? '#e5e7eb' : '#111827' }]}>{c}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+          {projects.length > 0 && (
+            <View>
+              <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8, marginBottom: 4 }]}>Notable Projects</Text>
+              {projects.map((p, i) => (
+                <Text key={i} style={[styles.bodyText, { color: colors.text }]}>
+                  {p.name}{p.value ? ` — ${p.value}` : ''}{p.duration ? ` (${p.duration})` : ''}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+      ) : (
+        <View style={{ gap: 10 }}>
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Founded year</Text>
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            value={foundedYear}
+            onChangeText={setFoundedYear}
+            placeholder="e.g. 2015"
+            keyboardType="numeric"
+            placeholderTextColor="#9ca3af"
+          />
+
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Min project budget ($)</Text>
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            value={String(minBudget ?? '')}
+            onChangeText={setMinBudget}
+            placeholder="e.g. 50000"
+            keyboardType="numeric"
+            placeholderTextColor="#9ca3af"
+          />
+
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Certifications</Text>
+          <View style={styles.chipRow}>
+            {certs.map((c, i) => (
+              <Pressable key={i} onPress={() => setCerts(certs.filter((_, j) => j !== i))}
+                style={[styles.chip, { backgroundColor: isDark ? '#0f172a' : '#e5e7eb', flexDirection: 'row', alignItems: 'center', gap: 4 }]}
+              >
+                <Text style={[styles.chipText, { color: isDark ? '#e5e7eb' : '#111827' }]}>{c}</Text>
+                <Ionicons name="close-circle" size={14} color="#f97373" />
+              </Pressable>
+            ))}
+          </View>
+          <View style={styles.customRow}>
+            <TextInput
+              style={[styles.input, styles.customInput, { color: colors.text }]}
+              value={certInput}
+              onChangeText={setCertInput}
+              placeholder="Add certification"
+              placeholderTextColor="#9ca3af"
+            />
+            <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)' }]} onPress={handleAddCert}>
+              <Text style={[styles.actionText, { color: colors.text }]}>Add</Text>
+            </Pressable>
+          </View>
+
+          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8, marginTop: 4 }]}>Notable Projects</Text>
+          {projects.map((p, i) => (
+            <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={[styles.bodyText, { color: colors.text, flex: 1 }]}>{p.name}</Text>
+              <Pressable onPress={() => setProjects(projects.filter((_, j) => j !== i))}>
+                <Text style={[styles.cardAction, { color: '#f97373' }]}>Remove</Text>
+              </Pressable>
+            </View>
+          ))}
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            value={projName}
+            onChangeText={setProjName}
+            placeholder="Project name"
+            placeholderTextColor="#9ca3af"
+          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TextInput
+              style={[styles.input, { flex: 1, color: colors.text }]}
+              value={projValue}
+              onChangeText={setProjValue}
+              placeholder="Value (e.g. $2M)"
+              placeholderTextColor="#9ca3af"
+            />
+            <TextInput
+              style={[styles.input, { flex: 1, color: colors.text }]}
+              value={projDuration}
+              onChangeText={setProjDuration}
+              placeholder="Duration (e.g. 6 months)"
+              placeholderTextColor="#9ca3af"
+            />
+          </View>
+          <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)', alignSelf: 'flex-start' }]} onPress={handleAddProject}>
+            <Text style={[styles.actionText, { color: colors.text }]}>+ Add project</Text>
+          </Pressable>
+
+          <View style={styles.sectionActions}>
+            <Pressable style={styles.saveButton} onPress={handleSave}>
+              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save extras</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
 type ExperienceSectionProps = {
   items: ExperienceItem[];
   onAdd: (payload: {

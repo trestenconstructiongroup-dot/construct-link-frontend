@@ -182,6 +182,11 @@ type ApiRequestOptions = RequestInit & {
     experience_years?: number;
     location: string;
     photo_url: string;
+    hourly_rate?: string | null;
+    daily_rate?: string | null;
+    availability: string;
+    certifications: Array<{ name: string; issuer?: string; year?: number }>;
+    work_process: Array<{ step: number; title: string; description: string }>;
     created_at: string;
     updated_at: string;
   }
@@ -196,6 +201,10 @@ type ApiRequestOptions = RequestInit & {
     team_size?: number;
     location: string;
     logo_url: string;
+    founded_year?: number | null;
+    certifications: Array<{ name: string; issuer?: string; year?: number }>;
+    notable_projects: Array<{ name: string; value?: string; duration?: string; description?: string }>;
+    min_project_budget?: string | null;
     created_at: string;
     updated_at: string;
   }
@@ -688,6 +697,10 @@ type ApiRequestOptions = RequestInit & {
     location: string;
     availability: string;
     tagline: string;
+    // Detail-only fields (returned by find_worker_detail)
+    bio?: string;
+    certifications?: Array<{ name: string; issuer?: string; year?: number }>;
+    work_process?: Array<{ step: number; title: string; description: string }>;
   }
 
   export interface WorkerSearchResultCompany {
@@ -776,5 +789,47 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/workers/find/${userId}/`, {
       method: "GET",
       authToken: token ?? undefined,
+    });
+  }
+
+  // ---- Reviews ----
+
+  export interface Review {
+    id: number;
+    reviewer: number;
+    target_user: number;
+    job: number | null;
+    rating: number;
+    comment: string;
+    reviewer_name: string;
+    created_at: string;
+    updated_at: string;
+  }
+
+  export interface ReviewsResponse {
+    count: number;
+    next: number | null;
+    previous: number | null;
+    results: Review[];
+  }
+
+  export function getReviewsForUser(
+    userId: number,
+    token?: string | null
+  ): Promise<ReviewsResponse> {
+    return apiFetch(`/api/reviews/${userId}/`, {
+      method: "GET",
+      authToken: token ?? undefined,
+    });
+  }
+
+  export function createReview(
+    token: string,
+    payload: { target_user: number; rating: number; comment?: string; job?: number }
+  ): Promise<Review> {
+    return apiFetch("/api/reviews/", {
+      method: "POST",
+      authToken: token,
+      body: JSON.stringify(payload),
     });
   }

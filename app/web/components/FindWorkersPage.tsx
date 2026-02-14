@@ -4,7 +4,7 @@
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -81,6 +81,17 @@ export default function FindWorkersPage() {
   const [appliedCompanyType, setAppliedCompanyType] = useState('');
   const [appliedTeamSizeMin, setAppliedTeamSizeMin] = useState('');
   const [appliedSort, setAppliedSort] = useState('recent');
+
+  // Read ?search= from URL (e.g. from hero search bar)
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const q = urlParams.get('search');
+    if (q) {
+      setSearch(q);
+      setAppliedSearch(q);
+    }
+  }, []);
 
   const appliedParams = useMemo(
     () => ({

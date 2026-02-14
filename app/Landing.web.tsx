@@ -1,4 +1,6 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Asset } from 'expo-asset';
+import { useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Animated, Image, ImageStyle, Platform, Text as RNText, StyleSheet, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { gsap } from 'gsap';
@@ -30,13 +32,16 @@ export default function WebLanding() {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const { width: screenWidth } = useWindowDimensions();
+  const router = useRouter();
   const [heroVideoUri, setHeroVideoUri] = useState<string | null>(null);
   const heroVideoRef = useRef<HTMLVideoElement | null>(null);
   const heroVideoContainerRef = useRef<HTMLDivElement | null>(null);
+  const [heroSearchValue, setHeroSearchValue] = useState('');
 
   // Hero entrance animation (kept as-is)
   const heroOpacity = useRef(new Animated.Value(0)).current;
   const heroTranslateY = useRef(new Animated.Value(32)).current;
+  const ctaOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -53,6 +58,13 @@ export default function WebLanding() {
         useNativeDriver: false,
       }),
     ]).start();
+    // CTA buttons fade in after hero text
+    Animated.timing(ctaOpacity, {
+      toValue: 1,
+      duration: 600,
+      delay: 1200,
+      useNativeDriver: false,
+    }).start();
   }, []);
 
   // Override Expo's body { overflow: hidden } so ScrollTrigger can detect window scroll.
@@ -277,6 +289,144 @@ export default function WebLanding() {
               fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(36px, 10vw, 72px)' as any : 'clamp(48px, 10vw, 100px)' as any) : 80}
               style={[styles.heroTextMorpher, isSmallScreen && { top: '15%', left: 0, right: 0, alignItems: 'center' }]}
             />
+            {/* ─── Hero CTA Buttons + Search ─── */}
+            {Platform.OS === 'web' && (
+              <Animated.View
+                style={{
+                  position: 'absolute',
+                  zIndex: 3,
+                  pointerEvents: 'box-none' as any,
+                  opacity: ctaOpacity,
+                  ...(isSmallScreen
+                    ? {
+                        top: '15%' as any,
+                        left: 0,
+                        right: 0,
+                        alignItems: 'center' as any,
+                        paddingTop: 'calc(clamp(36px, 10vw, 72px) * 2 + 32px)' as any,
+                        paddingHorizontal: 20,
+                      }
+                    : {
+                        top: 0,
+                        left: 0,
+                        paddingTop: 'calc(24px + clamp(48px, 10vw, 100px) + 24px)' as any,
+                        paddingLeft: 40,
+                      }),
+                } as any}
+              >
+                <View
+                  style={{
+                    flexDirection: isSmallScreen ? 'column' : 'row',
+                    alignItems: isSmallScreen ? 'center' : 'flex-start',
+                    gap: 12,
+                    pointerEvents: 'auto' as any,
+                  } as any}
+                >
+                  <button
+                    type="button"
+                    onClick={() => router.push('/workers')}
+                    style={{
+                      backgroundColor: colors.accent,
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 12,
+                      padding: isSmallScreen ? '12px 24px' : '14px 28px',
+                      fontFamily: Fonts.heading,
+                      fontSize: isSmallScreen ? 16 : 18,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'transform 0.15s ease, filter 0.15s ease',
+                      minWidth: isSmallScreen ? 200 : undefined,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.03)';
+                      e.currentTarget.style.filter = 'brightness(1.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.filter = 'brightness(1)';
+                    }}
+                  >
+                    Find Workers
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/jobs-create')}
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: colors.text,
+                      border: `2px solid ${colors.text}`,
+                      borderRadius: 12,
+                      padding: isSmallScreen ? '10px 24px' : '12px 28px',
+                      fontFamily: Fonts.heading,
+                      fontSize: isSmallScreen ? 16 : 18,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'transform 0.15s ease, background-color 0.2s ease',
+                      minWidth: isSmallScreen ? 200 : undefined,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.03)';
+                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    Post a Job
+                  </button>
+                </View>
+                {/* Hero search bar */}
+                <div
+                  style={{
+                    marginTop: isSmallScreen ? 16 : 20,
+                    display: 'flex',
+                    alignItems: 'center',
+                    maxWidth: isSmallScreen ? '100%' : 400,
+                    width: '100%',
+                    pointerEvents: 'auto',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      width: '100%',
+                      backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
+                      borderRadius: 12,
+                      paddingLeft: 16,
+                      paddingRight: 8,
+                      border: `1px solid ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}`,
+                      backdropFilter: 'blur(8px)',
+                    }}
+                  >
+                    <Ionicons name="search" size={20} color={colors.icon} />
+                    <input
+                      type="text"
+                      placeholder="Search workers, companies, skills..."
+                      value={heroSearchValue}
+                      onChange={(e) => setHeroSearchValue(e.target.value)}
+                      style={{
+                        flex: 1,
+                        border: 'none',
+                        background: 'transparent',
+                        padding: '12px',
+                        fontSize: 15,
+                        fontFamily: Fonts.body,
+                        color: colors.text,
+                        outline: 'none',
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && heroSearchValue.trim()) {
+                          router.push(`/workers?search=${encodeURIComponent(heroSearchValue.trim())}`);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </Animated.View>
+            )}
             {Platform.OS === 'web' && heroVideoUri ? (
               <div
                 ref={heroVideoContainerRef}

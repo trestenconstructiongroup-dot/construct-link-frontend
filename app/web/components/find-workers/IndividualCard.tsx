@@ -24,6 +24,19 @@ export interface IndividualCardProps {
   onView: (userId: number) => void;
 }
 
+const AVAILABILITY_COLORS: Record<string, string> = {
+  available: '#16a34a',
+  busy: '#f59e0b',
+  available_soon: '#3b82f6',
+  unavailable: '#ef4444',
+};
+const AVAILABILITY_LABELS: Record<string, string> = {
+  available: 'Available',
+  busy: 'Busy',
+  available_soon: 'Available Soon',
+  unavailable: 'Unavailable',
+};
+
 const styles = StyleSheet.create({
   card: { width: '100%', maxWidth: 380, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 } as ViewStyle,
@@ -37,6 +50,10 @@ const styles = StyleSheet.create({
   skillChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 } as ViewStyle,
   skillChipText: { fontSize: 12, fontWeight: '600' } as TextStyle,
   cardMeta: { fontSize: 13, marginTop: 4 } as TextStyle,
+  ratingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 } as ViewStyle,
+  availabilityBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, marginTop: 4, alignSelf: 'flex-start' } as ViewStyle,
+  availabilityDot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 } as ViewStyle,
+  availabilityText: { fontSize: 11, fontWeight: '600' } as TextStyle,
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTopWidth: 1 } as ViewStyle,
   viewBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, borderWidth: 1 } as ViewStyle,
   viewBtnText: { fontSize: 14, fontWeight: '600' } as TextStyle,
@@ -45,7 +62,11 @@ const styles = StyleSheet.create({
 });
 
 function IndividualCardComponent({ item, colors, fontHeading, fontBody, onView }: IndividualCardProps) {
-  const rateLabel = item.hourly_rate || item.daily_rate ? `Rate: ${item.hourly_rate || item.daily_rate || '—'}` : 'Contact for rate';
+  const rateLabel = item.hourly_rate
+    ? `$${item.hourly_rate}/hr`
+    : item.daily_rate
+    ? `$${item.daily_rate}/day`
+    : 'Contact for rate';
   const expLabel = item.experience_years != null
     ? `${EXPERIENCE_LABELS[item.experience_level] || item.experience_level} · ${item.experience_years} yrs`
     : (EXPERIENCE_LABELS[item.experience_level] || item.experience_level || '—');
@@ -80,10 +101,30 @@ function IndividualCardComponent({ item, colors, fontHeading, fontBody, onView }
         </View>
       )}
       <RNText style={[styles.cardMeta, { color: colors.icon }]}>{expLabel}</RNText>
-      {(item.rating != null || item.reviews_count > 0) && (
-        <RNText style={[styles.cardMeta, { color: colors.icon }]}>Rating: {item.rating ?? '—'} ({item.reviews_count} reviews)</RNText>
+      {item.rating != null && (
+        <View style={styles.ratingRow}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Ionicons
+              key={star}
+              name={star <= Math.round(item.rating!) ? 'star' : 'star-outline'}
+              size={14}
+              color="#f59e0b"
+            />
+          ))}
+          <RNText style={[styles.cardMeta, { color: colors.icon, marginLeft: 4, marginTop: 0 }]}>
+            {item.rating.toFixed(1)} ({item.reviews_count})
+          </RNText>
+        </View>
       )}
       <RNText style={[styles.cardMeta, { color: colors.text }]}>{rateLabel}</RNText>
+      {item.availability && AVAILABILITY_COLORS[item.availability] && (
+        <View style={[styles.availabilityBadge, { backgroundColor: AVAILABILITY_COLORS[item.availability] + '18' }]}>
+          <View style={[styles.availabilityDot, { backgroundColor: AVAILABILITY_COLORS[item.availability] }]} />
+          <RNText style={[styles.availabilityText, { color: AVAILABILITY_COLORS[item.availability] }]}>
+            {AVAILABILITY_LABELS[item.availability] || item.availability}
+          </RNText>
+        </View>
+      )}
       {item.location ? <RNText style={[styles.cardMeta, { color: colors.icon }]}>{item.location}</RNText> : null}
       <View style={[styles.cardFooter, { borderTopColor: colors.icon + '30' }]}>
         <Pressable onPress={handleView} style={[styles.viewBtn, { borderColor: colors.tint }]}>

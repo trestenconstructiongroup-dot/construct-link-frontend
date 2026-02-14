@@ -23,8 +23,10 @@ import { Colors, Fonts } from '../../../constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   getFindWorkerDetail,
+  getReviewsForUser,
   type WorkerSearchResultIndividual,
   type WorkerSearchResultCompany,
+  type Review,
 } from '../../../services/api';
 
 const BRAND_BLUE = Colors.light.accentMuted;
@@ -33,6 +35,18 @@ const EXPERIENCE_LABELS: Record<string, string> = {
   intermediate: 'Intermediate',
   expert: 'Expert',
   master: 'Master / Veteran',
+};
+const AVAILABILITY_COLORS: Record<string, string> = {
+  available: '#16a34a',
+  busy: '#f59e0b',
+  available_soon: '#3b82f6',
+  unavailable: '#ef4444',
+};
+const AVAILABILITY_LABELS: Record<string, string> = {
+  available: 'Available',
+  busy: 'Busy',
+  available_soon: 'Available Soon',
+  unavailable: 'Unavailable',
 };
 
 function isIndividual(
@@ -52,6 +66,8 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
   const [data, setData] = useState<WorkerSearchResultIndividual | WorkerSearchResultCompany | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsCount, setReviewsCount] = useState(0);
 
   const fontHeading = Fonts.display;
   const fontBody = Fonts.body;
@@ -79,6 +95,16 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
   useEffect(() => {
     loadWorker();
   }, [loadWorker]);
+
+  useEffect(() => {
+    if (!userId) return;
+    getReviewsForUser(userId, token)
+      .then((res) => {
+        setReviews(res.results);
+        setReviewsCount(res.count);
+      })
+      .catch(() => {});
+  }, [userId, token]);
 
   if (authLoading) {
     return (
@@ -125,6 +151,7 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
             </View>
           ) : !data ? null : isIndividual(data) ? (
             <View style={[styles.content, { borderColor: colors.icon + '40' }]}>
+              {/* ---- Header ---- */}
               <View style={styles.header}>
                 {data.profile_image ? (
                   <Image source={{ uri: data.profile_image }} style={styles.avatarLarge} />
@@ -136,10 +163,34 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
                 <View style={styles.headerText}>
                   <RNText style={[styles.title, { color: colors.text }, { fontFamily: fontHeading as any }]}>{data.name}</RNText>
                   {data.primary_category ? <RNText style={[styles.subtitle, { color: colors.icon }]}>{data.primary_category}</RNText> : null}
-                  {data.location ? <RNText style={[styles.meta, { color: colors.icon }]}>{data.location}</RNText> : null}
+                  {data.location ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 }}>
+                      <Ionicons name="location-outline" size={14} color={colors.icon} />
+                      <RNText style={[styles.meta, { color: colors.icon, marginTop: 0 }]}>{data.location}</RNText>
+                    </View>
+                  ) : null}
+                  {data.availability && AVAILABILITY_COLORS[data.availability] && (
+                    <View style={[styles.availabilityBadge, { backgroundColor: AVAILABILITY_COLORS[data.availability] + '18' }]}>
+                      <View style={[styles.availabilityDot, { backgroundColor: AVAILABILITY_COLORS[data.availability] }]} />
+                      <RNText style={[styles.availabilityText, { color: AVAILABILITY_COLORS[data.availability] }]}>
+                        {AVAILABILITY_LABELS[data.availability] || data.availability}
+                      </RNText>
+                    </View>
+                  )}
                 </View>
               </View>
+
               {data.tagline ? <RNText style={[styles.tagline, { color: colors.text }]}>{data.tagline}</RNText> : null}
+
+              {/* ---- Bio ---- */}
+              {data.bio ? (
+                <View style={styles.section}>
+                  <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>About</RNText>
+                  <RNText style={[styles.bioText, { color: colors.text }]}>{data.bio}</RNText>
+                </View>
+              ) : null}
+
+              {/* ---- Skills ---- */}
               {data.top_skills.length > 0 && (
                 <View style={styles.section}>
                   <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>Skills</RNText>
@@ -152,36 +203,109 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
                   </View>
                 </View>
               )}
+
+              {/* ---- Details grid ---- */}
               <View style={styles.details}>
                 <RNText style={[styles.detailLabel, { color: colors.icon }]}>Experience</RNText>
                 <RNText style={[styles.detailValue, { color: colors.text }]}>
                   {data.experience_years != null ? `${EXPERIENCE_LABELS[data.experience_level] || data.experience_level} · ${data.experience_years} years` : (EXPERIENCE_LABELS[data.experience_level] || data.experience_level || '—')}
                 </RNText>
-                {(data.rating != null || data.reviews_count > 0) && (
+
+                {data.rating != null && (
                   <>
                     <RNText style={[styles.detailLabel, { color: colors.icon }]}>Rating</RNText>
-                    <RNText style={[styles.detailValue, { color: colors.text }]}>{data.rating ?? '—'} ({data.reviews_count} reviews)</RNText>
+                    <View style={styles.ratingRow}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Ionicons key={star} name={star <= Math.round(data.rating!) ? 'star' : 'star-outline'} size={16} color="#f59e0b" />
+                      ))}
+                      <RNText style={[styles.ratingLabel, { color: colors.text }]}>
+                        {data.rating.toFixed(1)} ({data.reviews_count} {data.reviews_count === 1 ? 'review' : 'reviews'})
+                      </RNText>
+                    </View>
                   </>
                 )}
+
                 <RNText style={[styles.detailLabel, { color: colors.icon }]}>Rate</RNText>
-                <RNText style={[styles.detailValue, { color: colors.text }]}>{data.hourly_rate || data.daily_rate || 'Contact for rate'}</RNText>
+                <RNText style={[styles.detailValue, { color: colors.text }]}>
+                  {data.hourly_rate ? `$${data.hourly_rate}/hr` : data.daily_rate ? `$${data.daily_rate}/day` : 'Contact for rate'}
+                </RNText>
               </View>
+
+              {/* ---- Certifications ---- */}
+              {data.certifications && data.certifications.length > 0 && (
+                <View style={styles.section}>
+                  <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>Certifications</RNText>
+                  {data.certifications.map((cert: any, i: number) => (
+                    <View key={i} style={[styles.certRow, { borderColor: colors.icon + '20' }]}>
+                      <Ionicons name="ribbon-outline" size={20} color={colors.tint} />
+                      <View style={{ flex: 1 }}>
+                        <RNText style={[styles.certName, { color: colors.text }]}>{cert.name}</RNText>
+                        {cert.issuer ? <RNText style={[styles.certIssuer, { color: colors.icon }]}>{cert.issuer}{cert.year ? ` · ${cert.year}` : ''}</RNText> : null}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* ---- How I Work ---- */}
+              {data.work_process && data.work_process.length > 0 && (
+                <View style={styles.section}>
+                  <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>How I Work</RNText>
+                  {data.work_process.map((step: any, i: number) => (
+                    <View key={i} style={styles.stepCard}>
+                      <View style={[styles.stepBadge, { backgroundColor: colors.tint }]}>
+                        <RNText style={styles.stepBadgeText}>{step.step ?? i + 1}</RNText>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <RNText style={[styles.stepTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>{step.title}</RNText>
+                        {step.description ? <RNText style={[styles.stepDesc, { color: colors.icon }]}>{step.description}</RNText> : null}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* ---- Reviews ---- */}
+              {reviewsCount > 0 && (
+                <View style={styles.section}>
+                  <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>
+                    Reviews ({reviewsCount})
+                  </RNText>
+                  {reviews.map((rev) => (
+                    <View key={rev.id} style={[styles.reviewCard, { borderColor: colors.icon + '20' }]}>
+                      <View style={styles.reviewHeader}>
+                        <View style={styles.ratingRow}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Ionicons key={star} name={star <= rev.rating ? 'star' : 'star-outline'} size={14} color="#f59e0b" />
+                          ))}
+                        </View>
+                        <RNText style={[styles.reviewerName, { color: colors.text }]}>{rev.reviewer_name}</RNText>
+                      </View>
+                      {rev.comment ? <RNText style={[styles.reviewComment, { color: colors.text }]}>{rev.comment}</RNText> : null}
+                      <RNText style={[styles.reviewDate, { color: colors.icon }]}>
+                        {new Date(rev.created_at).toLocaleDateString()}
+                      </RNText>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* ---- Footer ---- */}
               <View style={[styles.footer, { borderTopColor: colors.icon + '40' }]}>
                 {isSelf ? (
                   <Pressable onPress={() => router.push('/profile')} style={[styles.primaryBtn, { backgroundColor: BRAND_BLUE }]}>
                     <RNText style={[styles.primaryBtnText, { fontFamily: fontBody as any }]}>View your profile</RNText>
                   </Pressable>
                 ) : (
-                  <>
-                    <Pressable style={[styles.secondaryBtn, { borderColor: colors.tint }]}>
-                      <RNText style={[styles.secondaryBtnText, { color: colors.tint }, { fontFamily: fontBody as any }]}>Hire / Contact</RNText>
-                    </Pressable>
-                  </>
+                  <Pressable style={[styles.secondaryBtn, { borderColor: colors.tint }]}>
+                    <RNText style={[styles.secondaryBtnText, { color: colors.tint }, { fontFamily: fontBody as any }]}>Hire / Contact</RNText>
+                  </Pressable>
                 )}
               </View>
             </View>
           ) : (
             <View style={[styles.content, { borderColor: colors.icon + '40' }]}>
+              {/* ---- Company Header ---- */}
               <View style={styles.header}>
                 {data.company_logo ? (
                   <Image source={{ uri: data.company_logo }} style={styles.avatarLarge} />
@@ -193,10 +317,18 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
                 <View style={styles.headerText}>
                   <RNText style={[styles.title, { color: colors.text }, { fontFamily: fontHeading as any }]}>{data.company_name}</RNText>
                   {data.company_type.length > 0 ? <RNText style={[styles.subtitle, { color: colors.icon }]}>{data.company_type.join(', ')}</RNText> : null}
-                  {data.location ? <RNText style={[styles.meta, { color: colors.icon }]}>{data.location}</RNText> : null}
+                  {data.location ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 }}>
+                      <Ionicons name="location-outline" size={14} color={colors.icon} />
+                      <RNText style={[styles.meta, { color: colors.icon, marginTop: 0 }]}>{data.location}</RNText>
+                    </View>
+                  ) : null}
                 </View>
               </View>
+
               {data.tagline ? <RNText style={[styles.tagline, { color: colors.text }]}>{data.tagline}</RNText> : null}
+
+              {/* ---- Services ---- */}
               {data.services_offered.length > 0 && (
                 <View style={styles.section}>
                   <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>Services</RNText>
@@ -209,20 +341,103 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
                   </View>
                 </View>
               )}
+
+              {/* ---- Details ---- */}
               <View style={styles.details}>
                 {data.team_size != null && (
                   <>
-                    <RNText style={[styles.detailLabel, { color: colors.icon }]}>Team size</RNText>
+                    <RNText style={[styles.detailLabel, { color: colors.icon }]}>Team Size</RNText>
                     <RNText style={[styles.detailValue, { color: colors.text }]}>{data.team_size}+ workers</RNText>
                   </>
                 )}
-                {data.min_project_budget && (
+                {data.founded_year != null && (
                   <>
-                    <RNText style={[styles.detailLabel, { color: colors.icon }]}>Min project budget</RNText>
-                    <RNText style={[styles.detailValue, { color: colors.text }]}>{data.min_project_budget}</RNText>
+                    <RNText style={[styles.detailLabel, { color: colors.icon }]}>Founded</RNText>
+                    <RNText style={[styles.detailValue, { color: colors.text }]}>{data.founded_year}</RNText>
+                  </>
+                )}
+                {data.min_project_budget != null && (
+                  <>
+                    <RNText style={[styles.detailLabel, { color: colors.icon }]}>Min Project Budget</RNText>
+                    <RNText style={[styles.detailValue, { color: colors.text }]}>${data.min_project_budget}</RNText>
+                  </>
+                )}
+                {data.rating != null && (
+                  <>
+                    <RNText style={[styles.detailLabel, { color: colors.icon }]}>Rating</RNText>
+                    <View style={styles.ratingRow}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Ionicons key={star} name={star <= Math.round(data.rating!) ? 'star' : 'star-outline'} size={16} color="#f59e0b" />
+                      ))}
+                      <RNText style={[styles.ratingLabel, { color: colors.text }]}>
+                        {data.rating.toFixed(1)} ({data.reviews_count} {data.reviews_count === 1 ? 'review' : 'reviews'})
+                      </RNText>
+                    </View>
                   </>
                 )}
               </View>
+
+              {/* ---- Certifications ---- */}
+              {data.certifications && data.certifications.length > 0 && (
+                <View style={styles.section}>
+                  <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>Certifications</RNText>
+                  <View style={styles.chipRow}>
+                    {data.certifications.map((cert: string, i: number) => (
+                      <View key={i} style={[styles.chip, { backgroundColor: colors.tint + '20' }]}>
+                        <Ionicons name="ribbon-outline" size={14} color={colors.tint} style={{ marginRight: 4 }} />
+                        <RNText style={[styles.chipText, { color: colors.tint }, { fontFamily: fontBody as any }]}>{cert}</RNText>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* ---- Notable Projects ---- */}
+              {data.notable_projects && data.notable_projects.length > 0 && (
+                <View style={styles.section}>
+                  <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>Notable Projects</RNText>
+                  {data.notable_projects.map((proj: any, i: number) => (
+                    <View key={i} style={[styles.certRow, { borderColor: colors.icon + '20' }]}>
+                      <Ionicons name="construct-outline" size={20} color={colors.tint} />
+                      <View style={{ flex: 1 }}>
+                        <RNText style={[styles.certName, { color: colors.text }]}>{typeof proj === 'string' ? proj : proj.name}</RNText>
+                        {typeof proj !== 'string' && (proj.value || proj.duration) ? (
+                          <RNText style={[styles.certIssuer, { color: colors.icon }]}>
+                            {[proj.value, proj.duration].filter(Boolean).join(' · ')}
+                          </RNText>
+                        ) : null}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* ---- Reviews ---- */}
+              {reviewsCount > 0 && (
+                <View style={styles.section}>
+                  <RNText style={[styles.sectionTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>
+                    Reviews ({reviewsCount})
+                  </RNText>
+                  {reviews.map((rev) => (
+                    <View key={rev.id} style={[styles.reviewCard, { borderColor: colors.icon + '20' }]}>
+                      <View style={styles.reviewHeader}>
+                        <View style={styles.ratingRow}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Ionicons key={star} name={star <= rev.rating ? 'star' : 'star-outline'} size={14} color="#f59e0b" />
+                          ))}
+                        </View>
+                        <RNText style={[styles.reviewerName, { color: colors.text }]}>{rev.reviewer_name}</RNText>
+                      </View>
+                      {rev.comment ? <RNText style={[styles.reviewComment, { color: colors.text }]}>{rev.comment}</RNText> : null}
+                      <RNText style={[styles.reviewDate, { color: colors.icon }]}>
+                        {new Date(rev.created_at).toLocaleDateString()}
+                      </RNText>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* ---- Footer ---- */}
               <View style={[styles.footer, { borderTopColor: colors.icon + '40' }]}>
                 {isSelf ? (
                   <Pressable onPress={() => router.push('/profile')} style={[styles.primaryBtn, { backgroundColor: BRAND_BLUE }]}>
@@ -273,4 +488,23 @@ const styles = StyleSheet.create({
   secondaryBtn: { paddingVertical: 14, paddingHorizontal: 24, borderRadius: 8, alignItems: 'center', borderWidth: 1 } as ViewStyle,
   secondaryBtnText: { fontSize: 16, fontWeight: '600' } as TextStyle,
   errorText: { fontSize: 16, textAlign: 'center' } as TextStyle,
+  bioText: { fontSize: 15, lineHeight: 22, opacity: 0.9 } as TextStyle,
+  availabilityBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginTop: 6, alignSelf: 'flex-start' } as ViewStyle,
+  availabilityDot: { width: 7, height: 7, borderRadius: 4, marginRight: 6 } as ViewStyle,
+  availabilityText: { fontSize: 12, fontWeight: '600' } as TextStyle,
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 2 } as ViewStyle,
+  ratingLabel: { fontSize: 14, fontWeight: '600', marginLeft: 6 } as TextStyle,
+  certRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 10, borderBottomWidth: 1 } as ViewStyle,
+  certName: { fontSize: 15, fontWeight: '600' } as TextStyle,
+  certIssuer: { fontSize: 13, marginTop: 2 } as TextStyle,
+  stepCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 16 } as ViewStyle,
+  stepBadge: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' } as ViewStyle,
+  stepBadgeText: { color: '#fff', fontSize: 14, fontWeight: '700' } as TextStyle,
+  stepTitle: { fontSize: 15, fontWeight: '700' } as TextStyle,
+  stepDesc: { fontSize: 14, marginTop: 2, lineHeight: 20 } as TextStyle,
+  reviewCard: { paddingVertical: 12, borderBottomWidth: 1 } as ViewStyle,
+  reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 } as ViewStyle,
+  reviewerName: { fontSize: 14, fontWeight: '600' } as TextStyle,
+  reviewComment: { fontSize: 14, lineHeight: 20, opacity: 0.9, marginBottom: 4 } as TextStyle,
+  reviewDate: { fontSize: 12 } as TextStyle,
 });
