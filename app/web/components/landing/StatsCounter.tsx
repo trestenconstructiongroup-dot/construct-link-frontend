@@ -28,7 +28,7 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
-    const ta = isSmallScreen ? 'play none none reverse' : 'play reverse play reverse';
+    const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
 
     const ctx = gsap.context(() => {
       // staggered card reveal
@@ -66,7 +66,20 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
       });
     }, containerRef.current);
 
-    return () => ctx.revert();
+    // Safety net: force content visible on mobile if ScrollTrigger never fires
+    const safetyTimer = setTimeout(() => {
+      if (window.innerWidth < 768) {
+        document.querySelectorAll('.stat-card').forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.transform = 'none';
+        });
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      ctx.revert();
+    };
   }, []);
 
   if (Platform.OS !== 'web') {

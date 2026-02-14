@@ -27,7 +27,7 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
     const small = isSmallScreen;
-    const ta = small ? 'play none none reverse' : 'play reverse play reverse';
+    const ta = small ? 'play none none none' : 'play reverse play reverse';
 
     const ctx = gsap.context(() => {
       // word-by-word heading reveal
@@ -59,7 +59,20 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
       });
     }, containerRef.current);
 
-    return () => ctx.revert();
+    // Safety net: force content visible on mobile if ScrollTrigger never fires
+    const safetyTimer = setTimeout(() => {
+      if (window.innerWidth < 768) {
+        document.querySelectorAll('.vs-word, .vs-video').forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.transform = 'none';
+        });
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      ctx.revert();
+    };
   }, []);
 
   const headingWords = HEADING_TEXT.split(' ');

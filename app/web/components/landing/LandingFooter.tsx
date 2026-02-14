@@ -133,7 +133,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
-    const ta = isSmallScreen ? 'play none none reverse' : 'play reverse play reverse';
+    const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
 
     const ctx = gsap.context(() => {
       // footer content staggered reveal
@@ -153,7 +153,20 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       }
     });
 
-    return () => ctx.revert();
+    // Safety net: force footer visible on mobile if ScrollTrigger never fires
+    const safetyTimer = setTimeout(() => {
+      if (window.innerWidth < 768) {
+        document.querySelectorAll('.footer-reveal').forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.transform = 'none';
+        });
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      ctx.revert();
+    };
   }, []);
 
   const footerColumns = isSmallScreen ? (

@@ -24,6 +24,7 @@ import WebLayout from './web/layout';
 
 if (Platform.OS === 'web') {
   gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ ignoreMobileResize: true });
 }
 
 const HERO_VIDEO = require('../assets/images/transparentVideo/Cyberpunk Idle.mp4.webm');
@@ -75,7 +76,9 @@ export default function WebLanding() {
     style.id = 'landing-scroll-fix';
     style.textContent = `
       html, body { overflow-y: auto !important; overflow-x: hidden !important; }
-      #root { height: auto !important; min-height: 100% !important; }
+      #root { height: auto !important; min-height: 100% !important; overflow: visible !important; }
+      #root > div { height: auto !important; min-height: 100% !important; overflow: visible !important; }
+      #root > div > div { height: auto !important; min-height: 100% !important; overflow: visible !important; }
       html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; }
       html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
     `;
@@ -155,7 +158,7 @@ export default function WebLanding() {
     // On small screens, keep elements visible after reveal (no reverse on leave)
     // On desktop, full reverse-on-scroll effect
     const small = window.innerWidth < 768;
-    const ta = small ? 'play none none reverse' : 'play reverse play reverse';
+    const ta = small ? 'play none none none' : 'play reverse play reverse';
 
     const ctx = gsap.context(() => {
       // Categories: staggered scale-in
@@ -255,11 +258,28 @@ export default function WebLanding() {
       }
     });
 
-    // Refresh ScrollTrigger positions after layout settles
-    const rafId = requestAnimationFrame(() => ScrollTrigger.refresh());
+    // Refresh ScrollTrigger positions after layout settles (mobile needs longer)
+    const t1 = setTimeout(() => ScrollTrigger.refresh(), 300);
+    const t2 = setTimeout(() => ScrollTrigger.refresh(), 800);
+
+    // Safety net: if ScrollTrigger never fires on mobile, force content visible
+    const safetyTimer = setTimeout(() => {
+      if (window.innerWidth < 768) {
+        document.querySelectorAll(
+          '.cat-btn, .unlock-word, .unlock-sub, .unlock-card, ' +
+          '.faq-heading, .faq-item-reveal, .faq-side-img'
+        ).forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.transform = 'none';
+        });
+        ScrollTrigger.refresh();
+      }
+    }, 2000);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(safetyTimer);
       ctx.revert();
     };
   }, []);

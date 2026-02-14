@@ -31,7 +31,7 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
 
     const ctx = gsap.context(() => {
       // heading letter reveal
-      const ta = isSmallScreen ? 'play none none reverse' : 'play reverse play reverse';
+      const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
       gsap.from('.tm-letter', {
         yPercent: 120,
         opacity: 0,
@@ -67,7 +67,20 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
       }
     }, containerRef.current);
 
-    return () => ctx.revert();
+    // Safety net: force content visible on mobile if ScrollTrigger never fires
+    const safetyTimer = setTimeout(() => {
+      if (window.innerWidth < 768) {
+        document.querySelectorAll('.tm-letter').forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.transform = 'none';
+        });
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      ctx.revert();
+    };
   }, [isSmallScreen]);
 
   if (Platform.OS !== 'web') {

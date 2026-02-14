@@ -46,7 +46,7 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
 
     const ctx = gsap.context(() => {
       // heading word reveal
-      const ta = isSmallScreen ? 'play none none reverse' : 'play reverse play reverse';
+      const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
       gsap.from('.ps-word', {
         y: '100%',
         opacity: 0,
@@ -82,7 +82,20 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
       }
     }, containerRef.current);
 
-    return () => ctx.revert();
+    // Safety net: force content visible on mobile if ScrollTrigger never fires
+    const safetyTimer = setTimeout(() => {
+      if (window.innerWidth < 768) {
+        document.querySelectorAll('.ps-word').forEach((el) => {
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.transform = 'none';
+        });
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      ctx.revert();
+    };
   }, [isSmallScreen]);
 
   if (Platform.OS !== 'web') return null;
