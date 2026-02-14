@@ -618,9 +618,15 @@ const styles = StyleSheet.create({
   logo: {
     width: 32,
     height: 32,
+    ...Platform.select({
+      web: {
+        width: 44,
+        height: 44,
+      },
+    }),
   },
   brandName: {
-    fontSize: 24,
+    fontSize: 26,
     fontFamily: Fonts.display,
     fontWeight: 'normal',
   },

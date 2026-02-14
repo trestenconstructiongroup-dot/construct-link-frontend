@@ -130,7 +130,7 @@ export default function HeroTextMorpher({
       ? {
           // On small screens, push the hero text down a bit from the navbar;
           // keep the original offset on larger screens.
-          paddingTop: isSmallScreen ? 56 : 64,
+          paddingTop: isSmallScreen ? 56 : 24,
           paddingLeft: isSmallScreen ? 16 : 40,
         }
       : {
