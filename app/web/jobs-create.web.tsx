@@ -397,19 +397,13 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
           <View style={[styles.authModal, { backgroundColor: isDark ? '#1e293b' : '#ffffff' }]}>
             <Text style={[styles.authTitle, { color: colors.text }]}>Sign in required</Text>
             <Text style={[styles.authDesc, { color: colors.icon || colors.text }]}>
-              Log in or create an account to post jobs.
+              Sign in to post jobs.
             </Text>
             <Pressable
               style={[styles.authBtn, { backgroundColor: Colors.light.accentMuted }]}
               onPress={() => router.push('/login')}
             >
-              <RNText style={styles.authBtnText}>Log In</RNText>
-            </Pressable>
-            <Pressable
-              style={[styles.authBtnOutline, { borderColor: colors.tint }]}
-              onPress={() => router.push('/signup')}
-            >
-              <RNText style={[styles.authBtnOutlineText, { color: colors.tint }]}>Sign Up</RNText>
+              <RNText style={styles.authBtnText}>Sign In</RNText>
             </Pressable>
           </View>
         </View>

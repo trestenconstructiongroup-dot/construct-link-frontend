@@ -1,8 +1,6 @@
-import { View, StyleSheet, Pressable, TextInput, Platform, ViewStyle, TextStyle, Animated, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Pressable, Platform, ViewStyle, TextStyle, Animated, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Fonts } from '../constants/theme';
@@ -10,13 +8,46 @@ import WebLayout from './web/layout';
 import { Text as RNText } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemeToggle from '../components/ThemeToggle';
-import { logger } from '../utils/logger';
-import { loginSchema, type LoginFormData } from '../lib/schemas/auth';
+import Svg, { Path, G, Defs, ClipPath, Rect } from 'react-native-svg';
+
+// ---------- Brand SVG icons (20×20) ----------
+
+function GoogleIcon() {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 48 48">
+      <Path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <Path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <Path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.0 24.0 0 0 0 0 21.56l7.98-6.19z" />
+      <Path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+    </Svg>
+  );
+}
+
+function AppleIcon({ color }: { color: string }) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 384 512" fill={color}>
+      <Path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-27.1-46.9-42.2-83.7-45.4-35.1-3.1-73.5 20.7-87.6 20.7-14.8 0-49.1-19.6-74.6-19.6C63.1 140.2 0 185.3 0 273.5c0 26.2 4.8 53.3 14.4 81.2 12.8 36.8 59 127.2 107.2 125.7 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-92.4zm-56.9-164c27.3-32.4 24.8-62.1 24-72.5-24 1.4-52 16.4-68.1 35.4-17.5 20.5-27.7 46.1-25.5 73.5 25.9 2 52.6-11.5 69.6-36.4z" />
+    </Svg>
+  );
+}
+
+function MicrosoftIcon() {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 23 23">
+      <Path fill="#f35325" d="M1 1h10v10H1z" />
+      <Path fill="#81bc06" d="M12 1h10v10H12z" />
+      <Path fill="#05a6f0" d="M1 12h10v10H1z" />
+      <Path fill="#ffba08" d="M12 12h10v10H12z" />
+    </Svg>
+  );
+}
+
+type SsoProviderId = 'google' | 'apple' | 'azure';
 
 export default function LoginPage() {
   const router = useRouter();
   const { isDark } = useTheme();
-  const { login: authLogin, signInWithGoogle, signInWithApple, isSupabaseSSOEnabled, isAuthenticated } = useAuth();
+  const { signInWithGoogle, signInWithApple, signInWithAzure, isAuthenticated } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const insets = useSafeAreaInsets();
 
@@ -25,15 +56,6 @@ export default function LoginPage() {
     if (isAuthenticated) router.replace('/');
   }, [isAuthenticated]);
 
-  const { control, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
-  });
-
-  const [emailFocused, setEmailFocused] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  type SsoProviderId = 'google' | 'apple';
   const [ssoLoading, setSsoLoading] = useState<SsoProviderId | null>(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -54,63 +76,10 @@ export default function LoginPage() {
     ]).start();
   }, []);
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      await authLogin(data.email, data.password);
-      router.replace('/');
-    } catch (error: any) {
-      logger.error('Login error:', error);
-      let errorMessage = 'Login failed. Please try again.';
-
-      try {
-        const errorText = error.message || error.toString();
-        const errorData = JSON.parse(errorText);
-
-        if (errorData.non_field_errors) {
-          const generalError = Array.isArray(errorData.non_field_errors)
-            ? errorData.non_field_errors[0]
-            : errorData.non_field_errors;
-          setError('email', { message: generalError });
-          setError('password', { message: generalError });
-          return;
-        }
-        if (errorData.email) {
-          setError('email', {
-            message: Array.isArray(errorData.email) ? errorData.email[0] : errorData.email,
-          });
-          return;
-        }
-        if (errorData.password) {
-          setError('password', {
-            message: Array.isArray(errorData.password) ? errorData.password[0] : errorData.password,
-          });
-          return;
-        }
-        if (errorData.message || errorData.error) {
-          errorMessage = errorData.message || errorData.error;
-        }
-      } catch {
-        const errorText = error.message || error.toString();
-        if (errorText.toLowerCase().includes('email') || errorText.toLowerCase().includes('password')) {
-          setError('email', { message: 'Invalid email or password.' });
-          setError('password', { message: 'Invalid email or password.' });
-          return;
-        }
-        errorMessage = errorText || errorMessage;
-      }
-
-      Alert.alert('Login Error', errorMessage);
-      setError('email', { message: errorMessage });
-    }
-  };
-
-  const emailInputRef = useRef<TextInput | null>(null);
-  const passwordInputRef = useRef<TextInput | null>(null);
-  const isWeb = Platform.OS === 'web';
-
-  const ssoProviders: { id: SsoProviderId; label: string }[] = [
-    { id: 'google', label: 'Sign in with Google' },
-    { id: 'apple', label: 'Sign in with Apple' },
+  const ssoProviders: { id: SsoProviderId; label: string; icon: (color: string) => React.ReactNode }[] = [
+    { id: 'google', label: 'Continue with Google', icon: () => <GoogleIcon /> },
+    { id: 'apple', label: 'Continue with Apple', icon: (c) => <AppleIcon color={c} /> },
+    { id: 'azure', label: 'Continue with Microsoft', icon: () => <MicrosoftIcon /> },
   ];
 
   const handleSsoPress = async (provider: SsoProviderId) => {
@@ -118,15 +87,17 @@ export default function LoginPage() {
     try {
       if (provider === 'google') {
         await signInWithGoogle();
-      } else {
+      } else if (provider === 'apple') {
         await signInWithApple();
+      } else {
+        await signInWithAzure();
       }
       router.replace('/');
     } catch (e: any) {
-      const friendlyProvider = provider === 'google' ? 'Google' : 'Apple';
+      const names: Record<SsoProviderId, string> = { google: 'Google', apple: 'Apple', azure: 'Microsoft' };
       Alert.alert(
         'Sign in failed',
-        e?.message || `Could not sign in with ${friendlyProvider}.`
+        e?.message || `Could not sign in with ${names[provider]}.`
       );
     } finally {
       setSsoLoading(null);
@@ -154,200 +125,41 @@ export default function LoginPage() {
           {/* Header */}
           <View style={styles.header}>
             <RNText style={[styles.title, { color: colors.text }]}>
-              Welcome Back
+              Sign In
             </RNText>
             <RNText style={[styles.subtitle, { color: colors.text }]}>
-              Sign in to your account to continue
+              Continue with your preferred account
             </RNText>
           </View>
 
-          {/* Form */}
-          <View style={styles.form}>
-            {/* Email Input */}
-            <View style={styles.inputContainer}>
-              <RNText style={[styles.label, { color: colors.text }]}>
-                Email
-              </RNText>
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <>
-                    <Pressable
-                      style={[
-                        styles.inputWrapper,
-                        {
-                          borderColor: emailFocused
-                            ? colors.tint
-                            : errors.email
-                            ? colors.error
-                            : isDark
-                            ? 'rgba(255, 255, 255, 0.1)'
-                            : 'rgba(0, 0, 0, 0.1)',
-                          backgroundColor: isDark
-                            ? 'rgba(255, 255, 255, 0.05)'
-                            : 'rgba(0, 0, 0, 0.02)',
-                        },
-                      ]}
-                      onPress={() => emailInputRef.current?.focus()}
-                    >
-                      <TextInput
-                        ref={emailInputRef}
-                        style={[
-                          styles.input,
-                          isWeb && value.length > 0 && styles.inputWebValue,
-                          { color: colors.text },
-                        ]}
-                        placeholder="Enter your email"
-                        placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'}
-                        value={value}
-                        onChangeText={onChange}
-                        onFocus={() => setEmailFocused(true)}
-                        onBlur={() => { onBlur(); setEmailFocused(false); }}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoComplete="email"
-                      />
-                    </Pressable>
-                    {errors.email && (
-                      <RNText style={styles.errorText}>{errors.email.message}</RNText>
-                    )}
-                  </>
-                )}
-              />
-            </View>
-
-            {/* Password Input */}
-            <View style={styles.inputContainer}>
-              <RNText style={[styles.label, { color: colors.text }]}>
-                Password
-              </RNText>
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <>
-                    <Pressable
-                      style={[
-                        styles.inputWrapper,
-                        {
-                          borderColor: passwordFocused
-                            ? colors.tint
-                            : errors.password
-                            ? colors.error
-                            : isDark
-                            ? 'rgba(255, 255, 255, 0.1)'
-                            : 'rgba(0, 0, 0, 0.1)',
-                          backgroundColor: isDark
-                            ? 'rgba(255, 255, 255, 0.05)'
-                            : 'rgba(0, 0, 0, 0.02)',
-                        },
-                      ]}
-                      onPress={() => passwordInputRef.current?.focus()}
-                    >
-                      <TextInput
-                        ref={passwordInputRef}
-                        style={[
-                          styles.input,
-                          isWeb && value.length > 0 && styles.inputWebValue,
-                          { color: colors.text },
-                        ]}
-                        placeholder="Enter your password"
-                        placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'}
-                        value={value}
-                        onChangeText={onChange}
-                        onFocus={() => setPasswordFocused(true)}
-                        onBlur={() => { onBlur(); setPasswordFocused(false); }}
-                        secureTextEntry={!showPassword}
-                        autoCapitalize="none"
-                        autoComplete="password"
-                      />
-                      <Pressable
-                        onPress={() => setShowPassword(!showPassword)}
-                        style={styles.eyeButton}
-                      >
-                        <RNText style={[styles.eyeText, { color: colors.text }]}>
-                          {showPassword ? '👁️' : '👁️‍🗨️'}
-                        </RNText>
-                      </Pressable>
-                    </Pressable>
-                    {errors.password && (
-                      <RNText style={styles.errorText}>{errors.password.message}</RNText>
-                    )}
-                  </>
-                )}
-              />
-            </View>
-
-            {/* Forgot Password */}
-            <Pressable style={styles.forgotPassword}>
-              <RNText style={[styles.forgotPasswordText, { color: colors.tint }]}>
-                Forgot password?
-              </RNText>
-            </Pressable>
-
-            {/* Login Button */}
-            <Pressable
-              style={[
-                styles.loginButton,
-                { backgroundColor: colors.tint },
-                isSubmitting && styles.loginButtonDisabled
-              ]}
-              onPress={handleSubmit(onSubmit)}
-              disabled={isSubmitting}
-            >
-              <RNText style={[styles.loginButtonText, { color: colors.background }]}>
-                {isSubmitting ? 'Signing In...' : 'Sign In'}
-              </RNText>
-            </Pressable>
-
-            {/* Divider */}
-            <View style={styles.divider}>
-              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }]} />
-              <RNText style={[styles.dividerText, { color: colors.text }]}>
-                OR
-              </RNText>
-              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }]} />
-            </View>
-
-            {/* SSO: Google / Apple (only when Supabase is configured) */}
-            {isSupabaseSSOEnabled && (
-              <View style={styles.ssoRow}>
-                {ssoProviders.map((provider) => (
-                  <Pressable
-                    key={provider.id}
-                    style={[
-                      styles.ssoButton,
-                      {
-                        borderColor: isDark
-                          ? 'rgba(255,255,255,0.2)'
-                          : 'rgba(0,0,0,0.15)',
-                      },
-                    ]}
-                    onPress={() => handleSsoPress(provider.id)}
-                    disabled={!!ssoLoading}
-                  >
-                    <RNText style={[styles.ssoButtonText, { color: colors.text }]}>
-                      {ssoLoading === provider.id
-                        ? 'Redirecting...'
-                        : provider.label}
-                    </RNText>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-
-            {/* Sign Up Link */}
-            <View style={styles.signupContainer}>
-              <RNText style={[styles.signupText, { color: colors.text }]}>
-                Don't have an account?{' '}
-              </RNText>
-              <Pressable onPress={() => router.push('/signup')}>
-                <RNText style={[styles.signupLink, { color: colors.tint }]}>
-                  Sign Up
-                </RNText>
+          {/* SSO Providers */}
+          <View style={styles.ssoRow}>
+            {ssoProviders.map((provider) => (
+              <Pressable
+                key={provider.id}
+                style={[
+                  styles.ssoButton,
+                  {
+                    borderColor: isDark
+                      ? 'rgba(255,255,255,0.2)'
+                      : 'rgba(0,0,0,0.15)',
+                  },
+                ]}
+                onPress={() => handleSsoPress(provider.id)}
+                disabled={!!ssoLoading}
+              >
+                <View style={styles.ssoButtonInner}>
+                  <View style={styles.ssoIconWrap}>
+                    {provider.icon(colors.text)}
+                  </View>
+                  <RNText style={[styles.ssoButtonText, { color: colors.text }]}>
+                    {ssoLoading === provider.id
+                      ? 'Redirecting...'
+                      : provider.label}
+                  </RNText>
+                </View>
               </Pressable>
-            </View>
+            ))}
           </View>
         </Animated.View>
       </View>
@@ -427,134 +239,37 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     textAlign: 'center',
   } as TextStyle,
-  form: {
-    width: '100%',
-  } as ViewStyle,
-  inputContainer: {
-    marginBottom: 20,
-  } as ViewStyle,
-  label: {
-    fontSize: 14,
-    fontFamily: Fonts.heading,
-    fontWeight: 'normal',
-    marginBottom: 8,
-  } as TextStyle,
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    height: 56,
-    ...Platform.select({
-      web: {
-        height: 64,
-        transition: 'all 0.3s ease' as any,
-      },
-    }),
-  } as ViewStyle,
-  input: {
-    flex: 1,
-    fontSize: 16,
-    fontFamily: Fonts.body,
-    padding: 0,
-  } as TextStyle,
-  inputWebValue: {
-    fontFamily: Fonts.body,
-  } as TextStyle,
-  eyeButton: {
-    padding: 4,
-    marginLeft: 8,
-  } as ViewStyle,
-  eyeText: {
-    fontSize: 20,
-    fontFamily: Fonts.body,
-  } as TextStyle,
-  errorText: {
-    color: Colors.light.error,
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
-  } as TextStyle,
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,
-    marginTop: -8,
-  } as ViewStyle,
-  forgotPasswordText: {
-    fontSize: 14,
-    fontFamily: Fonts.body,
-    fontWeight: 'normal',
-  } as TextStyle,
-  loginButton: {
-    width: '100%',
-    height: 52,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-    ...Platform.select({
-      web: {
-        cursor: 'pointer' as any,
-        transition: 'all 0.3s ease' as any,
-        ':hover': {
-          transform: 'translateY(-2px)' as any,
-          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)' as any,
-        } as any,
-      },
-    }),
-  } as ViewStyle,
-  loginButtonText: {
-    fontSize: 16,
-    fontFamily: Fonts.body,
-    fontWeight: 'normal',
-  } as TextStyle,
-  loginButtonDisabled: {
-    opacity: 0.6,
-  } as ViewStyle,
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  } as ViewStyle,
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  } as ViewStyle,
-  dividerText: {
-    marginHorizontal: 16,
-    fontSize: 12,
-    fontFamily: Fonts.body,
-    opacity: 0.5,
-  } as TextStyle,
   ssoRow: {
     flexDirection: 'column',
-    gap: 12,
-    marginBottom: 24,
+    gap: 14,
   } as ViewStyle,
   ssoButton: {
     width: '100%',
-    height: 48,
+    height: 52,
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    ...Platform.select({
+      web: {
+        cursor: 'pointer' as any,
+        transition: 'all 0.2s ease' as any,
+      },
+    }),
+  } as ViewStyle,
+  ssoButtonInner: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  } as ViewStyle,
+  ssoIconWrap: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   } as ViewStyle,
   ssoButtonText: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: Fonts.body,
-  } as TextStyle,
-  signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  } as ViewStyle,
-  signupText: {
-    fontSize: 14,
-  } as TextStyle,
-  signupLink: {
-    fontSize: 14,
-    fontFamily: Fonts.body,
-    fontWeight: 'normal',
   } as TextStyle,
 });

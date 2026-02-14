@@ -357,18 +357,20 @@ export function StaggeredMobileMenu({
                     onClose();
                   }}
                 >
-                  Log In
+                  Sign In
                 </button>
-                <button
-                  type="button"
-                  className="sm-auth-link sm-auth-link-cta"
-                  onClick={() => {
-                    onSignUp?.();
-                    onClose();
-                  }}
-                >
-                  Sign Up
-                </button>
+                {onSignUp && (
+                  <button
+                    type="button"
+                    className="sm-auth-link sm-auth-link-cta"
+                    onClick={() => {
+                      onSignUp();
+                      onClose();
+                    }}
+                  >
+                    Sign Up
+                  </button>
+                )}
               </>
             )}
           </div>

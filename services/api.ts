@@ -104,6 +104,8 @@ type ApiRequestOptions = RequestInit & {
   }
 
   // Authentication functions
+
+  /** @deprecated SSO-only auth — no longer called from frontend */
   export interface SignupData {
     email: string;
     full_name: string;
@@ -112,6 +114,7 @@ type ApiRequestOptions = RequestInit & {
     is_worker?: boolean;
   }
 
+  /** @deprecated SSO-only auth — no longer called from frontend */
   export interface LoginData {
     email: string;
     password: string;
@@ -131,6 +134,7 @@ type ApiRequestOptions = RequestInit & {
     token: string;
   }
 
+  /** @deprecated SSO-only auth — no longer called from frontend */
   export function signup(data: SignupData): Promise<AuthResponse> {
     return apiFetch("/api/signup/", {
       method: "POST",
@@ -138,6 +142,7 @@ type ApiRequestOptions = RequestInit & {
     });
   }
 
+  /** @deprecated SSO-only auth — no longer called from frontend */
   export function login(data: LoginData): Promise<AuthResponse> {
     return apiFetch("/api/login/", {
       method: "POST",

@@ -133,13 +133,10 @@ export default function FindJobsWebPage() {
             <Ionicons name="lock-closed-outline" size={36} color={colors.tint} style={{ marginBottom: 12 }} />
             <RNText style={[styles.authTitle, { color: colors.text }]}>Sign in required</RNText>
             <RNText style={[styles.authDesc, { color: colors.icon }]}>
-              Log in or create an account to browse available jobs.
+              Sign in to browse available jobs.
             </RNText>
             <Pressable style={[styles.authBtn, { backgroundColor: BRAND_BLUE }]} onPress={() => router.push('/login')}>
-              <RNText style={styles.authBtnText}>Log In</RNText>
-            </Pressable>
-            <Pressable style={[styles.authBtnOutline, { borderColor: colors.tint }]} onPress={() => router.push('/signup')}>
-              <RNText style={[styles.authBtnOutlineText, { color: colors.tint }]}>Sign Up</RNText>
+              <RNText style={styles.authBtnText}>Sign In</RNText>
             </Pressable>
           </View>
         </View>

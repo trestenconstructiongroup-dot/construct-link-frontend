@@ -48,7 +48,7 @@ export default function SignupRolePage() {
     }
 
     if (!token) {
-      router.replace('/signup');
+      router.replace('/login');
       return;
     }
 
@@ -147,15 +147,6 @@ export default function SignupRolePage() {
             </RNText>
           </Pressable>
 
-          {/* Back link */}
-          <Pressable
-            style={styles.backLink}
-            onPress={() => router.back()}
-          >
-            <RNText style={[styles.backLinkText, { color: colors.text }]}>
-              ← Back to details
-            </RNText>
-          </Pressable>
         </Animated.View>
       </View>
     </ScrollView>

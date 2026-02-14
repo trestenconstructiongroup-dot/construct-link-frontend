@@ -339,20 +339,12 @@ export default function Navbar() {
               </View>
             ) : (
               <>
-                <Pressable 
-                  style={styles.authLink}
+                <Pressable
+                  style={[styles.signUpButton, { backgroundColor: colors.text }]}
                   onPress={() => router.push('/login')}
                 >
-                  <Text style={[styles.authLinkText, { color: colors.text }]}>
-                    Log In
-                  </Text>
-                </Pressable>
-                <Pressable 
-                  style={[styles.signUpButton, { backgroundColor: colors.text }]}
-                  onPress={() => router.push('/signup')}
-                >
                   <Text style={[styles.signUpText, { color: colors.background }]}>
-                    Sign Up
+                    Sign In
                   </Text>
                 </Pressable>
               </>
@@ -465,7 +457,6 @@ export default function Navbar() {
           onProfile={() => router.push('/account' as never)}
           onLogout={handleLogout}
           onLogin={() => router.push('/login')}
-          onSignUp={() => router.push('/signup')}
           onNavItemPress={(path) => router.push(path as never)}
           closeOnClickAway={true}
         />
@@ -540,25 +531,14 @@ export default function Navbar() {
           ) : (
             <>
               <Pressable
-                style={styles.mobileNavLink}
+                style={[styles.mobileSignUpButton, { backgroundColor: colors.text }]}
                 onPress={() => {
                   router.push('/login');
                   setIsMobileMenuOpen(false);
                 }}
               >
-                <Text style={[styles.mobileNavLinkText, { color: colors.text }]}>
-                  Log In
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[styles.mobileSignUpButton, { backgroundColor: colors.text }]}
-                onPress={() => {
-                  router.push('/signup');
-                  setIsMobileMenuOpen(false);
-                }}
-              >
                 <Text style={[styles.mobileSignUpText, { color: colors.background }]}>
-                  Sign Up
+                  Sign In
                 </Text>
               </Pressable>
             </>

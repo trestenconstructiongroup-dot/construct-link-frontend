@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { login, logout, getUserProfile, AuthResponse } from '../services/api';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { logout, getUserProfile } from '../services/api';
+import { supabase } from '../lib/supabase';
 import { logger } from '../utils/logger';
 import {
   getStoredToken,
@@ -25,15 +25,13 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (userData: AuthResponse) => Promise<void>;
   logout: () => Promise<void>;
   /** Sign in with Google (web: redirects to Google and back). */
   signInWithGoogle: () => Promise<void>;
   /** Sign in with Apple (web: redirects to Apple and back). */
   signInWithApple: () => Promise<void>;
-  /** True if Supabase URL/anon key are set (SSO buttons can be shown). */
-  isSupabaseSSOEnabled: boolean;
+  /** Sign in with Microsoft Azure AD (web: redirects to Microsoft and back). */
+  signInWithAzure: () => Promise<void>;
   updateUserFromServer: (user: User) => Promise<void>;
 }
 
@@ -97,21 +95,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadAuthState();
   }, []);
 
-  const handleLogin = async (email: string, password: string) => {
-    const response = await login({ email, password });
-    setUser(response.user);
-    setToken(response.token);
-    await setStoredToken(response.token);
-    await setStoredUser(JSON.stringify(response.user));
-  };
-
-  const handleSignup = async (response: AuthResponse) => {
-    setUser(response.user);
-    setToken(response.token);
-    await setStoredToken(response.token);
-    await setStoredUser(JSON.stringify(response.user));
-  };
-
   const handleLogout = async () => {
     if (token) {
       try {
@@ -142,7 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: redirectTo ? { redirectTo } : undefined,
     });
     if (error) throw error;
-    // On web we redirect; after redirect loadAuthState will run and get session
   };
 
   const signInWithApple = async () => {
@@ -152,6 +134,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
+      options: redirectTo ? { redirectTo } : undefined,
+    });
+    if (error) throw error;
+  };
+
+  const signInWithAzure = async () => {
+    if (!supabase) {
+      throw new Error('Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.');
+    }
+    const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'azure',
       options: redirectTo ? { redirectTo } : undefined,
     });
     if (error) throw error;
@@ -173,12 +167,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         isLoading,
         isAuthenticated: !!user && !!token,
-        login: handleLogin,
-        signup: handleSignup,
         logout: handleLogout,
         signInWithGoogle,
         signInWithApple,
-        isSupabaseSSOEnabled: isSupabaseConfigured(),
+        signInWithAzure,
         updateUserFromServer,
       }}
     >
