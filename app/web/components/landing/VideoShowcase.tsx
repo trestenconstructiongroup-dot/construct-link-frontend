@@ -9,7 +9,7 @@ if (Platform.OS === 'web') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const YOUTUBE_EMBED_URL = 'https://www.youtube.com/embed/_nAmH0kS8fY';
+const YOUTUBE_EMBED_URL = 'https://www.youtube.com/embed/_nAmH0kS8fY?si=7V_QeQXIYvnJy4Gm';
 
 const HEADING_TEXT = 'See Tresten Construction Group Inc in Action';
 
@@ -119,8 +119,10 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
           >
             <iframe
               src={YOUTUBE_EMBED_URL}
-              title="Construct Link Video"
+              title="YouTube video player"
+              frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
               style={{
                 position: 'absolute' as const,
