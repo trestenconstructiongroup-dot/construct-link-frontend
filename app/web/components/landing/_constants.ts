@@ -75,7 +75,7 @@ export const LOADER_WORDS = [
   'Connecting',
   'Creating',
   'Hiring',
-  'Construct Link',
+  'Tresten Construction Group Inc',
 ] as const;
 
 /* ── Stats Counter ── */

@@ -14,10 +14,7 @@ function PageLoaderComponent() {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
 
-  const [done, setDone] = useState(() => {
-    if (Platform.OS !== 'web' || typeof sessionStorage === 'undefined') return true;
-    return sessionStorage.getItem('cl-loader-seen') === '1';
-  });
+  const [done, setDone] = useState(Platform.OS !== 'web');
 
   const loaderRef = useRef<HTMLDivElement>(null);
   const wordRef = useRef<HTMLSpanElement>(null);
@@ -32,9 +29,6 @@ function PageLoaderComponent() {
       duration: 1,
       ease: 'power3.inOut',
       onComplete: () => {
-        if (typeof sessionStorage !== 'undefined') {
-          sessionStorage.setItem('cl-loader-seen', '1');
-        }
         setDone(true);
       },
     });
