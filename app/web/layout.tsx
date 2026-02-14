@@ -18,7 +18,7 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
       : 0;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Navbar />
       <ErrorBoundary>
         <View style={[styles.content, { paddingTop: contentPaddingTop }]}>
@@ -48,10 +48,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+    ...Platform.select({
+      web: {
+        minHeight: '100vh' as any,
+        overflow: 'hidden' as any,
+      },
+    }),
   },
   content: {
     flex: 1,
     width: '100%',
+    ...Platform.select({
+      web: {
+        overflow: 'auto' as any,
+      },
+    }),
   },
   fabBell: {
     position: 'absolute',
