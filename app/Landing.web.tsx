@@ -428,25 +428,25 @@ export default function WebLanding() {
                     type="button"
                     onClick={() => router.push('/jobs-create')}
                     style={{
-                      backgroundColor: 'transparent',
-                      color: colors.text,
-                      border: `2px solid ${colors.text}`,
+                      backgroundColor: '#F99324',
+                      color: '#ffffff',
+                      border: '2px solid #F99324',
                       borderRadius: 12,
                       padding: isSmallScreen ? '10px 24px' : '12px 28px',
                       fontFamily: Fonts.heading,
                       fontSize: isSmallScreen ? 16 : 18,
                       fontWeight: 600,
                       cursor: 'pointer',
-                      transition: 'transform 0.15s ease, background-color 0.2s ease',
+                      transition: 'transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease',
                       minWidth: isSmallScreen ? 200 : undefined,
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'scale(1.03)';
-                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(249, 147, 36, 0.4)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
                     Post a Job

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import LottieView from 'lottie-react-native';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     Animated,
@@ -446,11 +446,11 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
             {/* Right: Lottie only on large screens */}
             {isLargeScreen && (
               <View style={styles.headerLottie}>
-                <LottieView
-                  source={require('../../assets/images/transparentVideo/Construction.json')}
-                  autoPlay
+                <DotLottieReact
+                  src="/images/transparentVideo/Construction.json"
+                  autoplay
                   loop
-                  style={styles.lottie}
+                  style={{ width: '100%', height: '100%' }}
                 />
               </View>
             )}
