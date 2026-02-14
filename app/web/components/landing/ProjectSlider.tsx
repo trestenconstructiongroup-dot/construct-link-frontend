@@ -44,40 +44,54 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
-    const ctx = gsap.context(() => {
-      // heading word reveal
-      const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
-      gsap.from('.ps-word', {
-        y: '100%',
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+    if (isSmallScreen) {
+      // Mobile: IntersectionObserver for heading + timed auto-scroll for track
+      const headingTween = gsap.from('.ps-word', {
+        y: '100%', opacity: 0, duration: 0.5, stagger: 0.06,
+        ease: 'power3.out', paused: true,
       });
+      const tweens: gsap.core.Tween[] = [headingTween];
 
-      // auto-scroll the track horizontally as user scrolls the page
       const track = trackRef.current;
       if (track) {
-        const gap = isSmallScreen ? 12 : 16;
-        const cardW = isSmallScreen ? Math.min(260, window.innerWidth * 0.75) : 380;
+        const gap = 12;
+        const cardW = Math.min(260, window.innerWidth * 0.75);
+        const totalTrackWidth = SLIDER_IMAGES.length * (cardW + gap) - gap;
+        const viewportWidth = containerRef.current!.offsetWidth;
+        const scrollDistance = Math.max(0, totalTrackWidth - viewportWidth);
+        const trackTween = gsap.to(track, {
+          x: -scrollDistance, duration: 8, ease: 'power1.inOut', paused: true,
+        });
+        tweens.push(trackTween);
+      }
+
+      const obs = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) { tweens.forEach((t) => t.play()); obs.disconnect(); } },
+        { threshold: 0.1 },
+      );
+      obs.observe(containerRef.current);
+      return () => { obs.disconnect(); tweens.forEach((t) => t.kill()); };
+    }
+
+    // Desktop: ScrollTrigger
+    const ta = 'play reverse play reverse';
+    const ctx = gsap.context(() => {
+      gsap.from('.ps-word', {
+        y: '100%', opacity: 0, duration: 0.5, stagger: 0.06, ease: 'power3.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+      });
+
+      const track = trackRef.current;
+      if (track) {
+        const gap = 16;
+        const cardW = 380;
         const totalTrackWidth = SLIDER_IMAGES.length * (cardW + gap) - gap;
         const viewportWidth = containerRef.current!.offsetWidth;
         const scrollDistance = Math.max(0, totalTrackWidth - viewportWidth);
 
         gsap.to(track, {
-          x: -scrollDistance,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: containerRef.current!,
-            start: 'top 70%',
-            end: 'bottom 20%',
-            scrub: 1,
-          },
+          x: -scrollDistance, ease: 'none',
+          scrollTrigger: { trigger: containerRef.current!, start: 'top 70%', end: 'bottom 20%', scrub: 1 },
         });
       }
     }, containerRef.current);

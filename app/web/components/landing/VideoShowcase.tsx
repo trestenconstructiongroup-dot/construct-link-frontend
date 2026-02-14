@@ -26,36 +26,34 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
-    const small = isSmallScreen;
-    const ta = small ? 'play none none none' : 'play reverse play reverse';
-
-    const ctx = gsap.context(() => {
-      // word-by-word heading reveal
-      gsap.from('.vs-word', {
-        y: '100%',
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.04,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+    if (isSmallScreen) {
+      // Mobile: IntersectionObserver (ScrollTrigger can't detect scroll in RNW containers)
+      const t1 = gsap.from('.vs-word', {
+        y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
+        ease: 'power3.out', paused: true,
       });
+      const t2 = gsap.from('.vs-video', {
+        opacity: 0, y: 60, scale: 0.95, duration: 0.8,
+        ease: 'power2.out', paused: true,
+      });
+      const obs = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) { t1.play(); t2.play(); obs.disconnect(); } },
+        { threshold: 0.1 },
+      );
+      obs.observe(containerRef.current);
+      return () => { obs.disconnect(); t1.kill(); t2.kill(); };
+    }
 
-      // video container scale-in
+    // Desktop: ScrollTrigger
+    const ta = 'play reverse play reverse';
+    const ctx = gsap.context(() => {
+      gsap.from('.vs-word', {
+        y: '100%', opacity: 0, duration: 0.5, stagger: 0.04, ease: 'power3.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+      });
       gsap.from('.vs-video', {
-        opacity: 0,
-        y: 60,
-        scale: 0.95,
-        duration: 0.8,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.vs-video',
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+        opacity: 0, y: 60, scale: 0.95, duration: 0.8, ease: 'power2.out',
+        scrollTrigger: { trigger: '.vs-video', start: 'top 85%', toggleActions: ta },
       });
     }, containerRef.current);
 

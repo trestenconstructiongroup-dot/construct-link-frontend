@@ -24,35 +24,33 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
-    const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
-
-    const ctx = gsap.context(() => {
-      // heading reveal
-      gsap.from('.hiw-heading', {
-        y: 40,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+    if (isSmallScreen) {
+      // Mobile: IntersectionObserver
+      const t1 = gsap.from('.hiw-heading', {
+        y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', paused: true,
       });
+      const t2 = gsap.from('.hiw-card', {
+        y: 80, opacity: 0, scale: 0.9, duration: 0.7, stagger: 0.2,
+        ease: 'power3.out', paused: true,
+      });
+      const obs = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) { t1.play(); t2.play(); obs.disconnect(); } },
+        { threshold: 0.1 },
+      );
+      obs.observe(containerRef.current);
+      return () => { obs.disconnect(); t1.kill(); t2.kill(); };
+    }
 
-      // staggered card reveal
+    // Desktop: ScrollTrigger
+    const ta = 'play reverse play reverse';
+    const ctx = gsap.context(() => {
+      gsap.from('.hiw-heading', {
+        y: 40, opacity: 0, duration: 0.6, ease: 'power3.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+      });
       gsap.from('.hiw-card', {
-        y: 80,
-        opacity: 0,
-        scale: 0.9,
-        duration: 0.7,
-        stagger: 0.2,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 80%',
-          toggleActions: ta,
-        },
+        y: 80, opacity: 0, scale: 0.9, duration: 0.7, stagger: 0.2, ease: 'power3.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 80%', toggleActions: ta },
       });
     }, containerRef.current);
 

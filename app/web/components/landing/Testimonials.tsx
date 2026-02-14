@@ -29,40 +29,54 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
-    const ctx = gsap.context(() => {
-      // heading letter reveal
-      const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
-      gsap.from('.tm-letter', {
-        yPercent: 120,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.03,
-        ease: 'power4.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+    if (isSmallScreen) {
+      // Mobile: IntersectionObserver for heading + timed auto-scroll for track
+      const headingTween = gsap.from('.tm-letter', {
+        yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.03,
+        ease: 'power4.out', paused: true,
       });
+      const tweens: gsap.core.Tween[] = [headingTween];
 
-      // auto-scroll the testimonial track horizontally as user scrolls
       const track = trackRef.current;
       if (track) {
-        const cardWidth = isSmallScreen ? window.innerWidth * 0.8 : Math.min(window.innerWidth * 0.45, 600);
+        const cardWidth = window.innerWidth * 0.8;
+        const gap = 32;
+        const totalTrackWidth = TESTIMONIALS.length * (cardWidth + gap) - gap;
+        const viewportWidth = containerRef.current!.offsetWidth;
+        const scrollDistance = Math.max(0, totalTrackWidth - viewportWidth);
+        const trackTween = gsap.to(track, {
+          x: -scrollDistance, duration: 10, ease: 'power1.inOut', paused: true,
+        });
+        tweens.push(trackTween);
+      }
+
+      const obs = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) { tweens.forEach((t) => t.play()); obs.disconnect(); } },
+        { threshold: 0.1 },
+      );
+      obs.observe(containerRef.current);
+      return () => { obs.disconnect(); tweens.forEach((t) => t.kill()); };
+    }
+
+    // Desktop: ScrollTrigger
+    const ta = 'play reverse play reverse';
+    const ctx = gsap.context(() => {
+      gsap.from('.tm-letter', {
+        yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.03, ease: 'power4.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+      });
+
+      const track = trackRef.current;
+      if (track) {
+        const cardWidth = Math.min(window.innerWidth * 0.45, 600);
         const gap = 32;
         const totalTrackWidth = TESTIMONIALS.length * (cardWidth + gap) - gap;
         const viewportWidth = containerRef.current!.offsetWidth;
         const scrollDistance = Math.max(0, totalTrackWidth - viewportWidth);
 
         gsap.to(track, {
-          x: -scrollDistance,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: containerRef.current!,
-            start: 'top 70%',
-            end: 'bottom 20%',
-            scrub: 1,
-          },
+          x: -scrollDistance, ease: 'none',
+          scrollTrigger: { trigger: containerRef.current!, start: 'top 70%', end: 'bottom 20%', scrub: 1 },
         });
       }
     }, containerRef.current);

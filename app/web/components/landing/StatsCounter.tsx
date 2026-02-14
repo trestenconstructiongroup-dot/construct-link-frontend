@@ -28,40 +28,55 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
-    const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
-
-    const ctx = gsap.context(() => {
-      // staggered card reveal
-      gsap.from('.stat-card', {
-        y: 60,
-        opacity: 0,
-        stagger: 0.15,
-        duration: 0.6,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+    if (isSmallScreen) {
+      // Mobile: IntersectionObserver
+      const cardTween = gsap.from('.stat-card', {
+        y: 60, opacity: 0, stagger: 0.15, duration: 0.6,
+        ease: 'power3.out', paused: true,
       });
+      const counterTweens: gsap.core.Tween[] = [];
+      STATS.forEach((stat, i) => {
+        const el = numberRefs.current[i];
+        if (!el) return;
+        const obj = { val: 0 };
+        counterTweens.push(gsap.to(obj, {
+          val: stat.value, duration: 2, ease: 'power1.out', paused: true,
+          onUpdate: () => { el.textContent = Math.floor(obj.val).toLocaleString() + stat.suffix; },
+        }));
+      });
+      const obs = new IntersectionObserver(
+        ([e]) => {
+          if (e.isIntersecting) {
+            cardTween.play();
+            counterTweens.forEach((t) => t.play());
+            obs.disconnect();
+          }
+        },
+        { threshold: 0.1 },
+      );
+      obs.observe(containerRef.current);
+      return () => {
+        obs.disconnect();
+        cardTween.kill();
+        counterTweens.forEach((t) => t.kill());
+      };
+    }
 
-      // counter animations
+    // Desktop: ScrollTrigger
+    const ta = 'play reverse play reverse';
+    const ctx = gsap.context(() => {
+      gsap.from('.stat-card', {
+        y: 60, opacity: 0, stagger: 0.15, duration: 0.6, ease: 'power3.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+      });
       STATS.forEach((stat, i) => {
         const el = numberRefs.current[i];
         if (!el) return;
         const obj = { val: 0 };
         gsap.to(obj, {
-          val: stat.value,
-          duration: 2,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: containerRef.current!,
-            start: 'top 85%',
-            toggleActions: ta,
-          },
-          onUpdate: () => {
-            el.textContent = Math.floor(obj.val).toLocaleString() + stat.suffix;
-          },
+          val: stat.value, duration: 2, ease: 'power1.out',
+          scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+          onUpdate: () => { el.textContent = Math.floor(obj.val).toLocaleString() + stat.suffix; },
         });
       });
     }, containerRef.current);

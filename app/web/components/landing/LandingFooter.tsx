@@ -133,22 +133,28 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
-    const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
+    if (isSmallScreen) {
+      // Mobile: IntersectionObserver
+      if (!footerContentRef.current) return;
+      const tween = gsap.from('.footer-reveal', {
+        y: 40, opacity: 0, stagger: 0.1, duration: 0.6,
+        ease: 'power3.out', paused: true,
+      });
+      const obs = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) { tween.play(); obs.disconnect(); } },
+        { threshold: 0.1 },
+      );
+      obs.observe(footerContentRef.current);
+      return () => { obs.disconnect(); tween.kill(); };
+    }
 
+    // Desktop: ScrollTrigger
+    const ta = 'play reverse play reverse';
     const ctx = gsap.context(() => {
-      // footer content staggered reveal
       if (footerContentRef.current) {
         gsap.from('.footer-reveal', {
-          y: 40,
-          opacity: 0,
-          stagger: 0.1,
-          duration: 0.6,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: footerContentRef.current,
-            start: 'top 90%',
-            toggleActions: ta,
-          },
+          y: 40, opacity: 0, stagger: 0.1, duration: 0.6, ease: 'power3.out',
+          scrollTrigger: { trigger: footerContentRef.current, start: 'top 90%', toggleActions: ta },
         });
       }
     });

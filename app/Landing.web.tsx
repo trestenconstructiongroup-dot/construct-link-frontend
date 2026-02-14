@@ -75,17 +75,26 @@ export default function WebLanding() {
     const style = document.createElement('style');
     style.id = 'landing-scroll-fix';
     style.textContent = `
-      html, body { overflow-y: auto !important; overflow-x: hidden !important; }
-      #root,
+      html, body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+      }
+      #root {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
+      }
       #root > div,
       #root > div > div,
       #root > div > div > div,
       #root > div > div > div > div,
       #root > div > div > div > div > div {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
         height: auto !important;
-        min-height: 100% !important;
         overflow: visible !important;
-        flex-shrink: 0 !important;
       }
       html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; }
       html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
@@ -164,22 +173,92 @@ export default function WebLanding() {
     if (Platform.OS !== 'web') return;
 
     const small = window.innerWidth < 768;
-    const ta = small ? 'play none none none' : 'play reverse play reverse';
 
-    // On mobile, normalizeScroll intercepts touch events so ScrollTrigger
-    // works regardless of which DOM element is actually scrolling.
     if (small) {
-      ScrollTrigger.normalizeScroll(true);
+      // ── Mobile: Use IntersectionObserver ──
+      // ScrollTrigger can't reliably detect scroll on mobile because React
+      // Native Web's nested containers intercept scroll events.
+      // IntersectionObserver detects viewport entry regardless of which
+      // element actually scrolls.
+      const observers: IntersectionObserver[] = [];
+      const tweens: gsap.core.Tween[] = [];
+
+      const animateOnView = (
+        trigger: Element,
+        createTweens: () => gsap.core.Tween | gsap.core.Tween[],
+      ) => {
+        const result = createTweens();
+        const arr = Array.isArray(result) ? result : [result];
+        tweens.push(...arr);
+        const obs = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              arr.forEach((t) => t.play());
+              obs.disconnect();
+            }
+          },
+          { threshold: 0.1 },
+        );
+        obs.observe(trigger);
+        observers.push(obs);
+      };
+
+      if (categoriesRef.current) {
+        animateOnView(categoriesRef.current, () =>
+          gsap.from('.cat-btn', {
+            opacity: 0, scale: 0.6, stagger: 0.08, duration: 0.5,
+            ease: 'back.out(1.7)', paused: true,
+          }),
+        );
+      }
+
+      if (unlockRef.current) {
+        animateOnView(unlockRef.current, () => [
+          gsap.from('.unlock-word', {
+            yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.06,
+            ease: 'power4.out', paused: true,
+          }),
+          gsap.from('.unlock-sub', {
+            y: 30, opacity: 0, duration: 0.6,
+            ease: 'power2.out', paused: true,
+          }),
+          gsap.from('.unlock-card', {
+            opacity: 0, x: 100, duration: 0.8,
+            ease: 'power3.out', paused: true,
+          }),
+        ]);
+      }
+
+      if (faqRef.current) {
+        animateOnView(faqRef.current, () => [
+          gsap.from('.faq-heading', {
+            y: 40, opacity: 0, duration: 0.6,
+            ease: 'power3.out', paused: true,
+          }),
+          gsap.from('.faq-item-reveal', {
+            y: 40, opacity: 0, stagger: 0.1, duration: 0.5,
+            ease: 'power2.out', paused: true,
+          }),
+          gsap.from('.faq-side-img', {
+            opacity: 0, scale: 0.8, duration: 0.8,
+            ease: 'power2.out', paused: true,
+          }),
+        ]);
+      }
+
+      return () => {
+        observers.forEach((o) => o.disconnect());
+        tweens.forEach((t) => t.kill());
+      };
     }
 
+    // ── Desktop: ScrollTrigger (proven to work) ──
+    const ta = 'play reverse play reverse';
+
     const ctx = gsap.context(() => {
-      // Categories: staggered scale-in
       if (categoriesRef.current) {
         gsap.from('.cat-btn', {
-          opacity: 0,
-          scale: 0.6,
-          stagger: 0.08,
-          duration: 0.5,
+          opacity: 0, scale: 0.6, stagger: 0.08, duration: 0.5,
           ease: 'back.out(1.7)',
           scrollTrigger: {
             trigger: categoriesRef.current,
@@ -189,13 +268,9 @@ export default function WebLanding() {
         });
       }
 
-      // Unlock Opportunities: heading + subtitle + card
       if (unlockRef.current) {
         gsap.from('.unlock-word', {
-          yPercent: 120,
-          opacity: 0,
-          duration: 0.5,
-          stagger: 0.06,
+          yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.06,
           ease: 'power4.out',
           scrollTrigger: {
             trigger: unlockRef.current,
@@ -205,10 +280,7 @@ export default function WebLanding() {
         });
 
         gsap.from('.unlock-sub', {
-          y: 30,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power2.out',
+          y: 30, opacity: 0, duration: 0.6, ease: 'power2.out',
           scrollTrigger: {
             trigger: unlockRef.current,
             start: 'top 80%',
@@ -217,10 +289,7 @@ export default function WebLanding() {
         });
 
         gsap.from('.unlock-card', {
-          opacity: 0,
-          x: 100,
-          duration: 0.8,
-          ease: 'power3.out',
+          opacity: 0, x: 100, duration: 0.8, ease: 'power3.out',
           scrollTrigger: {
             trigger: unlockRef.current,
             start: 'top 75%',
@@ -229,13 +298,9 @@ export default function WebLanding() {
         });
       }
 
-      // FAQ: heading + items + side image
       if (faqRef.current) {
         gsap.from('.faq-heading', {
-          y: 40,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power3.out',
+          y: 40, opacity: 0, duration: 0.6, ease: 'power3.out',
           scrollTrigger: {
             trigger: faqRef.current,
             start: 'top 85%',
@@ -244,11 +309,7 @@ export default function WebLanding() {
         });
 
         gsap.from('.faq-item-reveal', {
-          y: 40,
-          opacity: 0,
-          stagger: 0.1,
-          duration: 0.5,
-          ease: 'power2.out',
+          y: 40, opacity: 0, stagger: 0.1, duration: 0.5, ease: 'power2.out',
           scrollTrigger: {
             trigger: faqRef.current,
             start: 'top 80%',
@@ -257,10 +318,7 @@ export default function WebLanding() {
         });
 
         gsap.from('.faq-side-img', {
-          opacity: 0,
-          scale: 0.8,
-          duration: 0.8,
-          ease: 'power2.out',
+          opacity: 0, scale: 0.8, duration: 0.8, ease: 'power2.out',
           scrollTrigger: {
             trigger: faqRef.current,
             start: 'top 80%',
@@ -270,14 +328,12 @@ export default function WebLanding() {
       }
     });
 
-    // Refresh ScrollTrigger positions after layout settles (mobile needs longer)
-    const t1 = setTimeout(() => ScrollTrigger.refresh(), 300);
-    const t2 = setTimeout(() => ScrollTrigger.refresh(), 1000);
+    const t1 = setTimeout(() => ScrollTrigger.refresh(), 600);
+    const t2 = setTimeout(() => ScrollTrigger.refresh(), 1500);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      if (small) ScrollTrigger.normalizeScroll(false);
       ctx.revert();
     };
   }, []);

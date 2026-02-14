@@ -27,49 +27,41 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
-    const ta = isSmallScreen ? 'play none none none' : 'play reverse play reverse';
+    if (isSmallScreen) {
+      // Mobile: IntersectionObserver
+      const t1 = gsap.from('.da-word', {
+        y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
+        ease: 'power3.out', paused: true,
+      });
+      const t2 = gsap.from('.da-sub', {
+        y: 30, opacity: 0, duration: 0.6, ease: 'power2.out', paused: true,
+      });
+      const t3 = gsap.from('.da-badge', {
+        opacity: 0, y: 30, scale: 0.8, stagger: 0.2, duration: 0.6,
+        ease: 'back.out(1.7)', paused: true,
+      });
+      const obs = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) { t1.play(); t2.play(); t3.play(); obs.disconnect(); } },
+        { threshold: 0.1 },
+      );
+      obs.observe(containerRef.current);
+      return () => { obs.disconnect(); t1.kill(); t2.kill(); t3.kill(); };
+    }
 
+    // Desktop: ScrollTrigger
+    const ta = 'play reverse play reverse';
     const ctx = gsap.context(() => {
-      // word reveal for heading
       gsap.from('.da-word', {
-        y: '100%',
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.04,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+        y: '100%', opacity: 0, duration: 0.5, stagger: 0.04, ease: 'power3.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
       });
-
-      // subtitle reveal
       gsap.from('.da-sub', {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 85%',
-          toggleActions: ta,
-        },
+        y: 30, opacity: 0, duration: 0.6, ease: 'power2.out',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
       });
-
-      // badge stagger
       gsap.from('.da-badge', {
-        opacity: 0,
-        y: 30,
-        scale: 0.8,
-        stagger: 0.2,
-        duration: 0.6,
-        ease: 'back.out(1.7)',
-        scrollTrigger: {
-          trigger: containerRef.current!,
-          start: 'top 80%',
-          toggleActions: ta,
-        },
+        opacity: 0, y: 30, scale: 0.8, stagger: 0.2, duration: 0.6, ease: 'back.out(1.7)',
+        scrollTrigger: { trigger: containerRef.current!, start: 'top 80%', toggleActions: ta },
       });
     }, containerRef.current);
 
