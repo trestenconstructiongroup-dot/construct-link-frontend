@@ -9,7 +9,7 @@ if (Platform.OS === 'web') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const YOUTUBE_EMBED_URL = 'https://www.youtube.com/embed/4BzjUq921Y4';
+const YOUTUBE_EMBED_URL = 'https://www.youtube.com/embed/_nAmH0kS8fY';
 
 const HEADING_TEXT = 'See Tresten Construction Group Inc in Action';
 
