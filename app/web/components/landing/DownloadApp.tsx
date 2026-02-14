@@ -1,59 +1,193 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, Pressable, Platform, ViewStyle, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { gsap } from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Colors, Fonts } from '../../../../constants/theme';
+
+if (Platform.OS === 'web') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+const HEADING_TEXT = 'Take Tresten Construction Group Inc Everywhere';
 
 interface DownloadAppProps {
   isSmallScreen: boolean;
 }
 
 function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const handlePress = () => {
     if (Platform.OS === 'web') {
       window.open('#', '_blank');
     }
   };
 
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !containerRef.current) return;
+
+    const ta = isSmallScreen ? 'play none none reverse' : 'play reverse play reverse';
+
+    const ctx = gsap.context(() => {
+      // word reveal for heading
+      gsap.from('.da-word', {
+        y: '100%',
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.04,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: containerRef.current!,
+          start: 'top 85%',
+          toggleActions: ta,
+        },
+      });
+
+      // subtitle reveal
+      gsap.from('.da-sub', {
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: containerRef.current!,
+          start: 'top 85%',
+          toggleActions: ta,
+        },
+      });
+
+      // badge stagger
+      gsap.from('.da-badge', {
+        opacity: 0,
+        y: 30,
+        scale: 0.8,
+        stagger: 0.2,
+        duration: 0.6,
+        ease: 'back.out(1.7)',
+        scrollTrigger: {
+          trigger: containerRef.current!,
+          start: 'top 80%',
+          toggleActions: ta,
+        },
+      });
+    }, containerRef.current);
+
+    return () => ctx.revert();
+  }, []);
+
+  const headingWords = HEADING_TEXT.split(' ');
+
+  const badgeContent = (
+    <>
+      <Pressable
+        style={({ pressed }) => [styles.badge, pressed && styles.badgePressed]}
+        onPress={handlePress}
+        {...(Platform.OS === 'web' ? { className: 'da-badge' } as any : {})}
+      >
+        <Ionicons name="logo-apple" size={24} color="#ffffff" />
+        <View>
+          <Text style={styles.badgeSmallText}>Download on the</Text>
+          <Text style={styles.badgeLargeText}>App Store</Text>
+        </View>
+      </Pressable>
+      <Pressable
+        style={({ pressed }) => [styles.badge, pressed && styles.badgePressed]}
+        onPress={handlePress}
+        {...(Platform.OS === 'web' ? { className: 'da-badge' } as any : {})}
+      >
+        <Ionicons name="logo-google-playstore" size={24} color="#ffffff" />
+        <View>
+          <Text style={styles.badgeSmallText}>Get it on</Text>
+          <Text style={styles.badgeLargeText}>Google Play</Text>
+        </View>
+      </Pressable>
+    </>
+  );
+
+  if (Platform.OS === 'web') {
+    return (
+      <View
+        style={[
+          styles.gradient,
+          isSmallScreen && styles.gradientSmall,
+          {
+            backgroundImage: `linear-gradient(135deg, ${Colors.light.warmStart} 0%, ${Colors.light.warmEnd} 100%)`,
+          } as any,
+        ]}
+      >
+        <div ref={containerRef} style={{ maxWidth: 1200, width: '100%', alignSelf: 'center', margin: '0 auto' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: isSmallScreen ? 'column' : 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: isSmallScreen ? 28 : 40,
+            }}
+          >
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, alignItems: isSmallScreen ? 'center' : undefined }}>
+              {/* word-by-word heading */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: isSmallScreen ? 'center' : 'flex-start',
+                  gap: '0 0.35em',
+                }}
+              >
+                {headingWords.map((word, i) => (
+                  <span key={i} style={{ overflow: 'hidden', display: 'inline-block' }}>
+                    <span
+                      className="da-word"
+                      style={{
+                        display: 'inline-block',
+                        fontSize: 36,
+                        fontFamily: Fonts.display,
+                        fontWeight: 700,
+                        color: '#ffffff',
+                      }}
+                    >
+                      {word}
+                    </span>
+                  </span>
+                ))}
+              </div>
+              <span
+                className="da-sub"
+                style={{
+                  fontSize: 16,
+                  fontFamily: Fonts.body,
+                  color: '#ffffff',
+                  lineHeight: '24px',
+                  textAlign: isSmallScreen ? 'center' : undefined,
+                }}
+              >
+                Download the app and find jobs or hire workers on the go.
+              </span>
+            </div>
+            <View style={[styles.badgeRow, isSmallScreen && styles.badgeRowSmall]}>
+              {badgeContent}
+            </View>
+          </div>
+        </div>
+      </View>
+    );
+  }
+
   return (
-    <View
-      style={[
-        styles.gradient,
-        isSmallScreen && styles.gradientSmall,
-        Platform.OS === 'web' && {
-          backgroundImage: `linear-gradient(135deg, ${Colors.light.warmStart} 0%, ${Colors.light.warmEnd} 100%)`,
-        } as any,
-      ]}
-    >
+    <View style={[styles.gradient, isSmallScreen && styles.gradientSmall]}>
       <View style={[styles.inner, isSmallScreen && styles.innerSmall]}>
         <View style={[styles.textColumn, isSmallScreen && styles.textColumnSmall]}>
           <Text style={[styles.heading, isSmallScreen && styles.headingSmall]}>
-            Take Tresten Construction Group Inc Everywhere
+            {HEADING_TEXT}
           </Text>
           <Text style={styles.subtext}>
             Download the app and find jobs or hire workers on the go.
           </Text>
         </View>
         <View style={[styles.badgeRow, isSmallScreen && styles.badgeRowSmall]}>
-          <Pressable
-            style={({ pressed }) => [styles.badge, pressed && styles.badgePressed]}
-            onPress={handlePress}
-          >
-            <Ionicons name="logo-apple" size={24} color="#ffffff" />
-            <View>
-              <Text style={styles.badgeSmallText}>Download on the</Text>
-              <Text style={styles.badgeLargeText}>App Store</Text>
-            </View>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.badge, pressed && styles.badgePressed]}
-            onPress={handlePress}
-          >
-            <Ionicons name="logo-google-playstore" size={24} color="#ffffff" />
-            <View>
-              <Text style={styles.badgeSmallText}>Get it on</Text>
-              <Text style={styles.badgeLargeText}>Google Play</Text>
-            </View>
-          </Pressable>
+          {badgeContent}
         </View>
       </View>
     </View>
@@ -108,7 +242,6 @@ const styles = {
     fontSize: 16,
     fontFamily: Fonts.body,
     color: '#ffffff',
-    opacity: 0.9,
     lineHeight: 24,
   } as TextStyle,
   badgeRow: {
@@ -141,7 +274,6 @@ const styles = {
     fontSize: 10,
     fontFamily: Fonts.body,
     color: '#ffffff',
-    opacity: 0.8,
   } as TextStyle,
   badgeLargeText: {
     fontSize: 16,

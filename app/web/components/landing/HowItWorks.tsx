@@ -1,9 +1,15 @@
-import React from 'react';
-import { View, Text, ViewStyle, TextStyle } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Platform, ViewStyle, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { gsap } from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Colors, Fonts } from '../../../../constants/theme';
 import { HOW_IT_WORKS_STEPS } from './_constants';
+
+if (Platform.OS === 'web') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface HowItWorksProps {
   isSmallScreen: boolean;
@@ -13,16 +19,59 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <View style={[styles.container, isSmallScreen && styles.containerSmall]}>
-      <Text style={[styles.heading, { color: colors.text }, isSmallScreen && styles.headingSmall]}>
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !containerRef.current) return;
+
+    const ta = isSmallScreen ? 'play none none reverse' : 'play reverse play reverse';
+
+    const ctx = gsap.context(() => {
+      // heading reveal
+      gsap.from('.hiw-heading', {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: containerRef.current!,
+          start: 'top 85%',
+          toggleActions: ta,
+        },
+      });
+
+      // staggered card reveal
+      gsap.from('.hiw-card', {
+        y: 80,
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.7,
+        stagger: 0.2,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: containerRef.current!,
+          start: 'top 80%',
+          toggleActions: ta,
+        },
+      });
+    }, containerRef.current);
+
+    return () => ctx.revert();
+  }, []);
+
+  const content = (
+    <>
+      <Text
+        style={[styles.heading, { color: colors.text }, isSmallScreen && styles.headingSmall]}
+        {...(Platform.OS === 'web' ? { className: 'hiw-heading' } as any : {})}
+      >
         How It Works
       </Text>
       <View style={[styles.stepsRow, isSmallScreen && styles.stepsColumn]}>
         {HOW_IT_WORKS_STEPS.map((step, index) => (
           <View
             key={step.title}
+            {...(Platform.OS === 'web' ? { className: 'hiw-card' } as any : {})}
             style={[
               styles.card,
               {
@@ -47,6 +96,22 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
           </View>
         ))}
       </View>
+    </>
+  );
+
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.container, isSmallScreen && styles.containerSmall]}>
+        <div ref={containerRef} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {content}
+        </div>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, isSmallScreen && styles.containerSmall]}>
+      {content}
     </View>
   );
 }

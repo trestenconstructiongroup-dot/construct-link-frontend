@@ -58,8 +58,8 @@ export const Colors = {
     border: '#374151',
     borderDark: '#e5e7eb',
     // Text hierarchy
-    textSecondary: '#9ca3af',
-    textTertiary: '#6b7280',
+    textSecondary: '#d1d5db',
+    textTertiary: '#9ca3af',
     textInverse: '#000000',
     // Landing warm gradient
     warmStart: 'rgb(209, 144, 86)',

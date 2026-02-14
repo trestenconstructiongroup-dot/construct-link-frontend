@@ -138,6 +138,7 @@ function CategoryButtonComponent({
       onHoverIn={onHoverIn}
       onHoverOut={onHoverOut}
       {...(buttonId ? { nativeID: buttonId } : {})}
+      {...(Platform.OS === 'web' ? { className: 'cat-btn' } as any : {})}
     >
       <View
         style={[

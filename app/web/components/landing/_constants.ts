@@ -68,3 +68,48 @@ export const HOW_IT_WORKS_STEPS = [
       'Review profiles, chat with candidates, and start building.',
   },
 ] as const;
+
+/* ── Page Loader ── */
+export const LOADER_WORDS = [
+  'Building',
+  'Connecting',
+  'Creating',
+  'Hiring',
+  'Construct Link',
+] as const;
+
+/* ── Stats Counter ── */
+export const STATS = [
+  { label: 'Active Workers', value: 500, suffix: '+' },
+  { label: 'Companies', value: 200, suffix: '+' },
+  { label: 'Jobs Posted', value: 1000, suffix: '+' },
+  { label: 'Trades Covered', value: 50, suffix: '+' },
+] as const;
+
+/* ── Testimonials ── */
+export const TESTIMONIALS = [
+  {
+    quote:
+      'Construct Link helped us fill three electrician positions in under a week. The quality of applicants was outstanding.',
+    name: 'David Kamau',
+    role: 'Site Manager, Apex Builders',
+  },
+  {
+    quote:
+      'As a freelance plumber, I used to spend days hunting for work. Now I get matched to jobs that fit my schedule and skills.',
+    name: 'Sarah Njeri',
+    role: 'Licensed Plumber',
+  },
+  {
+    quote:
+      'The platform is straightforward — post a job, review profiles, hire. No middlemen, no delays.',
+    name: 'James Ochieng',
+    role: 'Project Director, KenBuild Ltd',
+  },
+  {
+    quote:
+      'I moved from word-of-mouth referrals to a proper pipeline of vetted workers. Game changer for our roofing division.',
+    name: 'Amina Wanjiku',
+    role: 'Operations Lead, Summit Roofing',
+  },
+] as const;

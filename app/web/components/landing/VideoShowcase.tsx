@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, Platform, ViewStyle, TextStyle } from 'react-native';
+import { gsap } from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { Colors, Fonts } from '../../../../constants/theme';
 
+if (Platform.OS === 'web') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 const YOUTUBE_EMBED_URL = 'https://www.youtube.com/embed/4BzjUq921Y4';
+
+const HEADING_TEXT = 'See Tresten Construction Group Inc in Action';
 
 interface VideoShowcaseProps {
   isSmallScreen: boolean;
@@ -13,46 +21,128 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !containerRef.current) return;
+
+    const small = isSmallScreen;
+    const ta = small ? 'play none none reverse' : 'play reverse play reverse';
+
+    const ctx = gsap.context(() => {
+      // word-by-word heading reveal
+      gsap.from('.vs-word', {
+        y: '100%',
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.04,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: containerRef.current!,
+          start: 'top 85%',
+          toggleActions: ta,
+        },
+      });
+
+      // video container scale-in
+      gsap.from('.vs-video', {
+        opacity: 0,
+        y: 60,
+        scale: 0.95,
+        duration: 0.8,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.vs-video',
+          start: 'top 85%',
+          toggleActions: ta,
+        },
+      });
+    }, containerRef.current);
+
+    return () => ctx.revert();
+  }, []);
+
+  const headingWords = HEADING_TEXT.split(' ');
 
   return (
     <View style={[styles.container, isSmallScreen && styles.containerSmall]}>
-      <Text style={[styles.heading, { color: colors.text }, isSmallScreen && styles.headingSmall]}>
-        See Tresten Construction Group Inc in Action
-      </Text>
       {Platform.OS === 'web' ? (
-        <div style={{
-          position: 'relative' as const,
-          width: '100%',
-          maxWidth: 900,
-          aspectRatio: '16 / 9',
-          borderRadius: 16,
-          overflow: 'hidden',
-          boxShadow: isDark
-            ? '0 8px 32px rgba(0, 0, 0, 0.6)'
-            : '0 8px 32px rgba(15, 23, 42, 0.15)',
-          alignSelf: 'center',
-        }}>
-          <iframe
-            src={YOUTUBE_EMBED_URL}
-            title="Construct Link Video"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
+        <div ref={containerRef} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* word-by-word heading */}
+          <div
             style={{
-              position: 'absolute' as const,
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              border: 'none',
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: '0 0.35em',
+              marginBottom: isSmallScreen ? 20 : 32,
+              maxWidth: 900,
             }}
-          />
+          >
+            {headingWords.map((word, i) => (
+              <span
+                key={i}
+                style={{ overflow: 'hidden', display: 'inline-block' }}
+              >
+                <span
+                  className="vs-word"
+                  style={{
+                    display: 'inline-block',
+                    fontSize: isSmallScreen ? 28 : 36,
+                    fontFamily: Fonts.display,
+                    fontWeight: 700,
+                    color: colors.text,
+                  }}
+                >
+                  {word}
+                </span>
+              </span>
+            ))}
+          </div>
+
+          {/* video container */}
+          <div
+            className="vs-video"
+            style={{
+              position: 'relative' as const,
+              width: '100%',
+              maxWidth: 900,
+              aspectRatio: '16 / 9',
+              borderRadius: 16,
+              overflow: 'hidden',
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0, 0, 0, 0.6)'
+                : '0 8px 32px rgba(15, 23, 42, 0.15)',
+              alignSelf: 'center',
+            }}
+          >
+            <iframe
+              src={YOUTUBE_EMBED_URL}
+              title="Construct Link Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              style={{
+                position: 'absolute' as const,
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                border: 'none',
+              }}
+            />
+          </div>
         </div>
       ) : (
-        <View style={[styles.placeholder, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.placeholderText, { color: colors.textSecondary }]}>
-            Video available on web
+        <>
+          <Text style={[styles.heading, { color: colors.text }, isSmallScreen && styles.headingSmall]}>
+            {HEADING_TEXT}
           </Text>
-        </View>
+          <View style={[styles.placeholder, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.placeholderText, { color: colors.textSecondary }]}>
+              Video available on web
+            </Text>
+          </View>
+        </>
       )}
     </View>
   );

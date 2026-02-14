@@ -1,18 +1,28 @@
 import { Asset } from 'expo-asset';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Animated, Image, ImageStyle, Platform, Text as RNText, StyleSheet, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
+import { gsap } from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Colors, Fonts } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import HeroCardSwap from './web/components/HeroCardSwap';
 import HeroTextMorpher from './web/components/HeroTextMorpher';
 import { CONSTRUCTION_CATEGORIES, FAQ_ITEMS } from './web/components/landing/_constants';
 import CategoryButton from './web/components/landing/CategoryButton';
-import FaqItem from './web/components/landing/FaqItem';
 import DownloadApp from './web/components/landing/DownloadApp';
+import FaqItem from './web/components/landing/FaqItem';
 import HowItWorks from './web/components/landing/HowItWorks';
 import LandingFooter from './web/components/landing/LandingFooter';
+import PageLoader from './web/components/landing/PageLoader';
+import ProjectSlider from './web/components/landing/ProjectSlider';
+import StatsCounter from './web/components/landing/StatsCounter';
+import Testimonials from './web/components/landing/Testimonials';
 import VideoShowcase from './web/components/landing/VideoShowcase';
 import WebLayout from './web/layout';
+
+if (Platform.OS === 'web') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const HERO_VIDEO = require('../assets/images/transparentVideo/Cyberpunk Idle.mp4.webm');
 
@@ -20,22 +30,13 @@ export default function WebLanding() {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const { width: screenWidth } = useWindowDimensions();
-  const fade = useRef(new Animated.Value(0)).current;
-  const rise = useRef(new Animated.Value(40)).current;
   const [heroVideoUri, setHeroVideoUri] = useState<string | null>(null);
   const heroVideoRef = useRef<HTMLVideoElement | null>(null);
   const heroVideoContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Current hero section (top) – entrance on page load
+  // Hero entrance animation (kept as-is)
   const heroOpacity = useRef(new Animated.Value(0)).current;
   const heroTranslateY = useRef(new Animated.Value(32)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fade, { toValue: 1, duration: 700, useNativeDriver: false }),
-      Animated.timing(rise, { toValue: 0, duration: 700, useNativeDriver: false }),
-    ]).start();
-  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -52,6 +53,25 @@ export default function WebLanding() {
         useNativeDriver: false,
       }),
     ]).start();
+  }, []);
+
+  // Override Expo's body { overflow: hidden } so ScrollTrigger can detect window scroll.
+  // Also hide the scrollbar. Runs before any useEffect (child or parent).
+  useLayoutEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const style = document.createElement('style');
+    style.id = 'landing-scroll-fix';
+    style.textContent = `
+      html, body { overflow-y: auto !important; overflow-x: hidden !important; }
+      #root { height: auto !important; min-height: 100% !important; }
+      html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; }
+      html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      const el = document.getElementById('landing-scroll-fix');
+      if (el) el.remove();
+    };
   }, []);
 
   // Resolve hero video URI for web
@@ -72,8 +92,7 @@ export default function WebLanding() {
     asset.downloadAsync().then(() => setHeroVideoUri(asset.uri));
   }, []);
 
-
-  // Ping-pong loop at 1x: play forward to end, then scrub backward (visible frame steps), then play forward again (web only)
+  // Ping-pong loop for hero video
   useEffect(() => {
     if (Platform.OS !== 'web' || !heroVideoUri) return;
     const video = heroVideoRef.current;
@@ -113,221 +132,512 @@ export default function WebLanding() {
     };
   }, [heroVideoUri]);
 
+  // GSAP scroll reveals for inline sections (categories, unlock, FAQ)
+  const categoriesRef = useRef<HTMLDivElement>(null);
+  const unlockRef = useRef<HTMLDivElement>(null);
+  const faqRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    // On small screens, keep elements visible after reveal (no reverse on leave)
+    // On desktop, full reverse-on-scroll effect
+    const small = window.innerWidth < 900;
+    const ta = small ? 'play none none reverse' : 'play reverse play reverse';
+
+    const ctx = gsap.context(() => {
+      // Categories: staggered scale-in
+      if (categoriesRef.current) {
+        gsap.from('.cat-btn', {
+          opacity: 0,
+          scale: 0.6,
+          stagger: 0.08,
+          duration: 0.5,
+          ease: 'back.out(1.7)',
+          scrollTrigger: {
+            trigger: categoriesRef.current,
+            start: 'top 85%',
+            toggleActions: ta,
+          },
+        });
+      }
+
+      // Unlock Opportunities: heading + subtitle + card
+      if (unlockRef.current) {
+        gsap.from('.unlock-word', {
+          yPercent: 120,
+          opacity: 0,
+          duration: 0.5,
+          stagger: 0.06,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: unlockRef.current,
+            start: 'top 85%',
+            toggleActions: ta,
+          },
+        });
+
+        gsap.from('.unlock-sub', {
+          y: 30,
+          opacity: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: unlockRef.current,
+            start: 'top 80%',
+            toggleActions: ta,
+          },
+        });
+
+        gsap.from('.unlock-card', {
+          opacity: 0,
+          x: 100,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: unlockRef.current,
+            start: 'top 75%',
+            toggleActions: ta,
+          },
+        });
+      }
+
+      // FAQ: heading + items + side image
+      if (faqRef.current) {
+        gsap.from('.faq-heading', {
+          y: 40,
+          opacity: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: faqRef.current,
+            start: 'top 85%',
+            toggleActions: ta,
+          },
+        });
+
+        gsap.from('.faq-item-reveal', {
+          y: 40,
+          opacity: 0,
+          stagger: 0.1,
+          duration: 0.5,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: faqRef.current,
+            start: 'top 80%',
+            toggleActions: ta,
+          },
+        });
+
+        gsap.from('.faq-side-img', {
+          opacity: 0,
+          scale: 0.8,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: faqRef.current,
+            start: 'top 80%',
+            toggleActions: ta,
+          },
+        });
+      }
+    });
+
+    // Refresh ScrollTrigger positions after layout settles
+    const rafId = requestAnimationFrame(() => ScrollTrigger.refresh());
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      ctx.revert();
+    };
+  }, []);
 
   const isSmallScreen = screenWidth < 900;
   const showHeroImage = screenWidth >= 900;
 
+  const unlockHeadingWords = 'Unlock Opportunities'.split(' ');
+
   return (
-    <WebLayout>
-      <View style={[styles.page, { backgroundColor: colors.background }]}>
-        {/* New hero section – full viewport, image fits (no crop) then scroll */}
-        <Animated.View
-          style={[
-            styles.newHeroSection,
-            {
-              opacity: heroOpacity,
-              transform: [{ translateY: heroTranslateY }],
-            },
-          ]}
-        >
-          <HeroTextMorpher
-            textColor={colors.text}
-            fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(36px, 10vw, 72px)' as any : 'clamp(48px, 10vw, 100px)' as any) : 80}
-            style={[styles.heroTextMorpher, isSmallScreen && { top: '15%', left: 0, right: 0, alignItems: 'center' }]}
-          />
-          {Platform.OS === 'web' && heroVideoUri ? (
-            <div
-              ref={heroVideoContainerRef}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 2,
-              }}
-            >
-              <video
-                ref={heroVideoRef}
-                src={heroVideoUri}
-                autoPlay
-                muted
-                playsInline
-                style={{
-                  position: 'absolute',
-                  ...(isSmallScreen
-                    ? {
-                        bottom: 0,
-                        right: 0,
-                        width: '65%',
-                        height: '70%',
-                        top: 'auto',
-                        left: 'auto',
-                      }
-                    : {
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: '55%',
-                        height: '100%',
-                        left: 'auto',
-                      }),
-                  objectFit: 'contain',
-                  objectPosition: isSmallScreen ? 'center bottom' : 'right center',
-                }}
-              />
-            </div>
-          ) : null}
-        </Animated.View>
-
-        {/* Video Showcase */}
-        <VideoShowcase isSmallScreen={isSmallScreen} />
-
-        {/* How It Works */}
-        <HowItWorks isSmallScreen={isSmallScreen} />
-
-        {/* Category Buttons Grid */}
-        <View style={[styles.categoriesSection, isSmallScreen && styles.categoriesSectionCompact]}>
-          <View style={[styles.categoriesGrid, isSmallScreen && styles.categoriesGridCompact]}>
-            {CONSTRUCTION_CATEGORIES.map((category, index) => (
-              <CategoryButton
-                key={index}
-                label={category}
-                isDark={isDark}
-                colors={colors}
-                isCompact={isSmallScreen}
-                buttonId={Platform.OS === 'web' ? `landing-cat-${index}` : undefined}
-              />
-            ))}
-          </View>
-        </View>
-
-        {/* Unlock Opportunities hero + CardSwap */}
-        <Animated.View
-          style={[
-            styles.hero,
-            isSmallScreen && styles.heroStacked,
-            {
-              opacity: fade,
-              transform: [{ translateY: rise }],
-            },
-          ]}
-        >
-          <View
+    <>
+      <PageLoader />
+      <WebLayout>
+        <View style={[styles.page, { backgroundColor: colors.background }]}>
+          {/* ─── Hero (UNTOUCHED) ─── */}
+          <Animated.View
             style={[
-              styles.heroLeft,
-              isSmallScreen && styles.heroLeftCentered,
-              isSmallScreen && {
-                borderWidth: 1,
-                borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)',
-                borderRadius: 20,
-                paddingHorizontal: 24,
-                paddingVertical: 28,
-                backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+              styles.newHeroSection,
+              {
+                opacity: heroOpacity,
+                transform: [{ translateY: heroTranslateY }],
               },
             ]}
           >
-            <RNText
-              style={[
-                styles.mainHeading,
-                isSmallScreen && styles.mainHeadingCentered,
-                isSmallScreen && { marginBottom: 12 },
-                { color: colors.text },
-              ]}
-            >
-              Unlock Opportunities
-            </RNText>
-            <RNText
-              style={[
-                styles.subheading,
-                isSmallScreen && styles.subheadingCentered,
-                isSmallScreen && { marginBottom: 0 },
-                { color: colors.text },
-              ]}
-            >
-              Connect with skilled construction professionals and discover your ideal career opportunities.
-            </RNText>
-          </View>
-          {showHeroImage && (
-            <View style={styles.heroRight}>
-              <HeroCardSwap
-                imageFindWorkers={require('../assets/images/landingPageImages/image17.png')}
-                imageFindJobs={require('../assets/images/landingPageImages/image11.png')}
-                imageCreateJobs={require('../assets/images/landingPageImages/image18.png')}
-                cardWidth={580}
-                cardHeight={480}
-                cardBackground={colors.background}
-                cardTextColor={colors.text}
-                cardFontFamily={Fonts.sans}
-                cardMarginBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.18)'}
-                cardIconRowBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.12)'}
-                cardIconRowBorderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.2)'}
-              />
-            </View>
-          )}
-        </Animated.View>
-
-        {/* Download the App */}
-        <DownloadApp isSmallScreen={isSmallScreen} />
-
-        {/* Common Questions / FAQ section */}
-        <View style={[styles.faqSection, isSmallScreen && { marginTop: 40, paddingVertical: 40 }]}>
-          <View
-            style={[
-              styles.faqContainer,
-              isSmallScreen && styles.faqContainerStacked,
-            ]}
-          >
-            {!isSmallScreen && (
-              <View style={styles.faqImageWrapper}>
-                <Image
-                  source={require('../assets/images/landingPageImages/image17.png')}
-                  style={styles.faqSideImage}
-                  resizeMode="contain"
+            <HeroTextMorpher
+              textColor={colors.text}
+              fontSize={Platform.OS === 'web' ? (isSmallScreen ? 'clamp(36px, 10vw, 72px)' as any : 'clamp(48px, 10vw, 100px)' as any) : 80}
+              style={[styles.heroTextMorpher, isSmallScreen && { top: '15%', left: 0, right: 0, alignItems: 'center' }]}
+            />
+            {Platform.OS === 'web' && heroVideoUri ? (
+              <div
+                ref={heroVideoContainerRef}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 2,
+                }}
+              >
+                <video
+                  ref={heroVideoRef}
+                  src={heroVideoUri}
+                  autoPlay
+                  muted
+                  playsInline
+                  style={{
+                    position: 'absolute',
+                    ...(isSmallScreen
+                      ? {
+                          bottom: 0,
+                          right: 0,
+                          width: '65%',
+                          height: '70%',
+                          top: 'auto',
+                          left: 'auto',
+                        }
+                      : {
+                          top: 0,
+                          right: 0,
+                          bottom: 0,
+                          width: '55%',
+                          height: '100%',
+                          left: 'auto',
+                        }),
+                    objectFit: 'contain',
+                    objectPosition: isSmallScreen ? 'center bottom' : 'right center',
+                  }}
                 />
-              </View>
-            )}
-            <View
-              style={[
-                styles.faqContent,
-                isSmallScreen && styles.faqContentCentered,
-              ]}
-            >
-              <View style={styles.faqHeadingRow}>
-                <View>
-                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
-                    Common
-                  </RNText>
-                  <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
-                    Questions
-                  </RNText>
+              </div>
+            ) : null}
+          </Animated.View>
+
+          {/* ─── Video Showcase (enhanced) ─── */}
+          <VideoShowcase isSmallScreen={isSmallScreen} />
+
+          {/* ─── Project Slider (NEW) ─── */}
+          <ProjectSlider isSmallScreen={isSmallScreen} />
+
+          {/* ─── How It Works (enhanced) ─── */}
+          <HowItWorks isSmallScreen={isSmallScreen} />
+
+          {/* ─── Stats Counter (NEW) ─── */}
+          <StatsCounter isSmallScreen={isSmallScreen} />
+
+          {/* ─── Category Buttons Grid (enhanced) ─── */}
+          <View style={[styles.categoriesSection, isSmallScreen && styles.categoriesSectionCompact]}>
+            {Platform.OS === 'web' ? (
+              <div ref={categoriesRef} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <View style={[styles.categoriesGrid, isSmallScreen && styles.categoriesGridCompact]}>
+                  {CONSTRUCTION_CATEGORIES.map((category, index) => (
+                    <CategoryButton
+                      key={index}
+                      label={category}
+                      isDark={isDark}
+                      colors={colors}
+                      isCompact={isSmallScreen}
+                      buttonId={`landing-cat-${index}`}
+                    />
+                  ))}
                 </View>
-                {!isSmallScreen && (
-                  <RNText
-                    style={[styles.faqSubtitle, { color: colors.text }]}
-                  >
-                    Some questions people usually ask
-                  </RNText>
-                )}
-              </View>
-              <View style={styles.faqList}>
-                {FAQ_ITEMS.map((item, index) => (
-                  <FaqItem
+              </div>
+            ) : (
+              <View style={[styles.categoriesGrid, isSmallScreen && styles.categoriesGridCompact]}>
+                {CONSTRUCTION_CATEGORIES.map((category, index) => (
+                  <CategoryButton
                     key={index}
-                    item={item}
-                    isSmallScreen={isSmallScreen}
+                    label={category}
+                    isDark={isDark}
                     colors={colors}
-                    itemId={Platform.OS === 'web' ? `landing-faq-item-${index}` : undefined}
+                    isCompact={isSmallScreen}
                   />
                 ))}
               </View>
-            </View>
+            )}
           </View>
-        </View>
 
-        <LandingFooter isSmallScreen={isSmallScreen} colors={colors} />
-      </View>
-    </WebLayout>
+          {/* ─── Unlock Opportunities (enhanced with GSAP) ─── */}
+          {Platform.OS === 'web' ? (
+            <div
+              ref={unlockRef}
+              style={{
+                width: '100%',
+                maxWidth: 1200,
+                display: 'flex',
+                flexDirection: isSmallScreen ? 'column' : 'row',
+                alignItems: 'center',
+                justifyContent: isSmallScreen ? 'center' : 'space-between',
+                paddingLeft: isSmallScreen ? 20 : 40,
+                paddingRight: isSmallScreen ? 20 : 40,
+                gap: isSmallScreen ? 24 : 32,
+                alignSelf: 'center',
+                margin: '0 auto',
+                marginTop: isSmallScreen ? 48 : 80,
+              }}
+            >
+              <div
+                style={{
+                  flex: 1,
+                  maxWidth: isSmallScreen ? '100%' : 540,
+                  width: isSmallScreen ? '100%' : undefined,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: isSmallScreen ? 'center' : undefined,
+                  ...(isSmallScreen
+                    ? {
+                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}`,
+                        borderRadius: 20,
+                        paddingLeft: 24,
+                        paddingRight: 24,
+                        paddingTop: 28,
+                        paddingBottom: 28,
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                      }
+                    : {}),
+                }}
+              >
+                {/* word-by-word heading */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: isSmallScreen ? 'center' : 'flex-start',
+                    gap: '0 0.35em',
+                    marginBottom: isSmallScreen ? 12 : 24,
+                  }}
+                >
+                  {unlockHeadingWords.map((word, i) => (
+                    <span key={i} style={{ overflow: 'hidden', display: 'inline-block' }}>
+                      <span
+                        className="unlock-word"
+                        style={{
+                          display: 'inline-block',
+                          fontFamily: Fonts.display,
+                          fontWeight: 700,
+                          color: colors.text,
+                          fontSize: 'clamp(32px, 5vw, 56px)',
+                          textAlign: isSmallScreen ? 'center' : 'left',
+                        }}
+                      >
+                        {word}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+                <span
+                  className="unlock-sub"
+                  style={{
+                    fontSize: 'clamp(16px, 2vw, 20px)',
+                    textAlign: isSmallScreen ? 'center' : 'left',
+                    maxWidth: 700,
+                    marginBottom: isSmallScreen ? 0 : 48,
+                    lineHeight: '28px',
+                    fontWeight: 400,
+                    fontFamily: Fonts.body,
+                    color: colors.text,
+                  }}
+                >
+                  Connect with skilled construction professionals and discover your ideal career opportunities.
+                </span>
+              </div>
+              {showHeroImage && (
+                <div className="unlock-card" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <HeroCardSwap
+                    imageFindWorkers={require('../assets/images/landingPageImages/image17.png')}
+                    imageFindJobs={require('../assets/images/landingPageImages/image11.png')}
+                    imageCreateJobs={require('../assets/images/landingPageImages/image18.png')}
+                    cardWidth={580}
+                    cardHeight={480}
+                    cardBackground={colors.background}
+                    cardTextColor={colors.text}
+                    cardFontFamily={Fonts.sans}
+                    cardMarginBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.18)'}
+                    cardIconRowBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.12)'}
+                    cardIconRowBorderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.2)'}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <View
+              style={[
+                styles.hero,
+                isSmallScreen && styles.heroStacked,
+              ]}
+            >
+              <View
+                style={[
+                  styles.heroLeft,
+                  isSmallScreen && styles.heroLeftCentered,
+                  isSmallScreen && {
+                    borderWidth: 1,
+                    borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)',
+                    borderRadius: 20,
+                    paddingHorizontal: 24,
+                    paddingVertical: 28,
+                    backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                  },
+                ]}
+              >
+                <RNText
+                  style={[
+                    styles.mainHeading,
+                    isSmallScreen && styles.mainHeadingCentered,
+                    isSmallScreen && { marginBottom: 12 },
+                    { color: colors.text },
+                  ]}
+                >
+                  Unlock Opportunities
+                </RNText>
+                <RNText
+                  style={[
+                    styles.subheading,
+                    isSmallScreen && styles.subheadingCentered,
+                    isSmallScreen && { marginBottom: 0 },
+                    { color: colors.text },
+                  ]}
+                >
+                  Connect with skilled construction professionals and discover your ideal career opportunities.
+                </RNText>
+              </View>
+              {showHeroImage && (
+                <View style={styles.heroRight}>
+                  <HeroCardSwap
+                    imageFindWorkers={require('../assets/images/landingPageImages/image17.png')}
+                    imageFindJobs={require('../assets/images/landingPageImages/image11.png')}
+                    imageCreateJobs={require('../assets/images/landingPageImages/image18.png')}
+                    cardWidth={580}
+                    cardHeight={480}
+                    cardBackground={colors.background}
+                    cardTextColor={colors.text}
+                    cardFontFamily={Fonts.sans}
+                    cardMarginBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.18)'}
+                    cardIconRowBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.12)'}
+                    cardIconRowBorderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.2)'}
+                  />
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* ─── Download the App (enhanced) ─── */}
+          <DownloadApp isSmallScreen={isSmallScreen} />
+
+          {/* ─── Testimonials (NEW – horizontal scroll) ─── */}
+          <Testimonials isSmallScreen={isSmallScreen} />
+
+          {/* ─── FAQ Section (enhanced) ─── */}
+          <View style={[styles.faqSection, isSmallScreen && { marginTop: 40, paddingVertical: 40 }]}>
+            {Platform.OS === 'web' ? (
+              <div ref={faqRef} style={{ width: '100%', maxWidth: 1200, alignSelf: 'center', margin: '0 auto' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: isSmallScreen ? 'column' : 'row',
+                    alignItems: isSmallScreen ? 'center' : 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 40,
+                  }}
+                >
+                  {!isSmallScreen && (
+                    <div className="faq-side-img" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Image
+                        source={require('../assets/images/landingPageImages/image17.png')}
+                        style={styles.faqSideImage}
+                        resizeMode="contain"
+                      />
+                    </div>
+                  )}
+                  <div style={{ flex: 2 }}>
+                    <div className="faq-heading">
+                      <View style={[styles.faqHeadingRow, isSmallScreen && styles.faqHeadingRowSmall]}>
+                        <View style={isSmallScreen ? { alignItems: 'center', width: '100%' } : undefined}>
+                          <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36, textAlign: 'center' }, { color: colors.text }]}>
+                            Common
+                          </RNText>
+                          <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36, textAlign: 'center' }, { color: colors.text }]}>
+                            Questions
+                          </RNText>
+                        </View>
+                        {!isSmallScreen && (
+                          <RNText style={[styles.faqSubtitle, { color: colors.text }]}>
+                            Some questions people usually ask
+                          </RNText>
+                        )}
+                      </View>
+                    </div>
+                    <View style={styles.faqList}>
+                      {FAQ_ITEMS.map((item, index) => (
+                        <div key={index} className="faq-item-reveal">
+                          <FaqItem
+                            item={item}
+                            isSmallScreen={isSmallScreen}
+                            colors={colors}
+                            itemId={`landing-faq-item-${index}`}
+                          />
+                        </div>
+                      ))}
+                    </View>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <View style={[styles.faqContainer, isSmallScreen && styles.faqContainerStacked]}>
+                {!isSmallScreen && (
+                  <View style={styles.faqImageWrapper}>
+                    <Image
+                      source={require('../assets/images/landingPageImages/image17.png')}
+                      style={styles.faqSideImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
+                <View style={[styles.faqContent, isSmallScreen && styles.faqContentCentered]}>
+                  <View style={styles.faqHeadingRow}>
+                    <View>
+                      <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
+                        Common
+                      </RNText>
+                      <RNText style={[styles.faqTitle, isSmallScreen && { fontSize: 36 }, { color: colors.text }]}>
+                        Questions
+                      </RNText>
+                    </View>
+                    {!isSmallScreen && (
+                      <RNText style={[styles.faqSubtitle, { color: colors.text }]}>
+                        Some questions people usually ask
+                      </RNText>
+                    )}
+                  </View>
+                  <View style={styles.faqList}>
+                    {FAQ_ITEMS.map((item, index) => (
+                      <FaqItem
+                        key={index}
+                        item={item}
+                        isSmallScreen={isSmallScreen}
+                        colors={colors}
+                      />
+                    ))}
+                  </View>
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* ─── Footer (redesigned with giant CTA) ─── */}
+          <LandingFooter isSmallScreen={isSmallScreen} colors={colors} />
+        </View>
+      </WebLayout>
+    </>
   );
 }
 
@@ -340,7 +650,6 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         minHeight: '100vh' as any,
-        overflowY: 'auto' as any,
       },
     }),
   } as ViewStyle,
@@ -582,6 +891,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 24,
   } as ViewStyle,
+  faqHeadingRowSmall: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
   faqTitle: {
     fontSize: 36,
     fontWeight: '700',
@@ -675,7 +989,6 @@ const styles = StyleSheet.create({
   } as TextStyle,
   footerText: {
     fontSize: 14,
-    opacity: 0.9,
   } as TextStyle,
   footerTextCentered: {
     textAlign: 'center',
@@ -692,7 +1005,6 @@ const styles = StyleSheet.create({
   } as TextStyle,
   footerLink: {
     fontSize: 14,
-    opacity: 0.9,
     marginBottom: 10,
   } as TextStyle,
   footerLinkCentered: {
@@ -718,7 +1030,6 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   footerMeta: {
     fontSize: 12,
-    opacity: 0.8,
   } as TextStyle,
   footerMetaBrand: {
     fontSize: 14,
