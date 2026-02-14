@@ -153,11 +153,14 @@ type ApiRequestOptions = RequestInit & {
     });
   }
 
-  export function getUserProfile(token: string): Promise<AuthResponse['user']> {
-    return apiFetch("/api/profile/", {
+  export async function getUserProfile(token: string): Promise<AuthResponse['user']> {
+    const data = await apiFetch("/api/profile/", {
       method: "GET",
       authToken: token,
     });
+    // /api/profile/ returns { user: {...}, individual_profile, ... }
+    // Extract just the user object to match the declared return type
+    return data.user ?? data;
   }
 
   export type UserRole = 'single' | 'company';

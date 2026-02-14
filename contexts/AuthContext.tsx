@@ -74,9 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (storedToken && storedUserJson) {
           setToken(storedToken);
-          setUser(JSON.parse(storedUserJson));
+          setUser(JSON.parse(storedUserJson)); // immediate render with stored data
           try {
-            await getUserProfile(storedToken);
+            const freshUser = await getUserProfile(storedToken);
+            setUser(freshUser); // sync with server
+            await setStoredUser(JSON.stringify(freshUser)); // persist updated state
           } catch (error: any) {
             if (error?.status === 401) {
               await clearStoredAuth();
