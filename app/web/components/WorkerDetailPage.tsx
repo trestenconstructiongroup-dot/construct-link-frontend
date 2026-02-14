@@ -14,6 +14,7 @@ import {
   TextStyle,
   ActivityIndicator,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import WebLayout from '../layout';
@@ -21,6 +22,7 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Colors, Fonts } from '../../../constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import LandingFooter from './landing/LandingFooter';
 import {
   getFindWorkerDetail,
   getReviewsForUser,
@@ -60,6 +62,8 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
   const { isDark } = useTheme();
   const { token, user, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 600;
   const isLoggedIn = !!token && !!user;
   const isSelf = user?.id != null && userId === user.id;
 
@@ -155,15 +159,15 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
           ) : !data ? null : isIndividual(data) ? (
             <View style={[styles.content, { borderColor: colors.icon + '40' }]}>
               {/* ---- Header ---- */}
-              <View style={styles.header}>
+              <View style={[styles.header, isSmallScreen && { flexDirection: 'column', alignItems: 'center' }]}>
                 {data.profile_image ? (
-                  <Image source={{ uri: data.profile_image }} style={styles.avatarLarge} />
+                  <Image source={{ uri: data.profile_image }} style={isSmallScreen ? [styles.avatarLarge, { width: 80, height: 80, borderRadius: 40 }] : styles.avatarLarge} />
                 ) : (
-                  <View style={[styles.avatarPlaceholderLarge, { backgroundColor: colors.icon + '30' }]}>
-                    <Ionicons name="person" size={64} color={colors.icon} />
+                  <View style={[styles.avatarPlaceholderLarge, { backgroundColor: colors.icon + '30' }, isSmallScreen && { width: 80, height: 80, borderRadius: 40 }]}>
+                    <Ionicons name="person" size={isSmallScreen ? 40 : 64} color={colors.icon} />
                   </View>
                 )}
-                <View style={styles.headerText}>
+                <View style={[styles.headerText, isSmallScreen && { alignItems: 'center' }]}>
                   <RNText style={[styles.title, { color: colors.text }, { fontFamily: fontHeading as any }]}>{data.name}</RNText>
                   {data.primary_category ? <RNText style={[styles.subtitle, { color: colors.icon }]}>{data.primary_category}</RNText> : null}
                   {data.location ? (
@@ -309,15 +313,15 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
           ) : (
             <View style={[styles.content, { borderColor: colors.icon + '40' }]}>
               {/* ---- Company Header ---- */}
-              <View style={styles.header}>
+              <View style={[styles.header, isSmallScreen && { flexDirection: 'column', alignItems: 'center' }]}>
                 {data.company_logo ? (
-                  <Image source={{ uri: data.company_logo }} style={styles.avatarLarge} />
+                  <Image source={{ uri: data.company_logo }} style={isSmallScreen ? [styles.avatarLarge, { width: 80, height: 80, borderRadius: 40 }] : styles.avatarLarge} />
                 ) : (
-                  <View style={[styles.avatarPlaceholderLarge, { backgroundColor: colors.icon + '30' }]}>
-                    <Ionicons name="business" size={64} color={colors.icon} />
+                  <View style={[styles.avatarPlaceholderLarge, { backgroundColor: colors.icon + '30' }, isSmallScreen && { width: 80, height: 80, borderRadius: 40 }]}>
+                    <Ionicons name="business" size={isSmallScreen ? 40 : 64} color={colors.icon} />
                   </View>
                 )}
-                <View style={styles.headerText}>
+                <View style={[styles.headerText, isSmallScreen && { alignItems: 'center' }]}>
                   <RNText style={[styles.title, { color: colors.text }, { fontFamily: fontHeading as any }]}>{data.company_name}</RNText>
                   {data.company_type.length > 0 ? <RNText style={[styles.subtitle, { color: colors.icon }]}>{data.company_type.join(', ')}</RNText> : null}
                   {data.location ? (
@@ -455,6 +459,7 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
             </View>
           )}
         </View>
+      <LandingFooter isSmallScreen={width < 768} colors={colors} />
       </ScrollView>
     </WebLayout>
   );

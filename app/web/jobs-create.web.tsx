@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Text } from '../../components/Text';
 import { Colors, Fonts } from '../../constants/theme';
+import LandingFooter from './components/landing/LandingFooter';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
@@ -44,6 +45,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 1024;
+  const isSmallScreen = width < 768;
   const isLoggedIn = !!token && !!user;
 
   const isCompany = !!user?.is_company;
@@ -411,7 +413,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
       <ScrollView
           contentContainerStyle={[
             styles.page,
-            { backgroundColor: colors.background },
+            { backgroundColor: colors.background, paddingHorizontal: isSmallScreen ? 16 : 32 },
           ]}
         >
           <Animated.View
@@ -423,19 +425,19 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
               },
             ]}
           >
-          <View style={styles.headerRow}>
+          <View style={[styles.headerRow, isSmallScreen && { flexDirection: 'column', alignItems: 'center' }]}>
             {/* Left: title + sentence + step text */}
-            <View style={styles.headerLeft}>
-              <Text style={[styles.pageTitle, { color: colors.text }]}>
+            <View style={[styles.headerLeft, isSmallScreen && { paddingRight: 0, alignItems: 'center' }]}>
+              <Text style={[styles.pageTitle, { color: colors.text, fontSize: isSmallScreen ? 28 : 40, textAlign: isSmallScreen ? 'center' : 'left' }]}>
                 {editJobId ? 'Edit Job' : isCompany ? 'Create Job' : 'Post Work'}
               </Text>
               {!isLargeScreen && (
-                <Text style={[styles.pageSubtitle, { color: colors.text }]}>
+                <Text style={[styles.pageSubtitle, { color: colors.text, textAlign: isSmallScreen ? 'center' : 'left' }]}>
                   Describe the work you need done so the right workers can find it.
                 </Text>
               )}
               <View style={styles.stepHeader}>
-                <Text style={[styles.stepText, { color: colors.text }]}>
+                <Text style={[styles.stepText, { color: colors.text, textAlign: isSmallScreen ? 'center' : 'left' }]}>
                   Step {step + 1} of {totalSteps} · {stepTitles[step]}
                 </Text>
               </View>
@@ -726,7 +728,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                     placeholderTextColor="#9ca3af"
                   />
 
-                  <View style={{ flexDirection: 'row', gap: 12 }}>
+                  <View style={{ flexDirection: isSmallScreen ? 'column' : 'row', gap: 12 }}>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.label, { color: colors.text }]}>
                         Start date
@@ -817,7 +819,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
 
                   {paymentType !== 'negotiable' && (
                     <View
-                      style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}
+                      style={{ flexDirection: isSmallScreen ? 'column' : 'row', gap: 12, marginTop: 8 }}
                     >
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.label, { color: colors.text }]}>
@@ -1072,199 +1074,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
 
           </Animated.View>
 
-          {/* Footer section (same as landing) */}
-          <View style={styles.footerSection}>
-            {width < 900 ? (
-              <>
-                <View style={[styles.footerColBrand, styles.footerColBrandSmall]}>
-                  <RNText style={[styles.footerBrand, { color: colors.text }]}>
-                    Tresten Construction Group Inc
-                  </RNText>
-                  <RNText
-                    style={[
-                      styles.footerText,
-                      styles.footerTextCentered,
-                      { color: colors.text },
-                    ]}
-                  >
-                    Connecting construction companies with skilled workers who are
-                    ready to build, repair and deliver on real projects.
-                  </RNText>
-                  <View style={styles.footerContactRow}>
-                    <Text
-                      style={[
-                        styles.footerMeta,
-                        styles.footerTextCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      +254 (7) 9639‑7296 · info@trestenconstruction.com
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.footerColumnsRowSmall}>
-                  <View style={styles.footerCol}>
-                    <RNText
-                      style={[
-                        styles.footerColTitle,
-                        styles.footerTextCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Quick Links
-                    </RNText>
-                    <Text
-                      style={[
-                        styles.footerLink,
-                        styles.footerLinkCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Home
-                    </Text>
-                    <Text
-                      style={[
-                        styles.footerLink,
-                        styles.footerLinkCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Find Jobs
-                    </Text>
-                    <Text
-                      style={[
-                        styles.footerLink,
-                        styles.footerLinkCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Find Workers
-                    </Text>
-                    <Text
-                      style={[
-                        styles.footerLink,
-                        styles.footerLinkCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Post Work
-                    </Text>
-                  </View>
-
-                  <View style={styles.footerCol}>
-                    <RNText
-                      style={[
-                        styles.footerColTitle,
-                        styles.footerTextCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Support
-                    </RNText>
-                    <Text
-                      style={[
-                        styles.footerLink,
-                        styles.footerLinkCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Help center
-                    </Text>
-                    <Text
-                      style={[
-                        styles.footerLink,
-                        styles.footerLinkCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Safety tips
-                    </Text>
-                    <Text
-                      style={[
-                        styles.footerLink,
-                        styles.footerLinkCentered,
-                        { color: colors.text },
-                      ]}
-                    >
-                      Terms & privacy
-                    </Text>
-                  </View>
-                </View>
-              </>
-            ) : (
-              <>
-                <View style={styles.footerTopRow}>
-                  <View style={styles.footerColBrand}>
-                    <RNText
-                      style={[styles.footerBrand, { color: colors.text }]}
-                    >
-                      Tresten Construction Group Inc
-                    </RNText>
-                    <RNText
-                      style={[styles.footerText, { color: colors.text }]}
-                    >
-                      Connecting construction companies with skilled workers who are
-                      ready to build, repair and deliver on real projects.
-                    </RNText>
-                    <View style={styles.footerContactRow}>
-                      <Text
-                        style={[styles.footerMeta, { color: colors.text }]}
-                      >
-                        +254 (7) 9639‑7296 · info@trestenconstruction.com
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.footerCol}>
-                    <RNText
-                      style={[styles.footerColTitle, { color: colors.text }]}
-                    >
-                      Quick Links
-                    </RNText>
-                    <Text style={[styles.footerLink, { color: colors.text }]}>
-                      Home
-                    </Text>
-                    <Text style={[styles.footerLink, { color: colors.text }]}>
-                      Find Jobs
-                    </Text>
-                    <Text style={[styles.footerLink, { color: colors.text }]}>
-                      Find Workers
-                    </Text>
-                    <Text style={[styles.footerLink, { color: colors.text }]}>
-                      Post Work
-                    </Text>
-                  </View>
-
-                  <View style={styles.footerCol}>
-                    <RNText
-                      style={[styles.footerColTitle, { color: colors.text }]}
-                    >
-                      Support
-                    </RNText>
-                    <Text style={[styles.footerLink, { color: colors.text }]}>
-                      Help center
-                    </Text>
-                    <Text style={[styles.footerLink, { color: colors.text }]}>
-                      Safety tips
-                    </Text>
-                    <Text style={[styles.footerLink, { color: colors.text }]}>
-                      Terms & privacy
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.footerBottomRow}>
-                  <Text
-                    style={[styles.footerMeta, { color: colors.text }]}
-                  >
-                    © {new Date().getFullYear()} Tresten Construction Group Inc. All rights
-                    reserved.
-                  </Text>
-                </View>
-              </>
-            )}
-          </View>
+          <LandingFooter isSmallScreen={isSmallScreen} colors={colors} />
         </ScrollView>
     </WebLayout>
   );
@@ -1510,83 +1320,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 4,
   } as TextStyle,
-  footerSection: {
-    width: '100%',
-    paddingHorizontal: 20,
-    paddingVertical: 32,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(148, 163, 184, 0.35)',
-  } as ViewStyle,
-  footerTopRow: {
-    width: '100%',
-    maxWidth: 1200,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 40,
-    marginBottom: 12,
-  } as ViewStyle,
-  footerColBrand: {
-    flex: 2,
-  } as ViewStyle,
-  footerColBrandSmall: {
-    alignItems: 'center',
-  } as ViewStyle,
-  footerCol: {
-    flex: 1,
-  } as ViewStyle,
-  footerBrand: {
-    fontSize: 46,
-    fontWeight: '700',
-    marginBottom: 4,
-    fontFamily: Fonts.display,
-  } as TextStyle,
-  footerText: {
-    fontSize: 14,
-    opacity: 0.9,
-  } as TextStyle,
-  footerTextCentered: {
-    textAlign: 'center',
-  } as TextStyle,
-  footerContactRow: {
-    marginTop: 14,
-  } as ViewStyle,
-  footerColTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 8,
-    fontFamily: Fonts.display,
-  } as TextStyle,
-  footerLink: {
-    fontSize: 14,
-    marginBottom: 4,
-  } as TextStyle,
-  footerLinkCentered: {
-    textAlign: 'center',
-  } as TextStyle,
-  footerMeta: {
-    fontSize: 12,
-    opacity: 0.8,
-  } as TextStyle,
-  footerBottomRow: {
-    width: '100%',
-    maxWidth: 1200,
-    alignSelf: 'center',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(148, 163, 184, 0.25)',
-    paddingTop: 12,
-    marginTop: 8,
-  } as ViewStyle,
-  footerColumnsRowSmall: {
-    width: '100%',
-    maxWidth: 640,
-    alignSelf: 'center',
-    marginTop: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 20,
-  } as ViewStyle,
   authOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, alignItems: 'center', justifyContent: 'center' } as ViewStyle,
   authBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' } as ViewStyle,
   authModal: { width: '90%', maxWidth: 380, borderRadius: 16, padding: 32, alignItems: 'center', ...Platform.select({ web: { boxShadow: '0 16px 48px rgba(0,0,0,0.3)' as any } }) } as ViewStyle,

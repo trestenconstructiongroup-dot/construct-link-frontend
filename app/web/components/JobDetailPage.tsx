@@ -15,6 +15,7 @@ import {
   TextStyle,
   ActivityIndicator,
   Modal,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import WebLayout from '../layout';
@@ -22,6 +23,7 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Colors, Fonts } from '../../../constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import LandingFooter from './landing/LandingFooter';
 import {
   getFindJobDetail,
   applyJob,
@@ -46,6 +48,7 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
   const { isDark } = useTheme();
   const { token, user, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const { width } = useWindowDimensions();
   const isLoggedIn = !!token && !!user;
 
   const [job, setJob] = useState<JobDetail | null>(null);
@@ -329,6 +332,7 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
             </View>
           )}
         </View>
+        <LandingFooter isSmallScreen={width < 768} colors={colors} />
       </ScrollView>
 
       {/* Message modal */}

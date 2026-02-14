@@ -28,6 +28,7 @@ import type { WorkerSearchResult, WorkerSearchResultIndividual } from '../../../
 import WebLayout from '../layout';
 import CompanyCard from './find-workers/CompanyCard';
 import IndividualCard from './find-workers/IndividualCard';
+import LandingFooter from './landing/LandingFooter';
 
 const BRAND_BLUE = Colors.light.accentMuted;
 const EXPERIENCE_LEVELS = ['beginner', 'intermediate', 'expert', 'master'] as const;
@@ -466,7 +467,7 @@ export default function FindWorkersPage() {
                         keyExtractor={keyExtractor}
                         renderItem={renderItem}
                         scrollEnabled={false}
-                        contentContainerStyle={styles.cardGrid}
+                        contentContainerStyle={[styles.cardGrid, isSmall && { gap: 12 }]}
                         onEndReached={handleLoadMore}
                         onEndReachedThreshold={0.3}
                         initialNumToRender={12}
@@ -488,6 +489,7 @@ export default function FindWorkersPage() {
             </View>
           </View>
         </View>
+      <LandingFooter isSmallScreen={width < 768} colors={colors} />
       </ScrollView>
     </WebLayout>
   );

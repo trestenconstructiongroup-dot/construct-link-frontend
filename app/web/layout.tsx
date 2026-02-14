@@ -31,13 +31,14 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
           styles.fabBell,
           {
             backgroundColor: colors.tint,
+            ...(isSmallScreen && { width: 44, height: 44, borderRadius: 22 }),
           },
         ]}
         onPress={() => {
           // Placeholder – you'll add behavior later
         }}
       >
-        <Ionicons name="notifications-outline" size={24} color={colors.background} />
+        <Ionicons name="notifications-outline" size={isSmallScreen ? 20 : 24} color={colors.background} />
       </Pressable>
     </View>
   );

@@ -27,6 +27,7 @@ import { useFindJobs } from '../../hooks/useFindJobs';
 import { useFindJobsFilters } from '../../hooks/useFindJobsFilters';
 import type { JobSummary } from '../../services/api';
 import JobCard from './components/find-jobs/JobCard';
+import LandingFooter from './components/landing/LandingFooter';
 import WebLayout from './layout';
 
 const BRAND_BLUE = Colors.light.accentMuted;
@@ -333,13 +334,13 @@ export default function FindJobsWebPage() {
                   <RNText style={[styles.resultCount, { color: colors.text }, { fontFamily: fontBody as any }]}>
                     {count} job{count !== 1 ? 's' : ''}
                   </RNText>
-                  <View style={styles.cardGrid}>
+                  <View style={[styles.cardGrid, isSmall && { gap: 12 }]}>
                     <FlatList
                       data={results}
                       keyExtractor={keyExtractor}
                       renderItem={renderItem}
                       scrollEnabled={false}
-                      contentContainerStyle={styles.cardGrid}
+                      contentContainerStyle={[styles.cardGrid, isSmall && { gap: 12 }]}
                       onEndReached={handleLoadMore}
                       onEndReachedThreshold={0.3}
                       initialNumToRender={12}
@@ -383,6 +384,7 @@ export default function FindJobsWebPage() {
           </View>
         </View>
       </View>
+      <LandingFooter isSmallScreen={width < 768} colors={colors} />
       </ScrollView>
     </WebLayout>
   );

@@ -6,6 +6,7 @@ import {
   Pressable,
   TextInput,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -13,6 +14,7 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Colors, Fonts } from '../../../constants/theme';
 import { Text } from '../../../components/Text';
+import LandingFooter from './landing/LandingFooter';
 import {
   getFullProfile,
   updateIndividualProfile,
@@ -251,6 +253,7 @@ export default function ProfilePage() {
   const { isDark } = useTheme();
   const { user, token, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const { width } = useWindowDimensions();
 
   const [data, setData] = useState<ProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -552,6 +555,7 @@ export default function ProfilePage() {
       )}
 
       <ActivitiesSection token={token} accountType={accountType} />
+      <LandingFooter isSmallScreen={width < 768} colors={colors} />
     </ScrollView>
   );
 }
@@ -573,6 +577,8 @@ function ProfileSummaryCard({
 }: SummaryProps) {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 768;
   const [editing, setEditing] = useState(false);
 
   const [name, setName] = useState(
@@ -615,9 +621,9 @@ function ProfileSummaryCard({
         },
       ]}
     >
-      <View style={styles.summaryRow}>
+      <View style={[styles.summaryRow, isSmallScreen && { flexDirection: 'column', alignItems: 'center', gap: 12 }]}>
         <View style={[styles.summaryAvatar, { backgroundColor: colors.accent }]} />
-        <View style={styles.summaryText}>
+        <View style={[styles.summaryText, isSmallScreen && { alignItems: 'center' }]}>
           {editing ? (
             <>
               <TextInput
@@ -2172,6 +2178,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Platform.OS === 'web' ? 24 : 16,
     paddingBottom: Platform.OS === 'web' ? 40 : 100,
     gap: 16,
+    maxWidth: 800,
+    width: '100%',
+    alignSelf: 'center',
   },
   pageTitle: {
     fontSize: Platform.OS === 'web' ? 32 : 28,
