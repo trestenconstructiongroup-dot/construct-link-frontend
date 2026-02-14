@@ -37,7 +37,10 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
         ease: 'power2.out', paused: true,
       });
       const obs = new IntersectionObserver(
-        ([e]) => { if (e.isIntersecting) { t1.play(); t2.play(); obs.disconnect(); } },
+        ([e]) => {
+          if (e.isIntersecting) { t1.play(); t2.play(); }
+          else { t1.reverse(); t2.reverse(); }
+        },
         { threshold: 0.1 },
       );
       obs.observe(containerRef.current);

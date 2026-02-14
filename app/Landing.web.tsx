@@ -194,7 +194,8 @@ export default function WebLanding() {
           ([entry]) => {
             if (entry.isIntersecting) {
               arr.forEach((t) => t.play());
-              obs.disconnect();
+            } else {
+              arr.forEach((t) => t.reverse());
             }
           },
           { threshold: 0.1 },

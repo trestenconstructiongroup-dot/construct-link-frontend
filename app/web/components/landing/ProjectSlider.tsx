@@ -66,7 +66,10 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
       }
 
       const obs = new IntersectionObserver(
-        ([e]) => { if (e.isIntersecting) { tweens.forEach((t) => t.play()); obs.disconnect(); } },
+        ([e]) => {
+          if (e.isIntersecting) { tweens.forEach((t) => t.play()); }
+          else { tweens.forEach((t) => t.reverse()); }
+        },
         { threshold: 0.1 },
       );
       obs.observe(containerRef.current);

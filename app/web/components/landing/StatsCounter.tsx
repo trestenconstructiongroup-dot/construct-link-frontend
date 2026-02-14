@@ -49,7 +49,9 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
           if (e.isIntersecting) {
             cardTween.play();
             counterTweens.forEach((t) => t.play());
-            obs.disconnect();
+          } else {
+            cardTween.reverse();
+            counterTweens.forEach((t) => t.reverse());
           }
         },
         { threshold: 0.1 },

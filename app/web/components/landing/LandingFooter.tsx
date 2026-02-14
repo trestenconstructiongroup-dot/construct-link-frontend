@@ -141,7 +141,10 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         ease: 'power3.out', paused: true,
       });
       const obs = new IntersectionObserver(
-        ([e]) => { if (e.isIntersecting) { tween.play(); obs.disconnect(); } },
+        ([e]) => {
+          if (e.isIntersecting) { tween.play(); }
+          else { tween.reverse(); }
+        },
         { threshold: 0.1 },
       );
       obs.observe(footerContentRef.current);
