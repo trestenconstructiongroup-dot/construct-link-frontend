@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
     }),
   },
   brandName: {
-    fontSize: 26,
+    fontSize: 18,
     fontFamily: Fonts.display,
     fontWeight: 'normal',
   },
