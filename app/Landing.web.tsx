@@ -76,9 +76,17 @@ export default function WebLanding() {
     style.id = 'landing-scroll-fix';
     style.textContent = `
       html, body { overflow-y: auto !important; overflow-x: hidden !important; }
-      #root { height: auto !important; min-height: 100% !important; overflow: visible !important; }
-      #root > div { height: auto !important; min-height: 100% !important; overflow: visible !important; }
-      #root > div > div { height: auto !important; min-height: 100% !important; overflow: visible !important; }
+      #root,
+      #root > div,
+      #root > div > div,
+      #root > div > div > div,
+      #root > div > div > div > div,
+      #root > div > div > div > div > div {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow: visible !important;
+        flex-shrink: 0 !important;
+      }
       html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; }
       html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
     `;
@@ -155,10 +163,14 @@ export default function WebLanding() {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
-    // On small screens, keep elements visible after reveal (no reverse on leave)
-    // On desktop, full reverse-on-scroll effect
     const small = window.innerWidth < 768;
     const ta = small ? 'play none none none' : 'play reverse play reverse';
+
+    // On mobile, normalizeScroll intercepts touch events so ScrollTrigger
+    // works regardless of which DOM element is actually scrolling.
+    if (small) {
+      ScrollTrigger.normalizeScroll(true);
+    }
 
     const ctx = gsap.context(() => {
       // Categories: staggered scale-in
@@ -260,26 +272,12 @@ export default function WebLanding() {
 
     // Refresh ScrollTrigger positions after layout settles (mobile needs longer)
     const t1 = setTimeout(() => ScrollTrigger.refresh(), 300);
-    const t2 = setTimeout(() => ScrollTrigger.refresh(), 800);
-
-    // Safety net: if ScrollTrigger never fires on mobile, force content visible
-    const safetyTimer = setTimeout(() => {
-      if (window.innerWidth < 768) {
-        document.querySelectorAll(
-          '.cat-btn, .unlock-word, .unlock-sub, .unlock-card, ' +
-          '.faq-heading, .faq-item-reveal, .faq-side-img'
-        ).forEach((el) => {
-          (el as HTMLElement).style.opacity = '1';
-          (el as HTMLElement).style.transform = 'none';
-        });
-        ScrollTrigger.refresh();
-      }
-    }, 2000);
+    const t2 = setTimeout(() => ScrollTrigger.refresh(), 1000);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(safetyTimer);
+      if (small) ScrollTrigger.normalizeScroll(false);
       ctx.revert();
     };
   }, []);

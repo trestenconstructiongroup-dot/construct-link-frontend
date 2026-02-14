@@ -73,20 +73,7 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
       });
     }, containerRef.current);
 
-    // Safety net: force content visible on mobile if ScrollTrigger never fires
-    const safetyTimer = setTimeout(() => {
-      if (window.innerWidth < 768) {
-        document.querySelectorAll('.da-word, .da-sub, .da-badge').forEach((el) => {
-          (el as HTMLElement).style.opacity = '1';
-          (el as HTMLElement).style.transform = 'none';
-        });
-      }
-    }, 2000);
-
-    return () => {
-      clearTimeout(safetyTimer);
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   const headingWords = HEADING_TEXT.split(' ');
