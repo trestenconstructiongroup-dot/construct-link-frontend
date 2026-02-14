@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Asset } from 'expo-asset';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Animated, Image, ImageStyle, Platform, Text as RNText, StyleSheet, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { gsap } from 'gsap';
@@ -34,6 +34,7 @@ export default function WebLanding() {
   const colors = Colors[isDark ? 'dark' : 'light'];
   const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
+  const pathname = usePathname();
   const [heroVideoUri, setHeroVideoUri] = useState<string | null>(null);
   const heroVideoRef = useRef<HTMLVideoElement | null>(null);
   const heroVideoContainerRef = useRef<HTMLDivElement | null>(null);
@@ -69,42 +70,62 @@ export default function WebLanding() {
   }, []);
 
   // Override Expo's body { overflow: hidden } so ScrollTrigger can detect window scroll.
-  // Also hide the scrollbar. Runs before any useEffect (child or parent).
+  // Also hide the scrollbar. Only active when on the landing page route — when the
+  // user navigates to another page (Stack keeps this component mounted), we revert
+  // to overflow: hidden so the Landing content doesn't bleed through.
+  const isLandingActive = pathname === '/' || pathname === '';
   useLayoutEffect(() => {
     if (Platform.OS !== 'web') return;
+
+    // Remove any previous instance first
+    const prev = document.getElementById('landing-scroll-fix');
+    if (prev) prev.remove();
+
     const style = document.createElement('style');
     style.id = 'landing-scroll-fix';
-    style.textContent = `
-      html, body {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        height: auto !important;
-      }
-      #root {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: visible !important;
-      }
-      #root > div,
-      #root > div > div,
-      #root > div > div > div,
-      #root > div > div > div > div,
-      #root > div > div > div > div > div {
-        display: flex !important;
-        flex-direction: column !important;
-        min-height: 0 !important;
-        height: auto !important;
-        overflow: visible !important;
-      }
-      html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; }
-      html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
-    `;
+
+    if (isLandingActive) {
+      style.textContent = `
+        html, body {
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          height: auto !important;
+        }
+        #root {
+          height: auto !important;
+          min-height: 100vh !important;
+          overflow: visible !important;
+        }
+        #root > div,
+        #root > div > div,
+        #root > div > div > div,
+        #root > div > div > div > div,
+        #root > div > div > div > div > div {
+          display: flex !important;
+          flex-direction: column !important;
+          min-height: 0 !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; }
+        html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+      `;
+    } else {
+      // Not on landing — lock body scroll so Landing content can't bleed through
+      style.textContent = `
+        html, body {
+          overflow: hidden !important;
+          height: 100vh !important;
+        }
+      `;
+    }
+
     document.head.appendChild(style);
     return () => {
       const el = document.getElementById('landing-scroll-fix');
       if (el) el.remove();
     };
-  }, []);
+  }, [isLandingActive]);
 
   // Resolve hero video URI for web
   useEffect(() => {
