@@ -21,6 +21,7 @@ export interface IndividualCardProps {
   fontHeading: string;
   fontBody: string;
   onView: (userId: number) => void;
+  onContact?: (userId: number) => void;
 }
 
 const AVAILABILITY_COLORS: Record<string, string> = {
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
   contactBtnText: { fontSize: 14, fontWeight: '600', color: '#fff' } as TextStyle,
 });
 
-function IndividualCardComponent({ item, colors, fontHeading, fontBody, onView }: IndividualCardProps) {
+function IndividualCardComponent({ item, colors, fontHeading, fontBody, onView, onContact }: IndividualCardProps) {
   const rateLabel = item.hourly_rate
     ? `$${item.hourly_rate}/hr`
     : item.daily_rate
@@ -129,7 +130,7 @@ function IndividualCardComponent({ item, colors, fontHeading, fontBody, onView }
         <Pressable onPress={handleView} style={[styles.viewBtn, { borderColor: colors.tint }]}>
           <RNText style={[styles.viewBtnText, { color: colors.tint }, { fontFamily: fontBody as any }]}>View Profile</RNText>
         </Pressable>
-        <Pressable style={[styles.contactBtn, { backgroundColor: '#F99324' }]}>
+        <Pressable onPress={() => onContact?.(item.user_id)} style={[styles.contactBtn, { backgroundColor: '#F99324' }]}>
           <RNText style={[styles.contactBtnText, { fontFamily: fontBody as any }]}>Hire / Contact</RNText>
         </Pressable>
       </View>

@@ -7,12 +7,14 @@ import ThemeToggle from '../../../components/ThemeToggle';
 import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { useUnreadCount } from '../../../hooks/useMessaging';
 import StaggeredMobileMenu from './StaggeredMobileMenu';
 
 const PILL_NAV_LINKS: { label: string; path: string }[] = [
   { label: 'Find jobs', path: '/find-jobs' },
   { label: 'Find workers', path: '/workers' },
   { label: 'Create Job', path: '/jobs-create' },
+  { label: 'Messages', path: '/messages' },
   { label: 'Feed', path: '/feed' },
 ];
 
@@ -38,10 +40,12 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isDark } = useTheme();
-  const { isAuthenticated, user, logout, avatarUrl } = useAuth();
+  const { isAuthenticated, user, logout, avatarUrl, token } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const pillTheme = getPillTheme(isDark);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: unreadData } = useUnreadCount(isAuthenticated ? token : null);
+  const unreadCount = unreadData?.unread_count ?? 0;
   const [isMobile, setIsMobile] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [pillHoverPath, setPillHoverPath] = useState<string | null>(null);
@@ -251,6 +255,13 @@ export default function Navbar() {
                     {active && (
                       <View style={styles.pillActiveDotWrap}>
                         <View style={[styles.pillActiveDot, { backgroundColor: pillTheme.base }]} />
+                      </View>
+                    )}
+                    {path === '/messages' && unreadCount > 0 && (
+                      <View style={styles.unreadBadge}>
+                        <Text style={styles.unreadBadgeText}>
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </Text>
                       </View>
                     )}
                   </Pressable>
@@ -704,6 +715,25 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
+  },
+  unreadBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#F99324',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    zIndex: 10,
+  },
+  unreadBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+    lineHeight: 14,
   },
   rightSection: {
     flexDirection: 'row',

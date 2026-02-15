@@ -24,7 +24,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useFindWorkers } from '../../../hooks/useFindWorkers';
 import { useFindWorkersFilters } from '../../../hooks/useFindWorkersFilters';
-import type { WorkerSearchResult, WorkerSearchResultIndividual } from '../../../services/api';
+import { getOrCreateConversation, type WorkerSearchResult, type WorkerSearchResultIndividual } from '../../../services/api';
 import WebLayout from '../layout';
 import CompanyCard from './find-workers/CompanyCard';
 import IndividualCard from './find-workers/IndividualCard';
@@ -142,6 +142,19 @@ export default function FindWorkersPage() {
     router.push(`/workers/${userId}`);
   }, [router]);
 
+  const handleContact = useCallback(async (userId: number) => {
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    try {
+      const { id } = await getOrCreateConversation(token, userId);
+      router.push(`/messages?conv=${id}`);
+    } catch (err: any) {
+      alert(err?.message || 'Could not start conversation.');
+    }
+  }, [token, router]);
+
   const handleApplyFilters = useCallback(() => {
     setAppliedSearch(search);
     setAppliedResultType(resultType);
@@ -196,11 +209,11 @@ export default function FindWorkersPage() {
   const renderItem = useCallback(
     ({ item }: { item: WorkerSearchResult }) =>
       isIndividual(item) ? (
-        <IndividualCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} />
+        <IndividualCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
       ) : (
-        <CompanyCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} />
+        <CompanyCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
       ),
-    [colors, fontHeading, fontBody, handleViewProfile]
+    [colors, fontHeading, fontBody, handleViewProfile, handleContact]
   );
 
   const keyExtractor = useCallback((item: WorkerSearchResult) => `${item.type}-${item.user_id}`, []);

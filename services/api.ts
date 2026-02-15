@@ -871,3 +871,103 @@ type ApiRequestOptions = RequestInit & {
       body: JSON.stringify(payload),
     });
   }
+
+  // ---- Messaging ----
+
+  export interface ConversationSummary {
+    id: number;
+    other_user_id: number;
+    other_user_name: string;
+    other_user_photo: string;
+    other_user_type: "individual" | "company" | "unknown";
+    last_message_content: string;
+    last_message_at: string | null;
+    unread_count: number;
+  }
+
+  export interface ConversationsResponse {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: ConversationSummary[];
+  }
+
+  export interface MessageItem {
+    id: number;
+    conversation: number;
+    sender: number;
+    sender_name: string;
+    content: string;
+    is_read: boolean;
+    created_at: string;
+  }
+
+  export interface MessagesResponse {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: MessageItem[];
+  }
+
+  export function getConversations(
+    token: string,
+    page = 1,
+  ): Promise<ConversationsResponse> {
+    return apiFetch(`/api/messages/?page=${page}`, {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  export function getOrCreateConversation(
+    token: string,
+    otherUserId: number,
+  ): Promise<{ id: number; created: boolean }> {
+    return apiFetch("/api/messages/conversations/", {
+      method: "POST",
+      authToken: token,
+      body: JSON.stringify({ other_user_id: otherUserId }),
+    });
+  }
+
+  export function getConversationMessages(
+    token: string,
+    conversationId: number,
+    page = 1,
+  ): Promise<MessagesResponse> {
+    return apiFetch(`/api/messages/${conversationId}/?page=${page}`, {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  export function sendMessage(
+    token: string,
+    conversationId: number,
+    content: string,
+  ): Promise<MessageItem> {
+    return apiFetch(`/api/messages/${conversationId}/send/`, {
+      method: "POST",
+      authToken: token,
+      body: JSON.stringify({ content }),
+    });
+  }
+
+  export function markConversationRead(
+    token: string,
+    conversationId: number,
+  ): Promise<{ marked_read: number }> {
+    return apiFetch(`/api/messages/${conversationId}/read/`, {
+      method: "PATCH",
+      authToken: token,
+    });
+  }
+
+  export function getUnreadCount(
+    token: string,
+  ): Promise<{ unread_count: number }> {
+    return apiFetch("/api/messages/unread-count/", {
+      method: "GET",
+      authToken: token,
+    });
+  }

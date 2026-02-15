@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, Platform, useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
 import Navbar from './components/Navbar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -7,6 +8,7 @@ import { Colors } from '../../constants/theme';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 
 export default function WebLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const { width } = useWindowDimensions();
@@ -35,7 +37,7 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
           },
         ]}
         onPress={() => {
-          // Placeholder – you'll add behavior later
+          router.push('/messages');
         }}
       >
         <Ionicons name="notifications-outline" size={isSmallScreen ? 20 : 24} color={colors.background} />

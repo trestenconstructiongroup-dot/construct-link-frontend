@@ -26,6 +26,7 @@ import LandingFooter from './landing/LandingFooter';
 import {
   getFindWorkerDetail,
   getReviewsForUser,
+  getOrCreateConversation,
   type WorkerSearchResultIndividual,
   type WorkerSearchResultCompany,
   type Review,
@@ -75,6 +76,19 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
 
   const fontHeading = Fonts.display;
   const fontBody = Fonts.body;
+
+  const handleContact = useCallback(async () => {
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    try {
+      const { id } = await getOrCreateConversation(token, userId);
+      router.push(`/messages?conv=${id}`);
+    } catch (err: any) {
+      alert(err?.message || 'Could not start conversation.');
+    }
+  }, [token, router, userId]);
 
   const loadWorker = useCallback(async () => {
     if (!userId) {
@@ -304,7 +318,7 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
                     <RNText style={[styles.primaryBtnText, { fontFamily: fontBody as any }]}>View your profile</RNText>
                   </Pressable>
                 ) : (
-                  <Pressable style={[styles.secondaryBtn, { borderColor: colors.tint }]}>
+                  <Pressable onPress={handleContact} style={[styles.secondaryBtn, { borderColor: colors.tint }]}>
                     <RNText style={[styles.secondaryBtnText, { color: colors.tint }, { fontFamily: fontBody as any }]}>Hire / Contact</RNText>
                   </Pressable>
                 )}
@@ -451,7 +465,7 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
                     <RNText style={[styles.primaryBtnText, { fontFamily: fontBody as any }]}>View your profile</RNText>
                   </Pressable>
                 ) : (
-                  <Pressable style={[styles.primaryBtn, { backgroundColor: BRAND_BLUE }]}>
+                  <Pressable onPress={handleContact} style={[styles.primaryBtn, { backgroundColor: BRAND_BLUE }]}>
                     <RNText style={[styles.primaryBtnText, { fontFamily: fontBody as any }]}>Hire / Contact</RNText>
                   </Pressable>
                 )}

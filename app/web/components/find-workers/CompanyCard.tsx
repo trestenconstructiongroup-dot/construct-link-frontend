@@ -14,6 +14,7 @@ export interface CompanyCardProps {
   fontHeading: string;
   fontBody: string;
   onView: (userId: number) => void;
+  onContact?: (userId: number) => void;
 }
 
 const styles = StyleSheet.create({
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
   contactBtnText: { fontSize: 14, fontWeight: '600', color: '#fff' } as TextStyle,
 });
 
-function CompanyCardComponent({ item, colors, fontHeading, fontBody, onView }: CompanyCardProps) {
+function CompanyCardComponent({ item, colors, fontHeading, fontBody, onView, onContact }: CompanyCardProps) {
   const handleView = React.useCallback(() => {
     onView(item.user_id);
   }, [onView, item.user_id]);
@@ -76,7 +77,7 @@ function CompanyCardComponent({ item, colors, fontHeading, fontBody, onView }: C
         <Pressable onPress={handleView} style={[styles.viewBtn, { borderColor: colors.tint }]}>
           <RNText style={[styles.viewBtnText, { color: colors.tint }, { fontFamily: fontBody as any }]}>View Company</RNText>
         </Pressable>
-        <Pressable style={[styles.contactBtn, { backgroundColor: '#F99324' }]}>
+        <Pressable onPress={() => onContact?.(item.user_id)} style={[styles.contactBtn, { backgroundColor: '#F99324' }]}>
           <RNText style={[styles.contactBtnText, { fontFamily: fontBody as any }]}>Hire / Contact</RNText>
         </Pressable>
       </View>
