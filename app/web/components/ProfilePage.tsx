@@ -1,5 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
+  Image,
   View,
   StyleSheet,
   ScrollView,
@@ -344,6 +346,19 @@ export default function ProfilePage() {
         user={data.user}
         individual={individual}
         company={company}
+        token={token}
+        onPhotoUploaded={(url) => {
+          setData((prev) => {
+            if (!prev) return prev;
+            if (accountType === 'individual' && prev.individual_profile) {
+              return { ...prev, individual_profile: { ...prev.individual_profile, photo_url: url } };
+            }
+            if (accountType === 'company' && prev.company_profile) {
+              return { ...prev, company_profile: { ...prev.company_profile, logo_url: url } };
+            }
+            return prev;
+          });
+        }}
         onSave={async (payload) => {
           if (!token) return;
           if (accountType === 'individual') {
@@ -566,7 +581,9 @@ type SummaryProps = {
   user: ProfileResponse['user'];
   individual: IndividualProfile | null;
   company: CompanyProfile | null;
+  token: string | null;
   onSave: (payload: Partial<IndividualProfile | CompanyProfile>) => Promise<void>;
+  onPhotoUploaded: (url: string) => void;
 };
 
 function ProfileSummaryCard({
@@ -574,7 +591,9 @@ function ProfileSummaryCard({
   user,
   individual,
   company,
+  token,
   onSave,
+  onPhotoUploaded,
 }: SummaryProps) {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
@@ -610,6 +629,43 @@ function ProfileSummaryCard({
     setEditing(false);
   };
 
+  // --- Photo upload ---
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const photoUrl =
+    accountType === 'company' ? company?.logo_url : individual?.photo_url;
+
+  const handlePickPhoto = useCallback(() => {
+    if (Platform.OS === 'web') {
+      fileInputRef.current?.click();
+    }
+  }, []);
+
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file || !token) return;
+
+      const { uploadProfilePhoto } = await import('../../../services/api');
+      setUploading(true);
+      try {
+        const { photo_url } = await uploadProfilePhoto(token, file);
+        onPhotoUploaded(photo_url);
+      } catch (err: any) {
+        const msg = err?.data?.detail || err?.message || 'Upload failed';
+        if (Platform.OS === 'web') {
+          window.alert(msg);
+        }
+      } finally {
+        setUploading(false);
+        // Reset input so the same file can be re-selected
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    },
+    [token, onPhotoUploaded],
+  );
+
   return (
     <View
       style={[
@@ -622,8 +678,29 @@ function ProfileSummaryCard({
         },
       ]}
     >
+      {Platform.OS === 'web' && (
+        <input
+          ref={fileInputRef as any}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          style={{ display: 'none' }}
+          onChange={handleFileChange as any}
+        />
+      )}
       <View style={[styles.summaryRow, isSmallScreen && { flexDirection: 'column', alignItems: 'center', gap: 12 }]}>
-        <View style={[styles.summaryAvatar, { backgroundColor: colors.accent }]} />
+        <Pressable onPress={handlePickPhoto} style={styles.summaryAvatar}>
+          {uploading ? (
+            <View style={[styles.avatarInner, { backgroundColor: colors.accent }]}>
+              <ActivityIndicator color="#fff" />
+            </View>
+          ) : photoUrl ? (
+            <Image source={{ uri: photoUrl }} style={styles.avatarInner} />
+          ) : (
+            <View style={[styles.avatarInner, { backgroundColor: colors.accent }]}>
+              <Ionicons name={accountType === 'company' ? 'business' : 'person'} size={36} color="#fff" />
+            </View>
+          )}
+        </Pressable>
         <View style={[styles.summaryText, isSmallScreen && { alignItems: 'center' }]}>
           {editing ? (
             <>
@@ -679,9 +756,9 @@ function ProfileSummaryCard({
       </View>
 
       <View style={styles.summaryActions}>
-        <Pressable style={styles.photoButton}>
-          <Text style={[styles.actionText, { color: colors.text, opacity: 0.85 }]}>
-            Edit profile photo
+        <Pressable style={styles.photoButton} onPress={handlePickPhoto} disabled={uploading}>
+          <Text style={[styles.actionText, { color: colors.text, opacity: uploading ? 0.5 : 0.85 }]}>
+            {uploading ? 'Uploading...' : 'Edit profile photo'}
           </Text>
         </Pressable>
         <Pressable
@@ -2211,6 +2288,14 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     marginRight: 16,
+    overflow: 'hidden' as any,
+  },
+  avatarInner: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
   },
   summaryText: {
     flex: 1,

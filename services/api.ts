@@ -307,6 +307,36 @@ type ApiRequestOptions = RequestInit & {
     });
   }
 
+  // ---- Profile Photo Upload ----
+
+  export async function uploadProfilePhoto(
+    token: string,
+    file: File,
+  ): Promise<{ photo_url: string }> {
+    if (!API_BASE || API_BASE === "undefined") {
+      throw new Error("API base URL is not set.");
+    }
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    const res = await fetch(`${API_BASE}/api/profile/upload-photo/`, {
+      method: "POST",
+      headers: {
+        Authorization: buildAuthHeader(token),
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      const err: any = new Error(body.detail || `Upload failed (${res.status})`);
+      err.data = body;
+      throw err;
+    }
+    return res.json();
+  }
+
   // ---- Experience & Education APIs ----
 
   export function getIndividualExperience(
