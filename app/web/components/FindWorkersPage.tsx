@@ -207,13 +207,16 @@ export default function FindWorkersPage() {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }: { item: WorkerSearchResult }) =>
-      isIndividual(item) ? (
-        <IndividualCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
-      ) : (
-        <CompanyCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
-      ),
-    [colors, fontHeading, fontBody, handleViewProfile, handleContact]
+    ({ item }: { item: WorkerSearchResult }) => (
+      <View style={isSmall ? { width: '100%' } : undefined}>
+        {isIndividual(item) ? (
+          <IndividualCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
+        ) : (
+          <CompanyCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
+        )}
+      </View>
+    ),
+    [colors, fontHeading, fontBody, handleViewProfile, handleContact, isSmall]
   );
 
   const keyExtractor = useCallback((item: WorkerSearchResult) => `${item.type}-${item.user_id}`, []);
@@ -273,7 +276,7 @@ export default function FindWorkersPage() {
               </View>
             </View>
 
-            <View style={styles.mainRow}>
+            <View style={[styles.mainRow, isSmall && styles.mainRowStacked]}>
               <View style={[styles.sidebar, isSmall && styles.sidebarHidden]}>
                 {isSmall && (
                   <Pressable
@@ -480,7 +483,7 @@ export default function FindWorkersPage() {
                         keyExtractor={keyExtractor}
                         renderItem={renderItem}
                         scrollEnabled={false}
-                        contentContainerStyle={[styles.cardGrid, isSmall && { gap: 12 }]}
+                        contentContainerStyle={[styles.cardGrid, isSmall && styles.cardGridSmall]}
                         onEndReached={handleLoadMore}
                         onEndReachedThreshold={0.3}
                         initialNumToRender={12}
@@ -522,6 +525,7 @@ const styles = StyleSheet.create({
   searchRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderRadius: 12, gap: 12 } as ViewStyle,
   searchInput: { flex: 1, fontSize: 16, paddingVertical: 4, ...Platform.select({ web: { outlineStyle: 'none' as any } }) } as TextStyle,
   mainRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 24 } as ViewStyle,
+  mainRowStacked: { flexDirection: 'column', gap: 0 } as ViewStyle,
   mainContentColumn: { flex: 1, minWidth: 0, flexDirection: 'column' } as ViewStyle,
   sidebar: { width: 280, minWidth: 280 } as ViewStyle,
   sidebarHidden: { width: '100%', minWidth: 0 } as ViewStyle,
@@ -548,6 +552,7 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 16, textAlign: 'center' } as TextStyle,
   resultCount: { fontSize: 14, marginBottom: 16 } as TextStyle,
   cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 20 } as ViewStyle,
+  cardGridSmall: { flexDirection: 'column', alignItems: 'stretch', gap: 12 } as ViewStyle,
   loadMore: { alignSelf: 'center', marginTop: 32, paddingHorizontal: 32, paddingVertical: 14, borderRadius: 10 } as ViewStyle,
   loadMoreText: { fontSize: 16, fontWeight: '600', color: '#fff' } as TextStyle,
   authOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, alignItems: 'center', justifyContent: 'center' } as ViewStyle,

@@ -586,6 +586,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   cardGridSmall: {
     flexDirection: 'column',
+    alignItems: 'stretch',
     gap: 12,
   } as ViewStyle,
   loadMore: {
