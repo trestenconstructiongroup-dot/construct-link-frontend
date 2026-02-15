@@ -94,7 +94,7 @@
 .sm-panel-itemWrap {
   position: relative;
   overflow: hidden;
-  line-height: 1;
+  line-height: 1.15;
   margin-bottom: 0.25rem;
 }
 
@@ -103,7 +103,7 @@
   color: var(--sm-text, #11181C);
   font-weight: 600;
   font-size: 2.5rem;
-  line-height: 1;
+  line-height: 1.15;
   letter-spacing: -1px;
   cursor: pointer;
   background: none;
