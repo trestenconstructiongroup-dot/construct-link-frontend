@@ -27,11 +27,11 @@ function isPathActive(pathname: string, linkPath: string): boolean {
   return pathname === linkPath || pathname.startsWith(linkPath + '/');
 }
 
-// Pill nav theme: same as reference (base = bar + hover circle, pill = pill bg, pillText / hoverText)
+// Pill nav theme: hover circle + active dot use logo orange (#F99324)
 function getPillTheme(isDark: boolean) {
   return isDark
-    ? { base: '#ffffff', pill: '#11181C', pillText: '#ffffff', hoverText: '#11181C' }
-    : { base: '#000000', pill: '#ffffff', pillText: '#000000', hoverText: '#ffffff' };
+    ? { base: '#F99324', pill: '#11181C', pillText: '#ffffff', hoverText: '#ffffff' }
+    : { base: '#F99324', pill: '#ffffff', pillText: '#000000', hoverText: '#ffffff' };
 }
 
 export default function Navbar() {

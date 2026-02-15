@@ -8,8 +8,6 @@ import { Image, ImageStyle, Pressable, Text as RNText, StyleSheet, View, type Te
 import { Colors } from '../../../../constants/theme';
 import type { WorkerSearchResultCompany } from '../../../../services/api';
 
-const BRAND_BLUE = Colors.light.accentMuted;
-
 export interface CompanyCardProps {
   item: WorkerSearchResultCompany;
   colors: typeof Colors.light | typeof Colors.dark;
@@ -31,7 +29,7 @@ const styles = StyleSheet.create({
   skillChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 } as ViewStyle,
   skillChipText: { fontSize: 12, fontWeight: '600' } as TextStyle,
   cardMeta: { fontSize: 13, marginTop: 4 } as TextStyle,
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTopWidth: 1 } as ViewStyle,
+  cardFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTopWidth: 1, gap: 12 } as ViewStyle,
   viewBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, borderWidth: 1 } as ViewStyle,
   viewBtnText: { fontSize: 14, fontWeight: '600' } as TextStyle,
   contactBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 } as ViewStyle,
@@ -78,7 +76,7 @@ function CompanyCardComponent({ item, colors, fontHeading, fontBody, onView }: C
         <Pressable onPress={handleView} style={[styles.viewBtn, { borderColor: colors.tint }]}>
           <RNText style={[styles.viewBtnText, { color: colors.tint }, { fontFamily: fontBody as any }]}>View Company</RNText>
         </Pressable>
-        <Pressable style={[styles.contactBtn, { backgroundColor: BRAND_BLUE }]}>
+        <Pressable style={[styles.contactBtn, { backgroundColor: '#F99324' }]}>
           <RNText style={[styles.contactBtnText, { fontFamily: fontBody as any }]}>Hire / Contact</RNText>
         </Pressable>
       </View>
