@@ -193,7 +193,7 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
         style={[styles.scrollView, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, { paddingTop: width < 768 ? 16 : undefined }, { backgroundColor: colors.background }]}>
           <Pressable
             onPress={() => router.back()}
             style={[styles.backBtn, { borderColor: colors.icon }]}

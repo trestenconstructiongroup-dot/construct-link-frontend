@@ -255,7 +255,7 @@ export default function FindWorkersPage() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator
       >
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, isSmall && styles.containerSmall, { backgroundColor: colors.background }]}>
           <View style={[styles.inner, isSmall && styles.innerStacked]}>
             <View style={styles.header}>
               <RNText style={[styles.title, { color: colors.text }, { fontFamily: (fontHeading as any) }]}>
@@ -514,6 +514,7 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1, width: '100%' } as ViewStyle,
   scrollContent: { flexGrow: 1, paddingBottom: 48 } as ViewStyle,
   container: { paddingTop: Platform.OS === 'web' ? 100 : 24, paddingBottom: 24 } as ViewStyle,
+  containerSmall: { paddingTop: 16 } as ViewStyle,
   inner: { width: '100%', maxWidth: 1200, alignSelf: 'center', paddingHorizontal: 24 } as ViewStyle,
   innerStacked: { paddingHorizontal: 16 } as ViewStyle,
   header: { marginBottom: 24 } as ViewStyle,

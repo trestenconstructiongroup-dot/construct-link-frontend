@@ -21,7 +21,7 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
 
   const contentPaddingTop =
     Platform.OS === 'web'
-      ? (isSmallScreen ? 4 : 80)
+      ? (isSmallScreen ? 56 : 80)
       : 0;
 
   return (

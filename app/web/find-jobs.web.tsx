@@ -99,17 +99,19 @@ export default function FindJobsWebPage() {
 
   const renderItem = useCallback(
     ({ item }: { item: JobSummary }) => (
-      <JobCard
-        job={item}
-        colors={colors}
-        fontHeading={fontHeading}
-        fontBody={fontBody}
-        token={token}
-        user={user}
-        onApplied={handleApplied}
-      />
+      <View style={isSmall ? { width: '100%' } : undefined}>
+        <JobCard
+          job={item}
+          colors={colors}
+          fontHeading={fontHeading}
+          fontBody={fontBody}
+          token={token}
+          user={user}
+          onApplied={handleApplied}
+        />
+      </View>
     ),
-    [colors, fontHeading, fontBody, token, user, handleApplied]
+    [colors, fontHeading, fontBody, token, user, handleApplied, isSmall]
   );
 
   const keyExtractor = useCallback((item: JobSummary) => String(item.job_id), []);
@@ -147,7 +149,7 @@ export default function FindJobsWebPage() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
       >
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, isSmall && styles.containerSmall, { backgroundColor: colors.background }]}>
           <View style={[styles.inner, isSmall && styles.innerStacked]}>
             {/* Header + Search */}
             <View style={styles.header}>
@@ -334,13 +336,13 @@ export default function FindJobsWebPage() {
                   <RNText style={[styles.resultCount, { color: colors.text }, { fontFamily: fontBody as any }]}>
                     {count} job{count !== 1 ? 's' : ''}
                   </RNText>
-                  <View style={[styles.cardGrid, isSmall && { gap: 12 }]}>
+                  <View style={[styles.cardGrid, isSmall && styles.cardGridSmall]}>
                     <FlatList
                       data={results}
                       keyExtractor={keyExtractor}
                       renderItem={renderItem}
                       scrollEnabled={false}
-                      contentContainerStyle={[styles.cardGrid, isSmall && { gap: 12 }]}
+                      contentContainerStyle={[styles.cardGrid, isSmall && styles.cardGridSmall]}
                       onEndReached={handleLoadMore}
                       onEndReachedThreshold={0.3}
                       initialNumToRender={12}
@@ -412,6 +414,9 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: Platform.OS === 'web' ? 100 : 24,
     paddingBottom: 24,
+  } as ViewStyle,
+  containerSmall: {
+    paddingTop: 16,
   } as ViewStyle,
   inner: {
     width: '100%',
@@ -578,6 +583,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 20,
+  } as ViewStyle,
+  cardGridSmall: {
+    flexDirection: 'column',
+    gap: 12,
   } as ViewStyle,
   loadMore: {
     alignSelf: 'center',

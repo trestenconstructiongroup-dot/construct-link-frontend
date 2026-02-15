@@ -156,7 +156,7 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
         style={[styles.scrollView, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, isSmallScreen && { paddingTop: 16 }, { backgroundColor: colors.background }]}>
           <Pressable onPress={() => router.back()} style={[styles.backBtn, { borderColor: colors.icon }]}>
             <Ionicons name="arrow-back" size={20} color={colors.text} />
             <RNText style={[styles.backBtnText, { color: colors.text }, { fontFamily: fontBody as any }]}>Back</RNText>
