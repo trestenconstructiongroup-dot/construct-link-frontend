@@ -433,6 +433,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
@@ -487,7 +489,7 @@ const styles = StyleSheet.create({
     padding: 24,
     borderRadius: 12,
     borderWidth: 1,
-    minWidth: 280,
+    width: '100%',
     maxWidth: 400,
   } as ViewStyle,
   modalTitle: {

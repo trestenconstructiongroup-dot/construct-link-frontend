@@ -179,7 +179,7 @@ export default function JobApplicationsDashboard() {
 
   // ---- Desktop split-panel layout ----
   const renderJobList = () => (
-    <ScrollView style={[styles.jobListPanel, !isSmall && { borderRightWidth: 1, borderRightColor: colors.icon + '30' }]}>
+    <ScrollView style={[styles.jobListPanel, isSmall ? { width: '100%' } : { borderRightWidth: 1, borderRightColor: colors.icon + '30' }]}>
       {jobsLoading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.tint} />
@@ -656,7 +656,7 @@ const styles = StyleSheet.create({
     padding: 24,
     borderRadius: 12,
     borderWidth: 1,
-    minWidth: 300,
+    width: '100%',
     maxWidth: 500,
     maxHeight: '80%',
   } as ViewStyle,

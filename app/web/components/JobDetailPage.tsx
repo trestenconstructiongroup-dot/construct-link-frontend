@@ -637,10 +637,11 @@ const styles = StyleSheet.create({
     padding: 24,
     borderRadius: 12,
     borderWidth: 1,
-    minWidth: 280,
+    width: '100%',
+    maxWidth: 400,
   } as ViewStyle,
   rolePickerContent: {
-    minWidth: 320,
+    maxWidth: 420,
   } as ViewStyle,
   modalTitle: {
     fontSize: 18,
