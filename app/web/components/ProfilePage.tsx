@@ -632,9 +632,15 @@ function ProfileSummaryCard({
   // --- Photo upload ---
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const photoUrl =
     accountType === 'company' ? company?.logo_url : individual?.photo_url;
+
+  // Reset error state when a new URL arrives (e.g. after fresh upload)
+  useEffect(() => {
+    setImgError(false);
+  }, [photoUrl]);
 
   const handlePickPhoto = useCallback(() => {
     if (Platform.OS === 'web') {
@@ -693,8 +699,12 @@ function ProfileSummaryCard({
             <View style={[styles.avatarInner, { backgroundColor: colors.accent }]}>
               <ActivityIndicator color="#fff" />
             </View>
-          ) : photoUrl ? (
-            <Image source={{ uri: photoUrl }} style={styles.avatarInner} />
+          ) : photoUrl && !imgError ? (
+            <Image
+              source={{ uri: photoUrl }}
+              style={styles.avatarInner}
+              onError={() => setImgError(true)}
+            />
           ) : (
             <View style={[styles.avatarInner, { backgroundColor: colors.accent }]}>
               <Ionicons name={accountType === 'company' ? 'business' : 'person'} size={36} color="#fff" />
