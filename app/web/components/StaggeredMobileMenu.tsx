@@ -31,7 +31,7 @@ export interface StaggeredMobileMenuProps {
   displayItemNumbering?: boolean;
   /** Auth section */
   isAuthenticated?: boolean;
-  user?: { full_name?: string; email?: string } | null;
+  user?: { full_name?: string; email?: string; is_worker?: boolean; is_company?: boolean } | null;
   avatarUrl?: string | null;
   /** Path for profile/account (e.g. /account on web). Used when clicking the user block in the dropdown. */
   profilePath?: string;
@@ -336,6 +336,28 @@ export function StaggeredMobileMenu({
                     )}
                   </div>
                 </button>
+                <button
+                  type="button"
+                  className="sm-auth-link"
+                  onClick={() => {
+                    onNavItemPress?.('/my-applications');
+                    onClose();
+                  }}
+                >
+                  My Applications
+                </button>
+                {user?.is_company && (
+                  <button
+                    type="button"
+                    className="sm-auth-link"
+                    onClick={() => {
+                      onNavItemPress?.('/job-applications');
+                      onClose();
+                    }}
+                  >
+                    Manage Applications
+                  </button>
+                )}
                 <button
                   type="button"
                   className="sm-auth-link sm-auth-link-danger"

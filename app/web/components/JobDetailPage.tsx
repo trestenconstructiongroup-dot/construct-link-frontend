@@ -15,6 +15,7 @@ import {
   TextStyle,
   ActivityIndicator,
   Modal,
+  TextInput,
   useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -57,6 +58,8 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
   const [applying, setApplying] = useState(false);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
   const [rolePickerOpen, setRolePickerOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
 
   const fontHeading = Fonts.display;
   const fontBody = Fonts.body;
@@ -90,7 +93,7 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
   const isCompany = user?.is_company ?? false;
 
   const handleApply = useCallback(
-    async (roleName?: string | null) => {
+    () => {
       if (!job || !token) return;
 
       if (!isLoggedIn) {
@@ -110,20 +113,33 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
       }
 
       const roles = job.roles_required || [];
-      if (isIndividual && roles.length > 1 && !roleName) {
+      if (isIndividual && roles.length > 1) {
+        setCoverLetter('');
         setRolePickerOpen(true);
         return;
       }
 
+      setCoverLetter('');
+      setConfirmOpen(true);
+    },
+    [job, token, isLoggedIn, isIndividual, isCompany]
+  );
+
+  const submitApplication = useCallback(
+    async (roleName?: string | null) => {
+      if (!job || !token) return;
       setApplying(true);
       try {
-        const res = await applyJob(token, job.job_id, roleName || undefined);
+        const res = await applyJob(token, job.job_id, roleName || undefined, coverLetter.trim() || undefined);
         setJob((prev) =>
           prev
             ? { ...prev, has_applied: res.has_applied, applications_count: res.applications_count }
             : prev
         );
         setRolePickerOpen(false);
+        setConfirmOpen(false);
+        setCoverLetter('');
+        setModalMessage('Your application has been submitted successfully!');
       } catch (e: any) {
         const data = e?.data;
         const msg =
@@ -135,15 +151,14 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
         setApplying(false);
       }
     },
-    [job, token, isLoggedIn, isIndividual, isCompany]
+    [job, token, coverLetter]
   );
 
   const handleRoleSelect = useCallback(
     (role: JobSummaryRole) => {
-      setRolePickerOpen(false);
-      handleApply(role.role_name);
+      submitApplication(role.role_name);
     },
-    [handleApply]
+    [submitApplication]
   );
 
   if (authLoading) {
@@ -369,6 +384,16 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
             <RNText style={[styles.modalTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>
               Which role are you applying for?
             </RNText>
+            <TextInput
+              style={[styles.coverLetterInput, { color: colors.text, borderColor: colors.icon + '60' }]}
+              placeholder="Add a message (optional)"
+              placeholderTextColor={colors.icon}
+              value={coverLetter}
+              onChangeText={setCoverLetter}
+              multiline
+              maxLength={2000}
+              numberOfLines={3}
+            />
             {job?.roles_required.map((r, i) => (
               <Pressable
                 key={i}
@@ -382,7 +407,48 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
               </Pressable>
             ))}
             <Pressable
-              onPress={() => setRolePickerOpen(false)}
+              onPress={() => { setRolePickerOpen(false); setCoverLetter(''); }}
+              style={[styles.modalBtn, styles.modalBtnSecondary, { borderColor: colors.icon }]}
+            >
+              <RNText style={[styles.modalBtnText, { color: colors.text }]}>Cancel</RNText>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Confirm apply modal (single/no role) */}
+      <Modal visible={confirmOpen} transparent animationType="fade">
+        <Pressable style={styles.modalOverlay} onPress={() => { setConfirmOpen(false); setCoverLetter(''); }}>
+          <Pressable
+            style={[styles.modalContent, styles.rolePickerContent, { backgroundColor: colors.background, borderColor: colors.icon }]}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <RNText style={[styles.modalTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>
+              Apply for this job?
+            </RNText>
+            <TextInput
+              style={[styles.coverLetterInput, { color: colors.text, borderColor: colors.icon + '60' }]}
+              placeholder="Add a message (optional)"
+              placeholderTextColor={colors.icon}
+              value={coverLetter}
+              onChangeText={setCoverLetter}
+              multiline
+              maxLength={2000}
+              numberOfLines={3}
+            />
+            <Pressable
+              onPress={() => submitApplication()}
+              disabled={applying}
+              style={[styles.modalBtn, { backgroundColor: BRAND_BLUE }]}
+            >
+              {applying ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <RNText style={styles.modalBtnText}>Submit Application</RNText>
+              )}
+            </Pressable>
+            <Pressable
+              onPress={() => { setConfirmOpen(false); setCoverLetter(''); }}
               style={[styles.modalBtn, styles.modalBtnSecondary, { borderColor: colors.icon }]}
             >
               <RNText style={[styles.modalBtnText, { color: colors.text }]}>Cancel</RNText>
@@ -610,6 +676,15 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   roleOptionText: {
     fontSize: 16,
+  } as TextStyle,
+  coverLetterInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    minHeight: 80,
+    textAlignVertical: 'top',
+    fontSize: 14,
   } as TextStyle,
   authOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, alignItems: 'center', justifyContent: 'center' } as ViewStyle,
   authBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' } as ViewStyle,

@@ -9,6 +9,7 @@ import {
     Modal,
     Pressable,
     Text as RNText,
+    TextInput,
     StyleSheet,
     TextStyle,
     View,
@@ -73,6 +74,7 @@ const styles = StyleSheet.create({
   modalBtnText: { fontSize: 16, fontWeight: '600', color: '#fff' } as TextStyle,
   roleOption: { paddingVertical: 14, paddingHorizontal: 16, borderRadius: 8, borderWidth: 1, marginBottom: 8 } as ViewStyle,
   roleOptionText: { fontSize: 16 } as TextStyle,
+  coverLetterInput: { borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 16, minHeight: 80, textAlignVertical: 'top', fontSize: 14 } as TextStyle,
 });
 
 function JobCardComponent({
@@ -88,12 +90,14 @@ function JobCardComponent({
   const [applying, setApplying] = useState(false);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
   const [rolePickerOpen, setRolePickerOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
 
   const isIndividual = user?.is_worker ?? false;
   const isCompany = user?.is_company ?? false;
 
   const handleApply = useCallback(
-    async (roleName?: string | null) => {
+    () => {
       if (!token) {
         setModalMessage('You must log in to apply for jobs.');
         return;
@@ -108,15 +112,28 @@ function JobCardComponent({
         return;
       }
       const roles = job.roles_required || [];
-      if (isIndividual && roles.length > 1 && !roleName) {
+      if (isIndividual && roles.length > 1) {
+        setCoverLetter('');
         setRolePickerOpen(true);
         return;
       }
+      setCoverLetter('');
+      setConfirmOpen(true);
+    },
+    [token, job, isIndividual, isCompany]
+  );
+
+  const submitApplication = useCallback(
+    async (roleName?: string | null) => {
+      if (!token) return;
       setApplying(true);
       try {
-        const res = await applyJob(token, job.job_id, roleName || undefined);
+        const res = await applyJob(token, job.job_id, roleName || undefined, coverLetter.trim() || undefined);
         onApplied(job.job_id, res.applications_count, res.has_applied);
         setRolePickerOpen(false);
+        setConfirmOpen(false);
+        setCoverLetter('');
+        setModalMessage('Your application has been submitted successfully!');
       } catch (e: unknown) {
         const err = e as { data?: { detail?: string }; message?: string };
         const msg = typeof err?.data?.detail === 'string' ? err.data.detail : err?.message ?? 'Failed to apply.';
@@ -125,15 +142,14 @@ function JobCardComponent({
         setApplying(false);
       }
     },
-    [token, job, isIndividual, isCompany, onApplied]
+    [token, job, coverLetter, onApplied]
   );
 
   const handleRoleSelect = useCallback(
     (role: JobSummaryRole) => {
-      setRolePickerOpen(false);
-      handleApply(role.role_name);
+      submitApplication(role.role_name);
     },
-    [handleApply]
+    [submitApplication]
   );
 
   const handleViewJob = useCallback(() => {
@@ -238,6 +254,16 @@ function JobCardComponent({
             <RNText style={[styles.modalTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>
               Which role are you applying for?
             </RNText>
+            <TextInput
+              style={[styles.coverLetterInput, { color: colors.text, borderColor: colors.icon + '60' }]}
+              placeholder="Add a message (optional)"
+              placeholderTextColor={colors.icon}
+              value={coverLetter}
+              onChangeText={setCoverLetter}
+              multiline
+              maxLength={2000}
+              numberOfLines={3}
+            />
             {job.roles_required.map((r, i) => (
               <Pressable
                 key={i}
@@ -250,7 +276,48 @@ function JobCardComponent({
                 </RNText>
               </Pressable>
             ))}
-            <Pressable onPress={() => setRolePickerOpen(false)} style={[styles.modalBtn, styles.modalBtnSecondary, { borderColor: colors.icon }]}>
+            <Pressable onPress={() => { setRolePickerOpen(false); setCoverLetter(''); }} style={[styles.modalBtn, styles.modalBtnSecondary, { borderColor: colors.icon }]}>
+              <RNText style={[styles.modalBtnText, { color: colors.text }]}>Cancel</RNText>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Confirm apply modal (single/no role) */}
+      <Modal visible={confirmOpen} transparent animationType="fade">
+        <Pressable style={styles.modalOverlay} onPress={() => { setConfirmOpen(false); setCoverLetter(''); }}>
+          <Pressable
+            style={[styles.modalContent, styles.rolePickerContent, { backgroundColor: colors.background, borderColor: colors.icon }]}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <RNText style={[styles.modalTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>
+              Apply for this job?
+            </RNText>
+            <TextInput
+              style={[styles.coverLetterInput, { color: colors.text, borderColor: colors.icon + '60' }]}
+              placeholder="Add a message (optional)"
+              placeholderTextColor={colors.icon}
+              value={coverLetter}
+              onChangeText={setCoverLetter}
+              multiline
+              maxLength={2000}
+              numberOfLines={3}
+            />
+            <Pressable
+              onPress={() => submitApplication()}
+              disabled={applying}
+              style={[styles.modalBtn, { backgroundColor: '#F99324' }]}
+            >
+              {applying ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <RNText style={styles.modalBtnText}>Submit Application</RNText>
+              )}
+            </Pressable>
+            <Pressable
+              onPress={() => { setConfirmOpen(false); setCoverLetter(''); }}
+              style={[styles.modalBtn, styles.modalBtnSecondary, { borderColor: colors.icon }]}
+            >
               <RNText style={[styles.modalBtnText, { color: colors.text }]}>Cancel</RNText>
             </Pressable>
           </Pressable>

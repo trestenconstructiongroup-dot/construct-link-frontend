@@ -706,14 +706,98 @@ type ApiRequestOptions = RequestInit & {
   export function applyJob(
     token: string,
     jobId: number,
-    roleName?: string | null
+    roleName?: string | null,
+    coverLetter?: string | null,
   ): Promise<ApplyJobResponse> {
     const body: Record<string, string> = {};
     if (roleName) body.role_name = roleName;
+    if (coverLetter) body.cover_letter = coverLetter;
     return apiFetch(`/api/jobs/${jobId}/apply/`, {
       method: "POST",
       authToken: token,
       body: JSON.stringify(body),
+    });
+  }
+
+  // ---- Application Management ----
+
+  export type ApplicationStatus =
+    | "pending" | "reviewed" | "shortlisted"
+    | "accepted" | "rejected" | "withdrawn";
+
+  export interface ApplicationItem {
+    id: number;
+    job: number;
+    applicant: number;
+    applicant_name: string;
+    applicant_photo: string;
+    applicant_type: "individual" | "company";
+    job_title: string;
+    role_name: string | null;
+    status: ApplicationStatus;
+    cover_letter: string;
+    created_at: string;
+    updated_at: string;
+    withdrawn_at: string | null;
+  }
+
+  export interface ApplicationsResponse {
+    count: number;
+    next: number | null;
+    previous: number | null;
+    results: ApplicationItem[];
+  }
+
+  export function getMyApplications(
+    token: string,
+    params: { status?: string; page?: number; page_size?: number } = {},
+  ): Promise<ApplicationsResponse> {
+    const sp = new URLSearchParams();
+    if (params.status) sp.set("status", params.status);
+    if (params.page != null) sp.set("page", String(params.page));
+    if (params.page_size != null) sp.set("page_size", String(params.page_size));
+    const qs = sp.toString();
+    return apiFetch(qs ? `/api/applications/mine/?${qs}` : `/api/applications/mine/`, {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  export function withdrawApplication(
+    token: string,
+    applicationId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    return apiFetch(`/api/applications/${applicationId}/withdraw/`, {
+      method: "POST",
+      authToken: token,
+    });
+  }
+
+  export function getJobApplications(
+    token: string,
+    jobId: number,
+    params: { status?: string; page?: number; page_size?: number } = {},
+  ): Promise<ApplicationsResponse> {
+    const sp = new URLSearchParams();
+    if (params.status) sp.set("status", params.status);
+    if (params.page != null) sp.set("page", String(params.page));
+    if (params.page_size != null) sp.set("page_size", String(params.page_size));
+    const qs = sp.toString();
+    return apiFetch(qs ? `/api/jobs/${jobId}/applications/?${qs}` : `/api/jobs/${jobId}/applications/`, {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  export function updateApplicationStatus(
+    token: string,
+    applicationId: number,
+    newStatus: ApplicationStatus,
+  ): Promise<ApplicationItem> {
+    return apiFetch(`/api/applications/${applicationId}/status/`, {
+      method: "PATCH",
+      authToken: token,
+      body: JSON.stringify({ status: newStatus }),
     });
   }
 

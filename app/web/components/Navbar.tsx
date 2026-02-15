@@ -332,6 +332,30 @@ export default function Navbar() {
                     </Pressable>
                     <Pressable
                       style={styles.dropdownItem}
+                      onPress={() => {
+                        setIsDropdownOpen(false);
+                        router.push('/my-applications' as never);
+                      }}
+                    >
+                      <Text style={[styles.dropdownItemText, { color: colors.text }]}>
+                        My Applications
+                      </Text>
+                    </Pressable>
+                    {user?.is_company && (
+                      <Pressable
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setIsDropdownOpen(false);
+                          router.push('/job-applications' as never);
+                        }}
+                      >
+                        <Text style={[styles.dropdownItemText, { color: colors.text }]}>
+                          Manage Applications
+                        </Text>
+                      </Pressable>
+                    )}
+                    <Pressable
+                      style={styles.dropdownItem}
                       onPress={handleLogout}
                     >
                       <Text style={[styles.dropdownItemText, { color: colors.error }]}>
@@ -519,6 +543,30 @@ export default function Navbar() {
                   Profile
                 </Text>
               </Pressable>
+              <Pressable
+                style={styles.mobileNavLink}
+                onPress={() => {
+                  setIsMobileMenuOpen(false);
+                  router.push('/my-applications' as never);
+                }}
+              >
+                <Text style={[styles.mobileNavLinkText, { color: colors.text }]}>
+                  My Applications
+                </Text>
+              </Pressable>
+              {user?.is_company && (
+                <Pressable
+                  style={styles.mobileNavLink}
+                  onPress={() => {
+                    setIsMobileMenuOpen(false);
+                    router.push('/job-applications' as never);
+                  }}
+                >
+                  <Text style={[styles.mobileNavLinkText, { color: colors.text }]}>
+                    Manage Applications
+                  </Text>
+                </Pressable>
+              )}
               <Pressable
                 style={styles.mobileLogoutButton}
                 onPress={async () => {
