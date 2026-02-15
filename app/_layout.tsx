@@ -1,6 +1,8 @@
+import { Analytics } from '@vercel/analytics/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { useEffect, type PropsWithChildren } from 'react';
+import { Platform } from 'react-native';
 import { WebFontLoader } from '../components/WebFontLoader';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
@@ -63,6 +65,7 @@ export default function RootLayout() {
                 }}
               />
             </AuthGate>
+            {Platform.OS === 'web' && <Analytics />}
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>

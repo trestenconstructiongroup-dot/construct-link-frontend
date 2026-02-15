@@ -23,6 +23,7 @@
     "@studio-freight/lenis": "^1.0.42",
     "@supabase/supabase-js": "^2.47.0",
     "@tanstack/react-query": "^5.90.20",
+    "@vercel/analytics": "^1.6.1",
     "expo": "~54.0.32",
     "expo-constants": "~18.0.13",
     "expo-font": "~14.0.11",
