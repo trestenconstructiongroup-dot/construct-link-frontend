@@ -166,7 +166,7 @@ export default function FindJobsWebPage() {
             </View>
           </View>
 
-          <View style={styles.mainRow}>
+          <View style={[styles.mainRow, isSmall && styles.mainRowStacked]}>
             {/* Filters sidebar */}
             <View style={[styles.sidebar, isSmall && styles.sidebarHidden]}>
               {isSmall && (
@@ -448,6 +448,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 24,
+  } as ViewStyle,
+  mainRowStacked: {
+    flexDirection: 'column',
+    gap: 0,
   } as ViewStyle,
   mainContentColumn: {
     flex: 1,
