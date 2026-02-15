@@ -37,7 +37,7 @@ const AVAILABILITY_LABELS: Record<string, string> = {
 };
 
 const styles = StyleSheet.create({
-  card: { width: '100%', maxWidth: 380, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
+  card: { flex: 1, minWidth: 300, maxWidth: 480, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 } as ViewStyle,
   avatar: { width: 56, height: 56, borderRadius: 28 } as ImageStyle,
   avatarPlaceholder: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' } as ViewStyle,

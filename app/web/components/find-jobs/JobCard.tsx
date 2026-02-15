@@ -35,7 +35,7 @@ export interface JobCardProps {
 }
 
 const styles = StyleSheet.create({
-  card: { width: '100%', maxWidth: 380, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
+  card: { flex: 1, minWidth: 300, maxWidth: 480, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 } as ViewStyle,
   cardTitle: { fontSize: 18, fontWeight: '700', flex: 1 } as TextStyle,
   badges: { flexDirection: 'row', gap: 6 } as ViewStyle,
@@ -51,12 +51,13 @@ const styles = StyleSheet.create({
   deadlineText: { fontSize: 12, marginTop: 4 } as TextStyle,
   cardFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
+    justifyContent: 'space-between',
+    marginTop: 'auto' as any,
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: 'rgba(128,128,128,0.2)',
+    gap: 12,
   } as ViewStyle,
   applicationsText: { fontSize: 12 } as TextStyle,
   applyBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 } as ViewStyle,
@@ -88,7 +89,6 @@ function JobCardComponent({
   const [modalMessage, setModalMessage] = useState<string | null>(null);
   const [rolePickerOpen, setRolePickerOpen] = useState(false);
 
-  const isLoggedIn = !!token && !!user;
   const isIndividual = user?.is_worker ?? false;
   const isCompany = user?.is_company ?? false;
 
@@ -201,7 +201,7 @@ function JobCardComponent({
           </RNText>
           <Pressable
             onPress={() => handleApply()}
-            style={[styles.applyBtn, job.has_applied && styles.applyBtnDisabled, { backgroundColor: job.has_applied ? colors.icon : BRAND_BLUE }]}
+            style={[styles.applyBtn, job.has_applied && styles.applyBtnDisabled, { backgroundColor: job.has_applied ? colors.icon : '#F99324' }]}
             disabled={job.has_applied || applying}
           >
             {applying ? (
