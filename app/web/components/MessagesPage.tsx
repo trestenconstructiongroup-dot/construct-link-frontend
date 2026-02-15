@@ -138,7 +138,7 @@ export default function MessagesPage() {
   if (isSmall && activeConvId) {
     return (
       <WebLayout>
-        <View style={[styles.fullContainer, { backgroundColor: colors.background }]}>
+        <View style={[styles.fullContainer, { backgroundColor: colors.background, paddingBottom: 76 }]}>
           <ConversationView
             conv={activeConv}
             messages={msgsData?.results ?? []}
@@ -151,6 +151,7 @@ export default function MessagesPage() {
             onBack={handleBack}
             colors={colors}
             isDark={isDark}
+            isSmall={isSmall}
             messagesEndRef={messagesEndRef}
           />
         </View>
@@ -160,10 +161,14 @@ export default function MessagesPage() {
 
   return (
     <WebLayout>
-      <View style={[styles.pageContainer, { backgroundColor: colors.background }]}>
+      <View style={[styles.pageContainer, { backgroundColor: colors.background }, isSmall && { paddingTop: 16 }]}>
         <View style={[styles.inner, isSmall && styles.innerSmall]}>
           <RNText
-            style={[styles.pageTitle, { color: colors.text, fontFamily: Fonts.display }]}
+            style={[
+              styles.pageTitle,
+              { color: colors.text, fontFamily: Fonts.display },
+              isSmall && { fontSize: 24, marginBottom: 12 },
+            ]}
           >
             Messages
           </RNText>
@@ -209,7 +214,10 @@ export default function MessagesPage() {
                   </RNText>
                 </View>
               ) : (
-                <ScrollView style={styles.listScroll}>
+                <ScrollView
+                  style={styles.listScroll}
+                  contentContainerStyle={isSmall ? { paddingBottom: 76 } : undefined}
+                >
                   {convsData.results.map((conv) => (
                     <ConversationListItem
                       key={conv.id}
@@ -239,6 +247,7 @@ export default function MessagesPage() {
                     sending={sendMutation.isPending}
                     colors={colors}
                     isDark={isDark}
+                    isSmall={isSmall}
                     messagesEndRef={messagesEndRef}
                   />
                 ) : (
@@ -379,6 +388,7 @@ function ConversationView({
   onBack,
   colors,
   isDark,
+  isSmall,
   messagesEndRef,
 }: {
   conv?: ConversationSummary;
@@ -392,6 +402,7 @@ function ConversationView({
   onBack?: () => void;
   colors: typeof Colors.light;
   isDark: boolean;
+  isSmall: boolean;
   messagesEndRef: React.RefObject<ScrollView>;
 }) {
   return (
@@ -453,7 +464,7 @@ function ConversationView({
       <ScrollView
         ref={messagesEndRef}
         style={styles.messagesScroll}
-        contentContainerStyle={styles.messagesContent}
+        contentContainerStyle={[styles.messagesContent, isSmall && { padding: 12 }]}
       >
         {loading ? (
           <View style={styles.center}>
@@ -479,6 +490,7 @@ function ConversationView({
               isMine={msg.sender === currentUserId}
               colors={colors}
               isDark={isDark}
+              isSmall={isSmall}
             />
           ))
         )}
@@ -553,11 +565,13 @@ function MessageBubble({
   isMine,
   colors,
   isDark,
+  isSmall,
 }: {
   msg: MessageItem;
   isMine: boolean;
   colors: typeof Colors.light;
   isDark: boolean;
+  isSmall?: boolean;
 }) {
   const timeStr = new Date(msg.created_at).toLocaleTimeString([], {
     hour: '2-digit',
@@ -569,6 +583,7 @@ function MessageBubble({
       <View
         style={[
           styles.bubble,
+          isSmall && { maxWidth: '85%' },
           isMine
             ? [styles.bubbleMine, { backgroundColor: BRAND_BLUE }]
             : [
@@ -658,7 +673,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   } as ViewStyle,
   innerSmall: {
-    paddingHorizontal: 0,
+    paddingHorizontal: 16,
   } as ViewStyle,
   pageTitle: {
     fontSize: 32,
@@ -704,6 +719,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   listPanelSmall: {
     width: '100%',
+    flex: 1,
     borderRightWidth: 0,
     borderRadius: 12,
   } as ViewStyle,
