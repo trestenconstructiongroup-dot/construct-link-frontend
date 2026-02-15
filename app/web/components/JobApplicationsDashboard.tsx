@@ -297,27 +297,27 @@ export default function JobApplicationsDashboard() {
                   <Image source={{ uri: app.applicant_photo }} style={styles.applicantPhoto} />
                 ) : (
                   <View style={[styles.applicantPhoto, { backgroundColor: colors.icon + '20', alignItems: 'center', justifyContent: 'center' }]}>
-                    <Ionicons name="person" size={20} color={colors.icon} />
+                    <Ionicons name="person" size={18} color={colors.icon} />
                   </View>
                 )}
                 <View style={{ flex: 1 }}>
-                  <View style={styles.applicantNameRow}>
-                    <RNText style={[styles.applicantName, { color: colors.text, fontFamily: fontHeading as any }]}>
-                      {app.applicant_name}
-                    </RNText>
+                  <RNText style={[styles.applicantName, { color: colors.text, fontFamily: fontHeading as any }]} numberOfLines={1}>
+                    {app.applicant_name}
+                  </RNText>
+                  <View style={styles.metaRow}>
                     <View style={[styles.typeBadge, { backgroundColor: app.applicant_type === 'company' ? '#8b5cf6' + '20' : BRAND_BLUE + '20' }]}>
                       <RNText style={[styles.typeBadgeText, { color: app.applicant_type === 'company' ? '#8b5cf6' : BRAND_BLUE }]}>
                         {app.applicant_type === 'company' ? 'Company' : 'Individual'}
                       </RNText>
                     </View>
+                    <StatusBadge status={app.status} fontBody={fontBody} />
+                    {app.role_name && (
+                      <RNText style={[styles.applicantRole, { color: colors.icon }]} numberOfLines={1}>
+                        {app.role_name}
+                      </RNText>
+                    )}
                   </View>
-                  {app.role_name && (
-                    <RNText style={[styles.applicantRole, { color: colors.icon }]}>
-                      Role: {app.role_name}
-                    </RNText>
-                  )}
                 </View>
-                <StatusBadge status={app.status} fontBody={fontBody} />
               </View>
 
               {app.cover_letter ? (
@@ -503,9 +503,9 @@ const styles = StyleSheet.create({
   applicantsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
   } as ViewStyle,
   backToJobs: {
@@ -525,111 +525,111 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   filterRow: {
     flexDirection: 'row',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   } as ViewStyle,
   filterTab: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
     borderWidth: 1,
   } as ViewStyle,
   filterTabText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
   } as TextStyle,
   applicantsList: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: 12,
+    paddingTop: 8,
   } as ViewStyle,
 
   // Applicant card
   applicantCard: {
     borderWidth: 1,
     borderRadius: 10,
-    padding: 14,
-    marginBottom: 10,
+    padding: 12,
+    marginBottom: 8,
   } as ViewStyle,
   applicantHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-  } as ViewStyle,
-  applicantPhoto: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  } as ViewStyle,
-  applicantNameRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    flexWrap: 'wrap',
+  } as ViewStyle,
+  applicantPhoto: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
   } as ViewStyle,
   applicantName: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   } as TextStyle,
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
+    flexWrap: 'wrap',
+  } as ViewStyle,
   typeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
   } as ViewStyle,
   typeBadgeText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
   } as TextStyle,
   applicantRole: {
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: 11,
   } as TextStyle,
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
   } as ViewStyle,
   statusBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
   } as TextStyle,
   coverLetterPreview: {
-    fontSize: 13,
-    marginTop: 8,
+    fontSize: 12,
+    marginTop: 6,
     fontStyle: 'italic',
     opacity: 0.8,
   } as TextStyle,
   applicantFooter: {
-    marginTop: 10,
-    paddingTop: 10,
+    marginTop: 8,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(128,128,128,0.15)',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
   } as ViewStyle,
   applicantDate: {
     fontSize: 12,
   } as TextStyle,
   actionButtons: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 4,
     flexWrap: 'wrap',
   } as ViewStyle,
   actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    gap: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 6,
     borderWidth: 1,
   } as ViewStyle,
   actionBtnText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
   } as TextStyle,
 
