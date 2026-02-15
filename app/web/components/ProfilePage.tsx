@@ -331,6 +331,7 @@ export default function ProfilePage() {
 
   return (
     <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={[
         styles.page,
         { backgroundColor: colors.background },
@@ -2175,10 +2176,10 @@ const styles = StyleSheet.create({
   page: {
     flexGrow: 1,
     paddingTop: Platform.OS === 'web' ? 120 : 16,
-    paddingHorizontal: Platform.OS === 'web' ? 24 : 16,
+    paddingHorizontal: Platform.OS === 'web' ? 48 : 16,
     paddingBottom: Platform.OS === 'web' ? 40 : 100,
     gap: 16,
-    maxWidth: 800,
+    maxWidth: 1100,
     width: '100%',
     alignSelf: 'center',
   },
@@ -2194,7 +2195,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     ...Platform.select({
       web: {
-        boxShadow: '0 8px 24px rgba(15,23,42,0.35)' as any,
+        boxShadow: '0 4px 16px rgba(15,23,42,0.12)' as any,
       },
       default: {
         borderWidth: 0,
