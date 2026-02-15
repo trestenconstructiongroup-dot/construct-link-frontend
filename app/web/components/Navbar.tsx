@@ -252,16 +252,9 @@ export default function Navbar() {
                         </Animated.Text>
                       </View>
                     </View>
-                    {active && (
+                    {(active || (path === '/messages' && unreadCount > 0)) && (
                       <View style={styles.pillActiveDotWrap}>
-                        <View style={[styles.pillActiveDot, { backgroundColor: pillTheme.base }]} />
-                      </View>
-                    )}
-                    {path === '/messages' && unreadCount > 0 && (
-                      <View style={styles.unreadBadge}>
-                        <Text style={styles.unreadBadgeText}>
-                          {unreadCount > 99 ? '99+' : unreadCount}
-                        </Text>
+                        <View style={[styles.pillActiveDot, { backgroundColor: path === '/messages' && unreadCount > 0 && !active ? '#F99324' : pillTheme.base }]} />
                       </View>
                     )}
                   </Pressable>
