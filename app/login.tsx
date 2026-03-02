@@ -1,6 +1,9 @@
-import { View, StyleSheet, Pressable, Platform, ViewStyle, TextStyle, Animated, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Pressable, Platform, ViewStyle, TextStyle, Animated, Alert, Keyboard, TouchableWithoutFeedback, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, type LoginFormData } from '../lib/schemas/auth';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Fonts } from '../constants/theme';
@@ -8,9 +11,10 @@ import WebLayout from './web/layout';
 import { Text as RNText } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemeToggle from '../components/ThemeToggle';
-import Svg, { Path, G, Defs, ClipPath, Rect } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-// ---------- Brand SVG icons (20×20) ----------
+// ---------- Brand SVG icons (20x20) ----------
 
 function GoogleIcon() {
   return (
@@ -47,7 +51,7 @@ type SsoProviderId = 'google' | 'apple' | 'azure';
 export default function LoginPage() {
   const router = useRouter();
   const { isDark } = useTheme();
-  const { signInWithGoogle, signInWithApple, signInWithAzure, isAuthenticated } = useAuth();
+  const { signInWithGoogle, signInWithApple, signInWithAzure, loginWithEmail, isAuthenticated } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const insets = useSafeAreaInsets();
 
@@ -57,6 +61,8 @@ export default function LoginPage() {
   }, [isAuthenticated]);
 
   const [ssoLoading, setSsoLoading] = useState<SsoProviderId | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -75,6 +81,42 @@ export default function LoginPage() {
       }),
     ]).start();
   }, []);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    setFormError(null);
+    try {
+      await loginWithEmail(data);
+      // AuthGate handles navigation automatically
+    } catch (error: any) {
+      let message = 'Login failed. Please try again.';
+      try {
+        const errorData = error.data || JSON.parse(error.message);
+        if (errorData.non_field_errors) {
+          message = Array.isArray(errorData.non_field_errors)
+            ? errorData.non_field_errors[0]
+            : errorData.non_field_errors;
+        } else if (errorData.email) {
+          message = Array.isArray(errorData.email)
+            ? errorData.email[0]
+            : errorData.email;
+        } else if (errorData.detail) {
+          message = errorData.detail;
+        }
+      } catch {
+        // use default message
+      }
+      setFormError(message);
+    }
+  };
 
   const ssoProviders: { id: SsoProviderId; label: string; icon: (color: string) => React.ReactNode }[] = [
     { id: 'google', label: 'Continue with Google', icon: () => <GoogleIcon /> },
@@ -104,8 +146,16 @@ export default function LoginPage() {
     }
   };
 
+  const isBusy = isSubmitting || !!ssoLoading;
+
   const content = (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={styles.scrollContent}
+      bounces={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Theme toggle (shown directly on mobile; on web it's in the navbar) */}
         {Platform.OS !== 'web' && (
           <View style={[styles.mobileToggleContainer, { paddingTop: insets.top }]}>
@@ -128,8 +178,127 @@ export default function LoginPage() {
               Sign In
             </RNText>
             <RNText style={[styles.subtitle, { color: colors.text }]}>
-              Continue with your preferred account
+              Sign in with your email or continue with a provider
             </RNText>
+          </View>
+
+          {/* Email field */}
+          <View style={styles.fieldContainer}>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text,
+                      borderColor: errors.email
+                        ? colors.error
+                        : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+                    },
+                  ]}
+                  placeholder="Email address"
+                  placeholderTextColor={colors.textTertiary}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  editable={!isBusy}
+                />
+              )}
+            />
+            {errors.email && (
+              <RNText style={[styles.fieldError, { color: colors.error }]}>
+                {errors.email.message}
+              </RNText>
+            )}
+          </View>
+
+          {/* Password field */}
+          <View style={styles.fieldContainer}>
+            <View>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.text,
+                        borderColor: errors.password
+                          ? colors.error
+                          : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+                        paddingRight: 48,
+                      },
+                    ]}
+                    placeholder="Password"
+                    placeholderTextColor={colors.textTertiary}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoComplete="password"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    editable={!isBusy}
+                  />
+                )}
+              />
+              <Pressable
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={colors.textTertiary}
+                />
+              </Pressable>
+            </View>
+            {errors.password && (
+              <RNText style={[styles.fieldError, { color: colors.error }]}>
+                {errors.password.message}
+              </RNText>
+            )}
+          </View>
+
+          {/* Form-level error (backend errors) */}
+          {formError && (
+            <View style={[styles.formErrorContainer, { backgroundColor: `${colors.error}15` }]}>
+              <RNText style={[styles.formErrorText, { color: colors.error }]}>
+                {formError}
+              </RNText>
+            </View>
+          )}
+
+          {/* Submit button */}
+          <Pressable
+            style={[
+              styles.submitButton,
+              { backgroundColor: colors.tint },
+              isSubmitting && styles.submitButtonDisabled,
+            ]}
+            onPress={handleSubmit(onSubmit)}
+            disabled={isBusy}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color={colors.background} />
+            ) : (
+              <RNText style={[styles.submitButtonText, { color: colors.background }]}>
+                Sign In
+              </RNText>
+            )}
+          </Pressable>
+
+          {/* Divider */}
+          <View style={styles.divider}>
+            <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }]} />
+            <RNText style={[styles.dividerText, { color: colors.textTertiary }]}>or</RNText>
+            <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }]} />
           </View>
 
           {/* SSO Providers */}
@@ -146,7 +315,7 @@ export default function LoginPage() {
                   },
                 ]}
                 onPress={() => handleSsoPress(provider.id)}
-                disabled={!!ssoLoading}
+                disabled={isBusy}
               >
                 <View style={styles.ssoButtonInner}>
                   <View style={styles.ssoIconWrap}>
@@ -161,8 +330,21 @@ export default function LoginPage() {
               </Pressable>
             ))}
           </View>
+
+          {/* Sign up link */}
+          <View style={styles.footerLink}>
+            <RNText style={[styles.footerLinkText, { color: colors.textSecondary }]}>
+              Don't have an account?{' '}
+            </RNText>
+            <Pressable onPress={() => router.push('/signup')}>
+              <RNText style={[styles.footerLinkAction, { color: colors.tint }]}>
+                Sign up
+              </RNText>
+            </Pressable>
+          </View>
         </Animated.View>
       </View>
+    </ScrollView>
   );
 
   // Use WebLayout (with navbar + toggler) on web, plain content on native
@@ -179,22 +361,20 @@ export default function LoginPage() {
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  } as ViewStyle,
   container: {
     flex: 1,
     width: '100%',
-    paddingHorizontal: 20,
+    alignItems: 'center',
     ...Platform.select({
       web: {
         minHeight: '100vh' as any,
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingTop: 40,
-        paddingBottom: 40,
-        overflowY: 'auto' as any,
-      },
-      default: {
-        alignItems: 'center',
-        justifyContent: 'center',
       },
     }),
   } as ViewStyle,
@@ -239,6 +419,99 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     textAlign: 'center',
   } as TextStyle,
+
+  // Form fields
+  fieldContainer: {
+    width: '100%',
+    marginBottom: 16,
+  } as ViewStyle,
+  input: {
+    width: '100%',
+    height: 52,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontFamily: Fonts.body,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none' as any,
+        transition: 'border-color 0.2s ease' as any,
+      },
+    }),
+  } as TextStyle,
+  eyeButton: {
+    position: 'absolute',
+    right: 14,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 32,
+    ...Platform.select({
+      web: { cursor: 'pointer' as any },
+    }),
+  } as ViewStyle,
+  fieldError: {
+    fontSize: 13,
+    fontFamily: Fonts.body,
+    marginTop: 4,
+    marginLeft: 4,
+  } as TextStyle,
+  formErrorContainer: {
+    width: '100%',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginBottom: 16,
+  } as ViewStyle,
+  formErrorText: {
+    fontSize: 14,
+    fontFamily: Fonts.body,
+    textAlign: 'center',
+  } as TextStyle,
+
+  // Submit button
+  submitButton: {
+    width: '100%',
+    height: 52,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    ...Platform.select({
+      web: {
+        cursor: 'pointer' as any,
+        transition: 'all 0.2s ease' as any,
+      },
+    }),
+  } as ViewStyle,
+  submitButtonText: {
+    fontSize: 16,
+    fontFamily: Fonts.accent,
+  } as TextStyle,
+  submitButtonDisabled: {
+    opacity: 0.6,
+  } as ViewStyle,
+
+  // Divider
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 24,
+  } as ViewStyle,
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  } as ViewStyle,
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    fontFamily: Fonts.body,
+  } as TextStyle,
+
+  // SSO buttons
   ssoRow: {
     flexDirection: 'column',
     gap: 14,
@@ -271,5 +544,24 @@ const styles = StyleSheet.create({
   ssoButtonText: {
     fontSize: 16,
     fontFamily: Fonts.body,
+  } as TextStyle,
+
+  // Footer link
+  footerLink: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  } as ViewStyle,
+  footerLinkText: {
+    fontSize: 14,
+    fontFamily: Fonts.body,
+  } as TextStyle,
+  footerLinkAction: {
+    fontSize: 14,
+    fontFamily: Fonts.accent,
+    ...Platform.select({
+      web: { cursor: 'pointer' as any },
+    }),
   } as TextStyle,
 });

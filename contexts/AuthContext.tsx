@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { logout, getUserProfile } from '../services/api';
+import { logout, getUserProfile, login as apiLogin, signup as apiSignup } from '../services/api';
+import type { LoginData, SignupData } from '../services/api';
 import { supabase } from '../lib/supabase';
 import { logger } from '../utils/logger';
 import {
@@ -32,6 +33,10 @@ interface AuthContextType {
   signInWithApple: () => Promise<void>;
   /** Sign in with Microsoft Azure AD (web: redirects to Microsoft and back). */
   signInWithAzure: () => Promise<void>;
+  /** Sign in with email + password (DRF Token auth). */
+  loginWithEmail: (data: LoginData) => Promise<void>;
+  /** Register with email + password (DRF Token auth). */
+  signupWithEmail: (data: SignupData) => Promise<void>;
   updateUserFromServer: (user: User) => Promise<void>;
 }
 
@@ -151,6 +156,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
+  const loginWithEmail = async (data: LoginData) => {
+    const result = await apiLogin(data);
+    setToken(result.token);
+    setUser(result.user);
+    await setStoredToken(result.token);
+    await setStoredUser(JSON.stringify(result.user));
+  };
+
+  const signupWithEmail = async (data: SignupData) => {
+    const result = await apiSignup(data);
+    setToken(result.token);
+    setUser(result.user);
+    await setStoredToken(result.token);
+    await setStoredUser(JSON.stringify(result.user));
+  };
+
   const updateUserFromServer = async (nextUser: User) => {
     setUser(nextUser);
     try {
@@ -171,6 +192,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         signInWithApple,
         signInWithAzure,
+        loginWithEmail,
+        signupWithEmail,
         updateUserFromServer,
       }}
     >
