@@ -648,12 +648,12 @@ const styles = StyleSheet.create({
     }),
   },
   logo: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     ...Platform.select({
       web: {
-        width: 44,
-        height: 44,
+        width: 52,
+        height: 52,
       },
     }),
   },

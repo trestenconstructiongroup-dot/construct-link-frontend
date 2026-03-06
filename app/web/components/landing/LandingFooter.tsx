@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     gap: 12,
   } as ViewStyle,
   footerLogo: {
-    width: 40,
-    height: 40,
+    width: 52,
+    height: 52,
   },
 });
 
