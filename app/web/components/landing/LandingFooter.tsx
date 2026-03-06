@@ -186,7 +186,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         </RNText>
         <View style={styles.footerContactRow}>
           <Text style={[styles.footerMeta, styles.footerTextCentered, { color: colors.text }]}>
-            +254 (7) 9639‑7296 · info@trestenconstruction.com
+            +254 738 560 675 · info@trestenconstruction.com
           </Text>
         </View>
       </View>
@@ -230,7 +230,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         </RNText>
         <View style={styles.footerContactRow}>
           <Text style={[styles.footerMeta, { color: colors.text }]}>
-            +254 (7) 9639‑7296 · info@trestenconstruction.com
+            +254 738 560 675 · info@trestenconstruction.com
           </Text>
         </View>
       </View>
