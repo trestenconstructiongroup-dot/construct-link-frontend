@@ -19,10 +19,7 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
   const { data: unreadData } = useUnreadCount(isAuthenticated ? token : null);
   const unreadCount = unreadData?.unread_count ?? 0;
 
-  const contentPaddingTop =
-    Platform.OS === 'web'
-      ? (isSmallScreen ? 56 : 80)
-      : 0;
+  const contentPaddingTop = Platform.OS === 'web' ? 80 : 0;
 
   return (
     <View style={styles.container}>
