@@ -13,6 +13,7 @@ import {
   Text as RNText,
   Linking,
   Platform,
+  TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -458,9 +459,6 @@ export default function SubscriptionPage() {
     </WebLayout>
   );
 }
-
-// Need TextInput import
-import { TextInput } from 'react-native';
 
 const styles = StyleSheet.create({
   page: {
