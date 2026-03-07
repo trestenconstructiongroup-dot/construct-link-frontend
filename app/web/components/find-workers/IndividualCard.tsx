@@ -38,7 +38,7 @@ const AVAILABILITY_LABELS: Record<string, string> = {
 };
 
 const styles = StyleSheet.create({
-  card: { flex: 1, minWidth: 240, maxWidth: 480, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
+  card: { flex: 1, minWidth: 240, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 } as ViewStyle,
   avatar: { width: 56, height: 56, borderRadius: 28 } as ImageStyle,
   avatarPlaceholder: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' } as ViewStyle,
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   availabilityBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, marginTop: 4, alignSelf: 'flex-start' } as ViewStyle,
   availabilityDot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 } as ViewStyle,
   availabilityText: { fontSize: 11, fontWeight: '600' } as TextStyle,
-  cardFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTopWidth: 1, gap: 12 } as ViewStyle,
+  cardFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto' as any, paddingTop: 12, borderTopWidth: 1, gap: 12 } as ViewStyle,
   viewBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, borderWidth: 1 } as ViewStyle,
   viewBtnText: { fontSize: 14, fontWeight: '600' } as TextStyle,
   contactBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 } as ViewStyle,

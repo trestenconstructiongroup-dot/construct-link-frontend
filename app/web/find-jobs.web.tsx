@@ -99,7 +99,7 @@ export default function FindJobsWebPage() {
 
   const renderItem = useCallback(
     ({ item }: { item: JobSummary }) => (
-      <View style={isSmall ? { width: '100%' } : undefined}>
+      <View style={isSmall ? styles.cardWrapSmall : styles.cardWrap}>
         <JobCard
           job={item}
           colors={colors}
@@ -583,11 +583,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 20,
+    alignItems: 'stretch',
   } as ViewStyle,
   cardGridSmall: {
     flexDirection: 'column',
-    alignItems: 'stretch',
     gap: 12,
+  } as ViewStyle,
+  cardWrap: {
+    flexBasis: '48%',
+    flexGrow: 0,
+    flexShrink: 0,
+    display: 'flex',
+  } as ViewStyle,
+  cardWrapSmall: {
+    width: '100%',
+    display: 'flex',
   } as ViewStyle,
   loadMore: {
     alignSelf: 'center',

@@ -208,7 +208,7 @@ export default function FindWorkersPage() {
 
   const renderItem = useCallback(
     ({ item }: { item: WorkerSearchResult }) => (
-      <View style={isSmall ? { width: '100%' } : undefined}>
+      <View style={isSmall ? styles.cardWrapSmall : styles.cardWrap}>
         {isIndividual(item) ? (
           <IndividualCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
         ) : (
@@ -551,8 +551,10 @@ const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 48 } as ViewStyle,
   emptyText: { fontSize: 16, textAlign: 'center' } as TextStyle,
   resultCount: { fontSize: 14, marginBottom: 16 } as TextStyle,
-  cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 20 } as ViewStyle,
-  cardGridSmall: { flexDirection: 'column', alignItems: 'stretch', gap: 12 } as ViewStyle,
+  cardGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 20, alignItems: 'stretch' } as ViewStyle,
+  cardGridSmall: { flexDirection: 'column', gap: 12 } as ViewStyle,
+  cardWrap: { flexBasis: '48%', flexGrow: 0, flexShrink: 0, display: 'flex' } as ViewStyle,
+  cardWrapSmall: { width: '100%', display: 'flex' } as ViewStyle,
   loadMore: { alignSelf: 'center', marginTop: 32, paddingHorizontal: 32, paddingVertical: 14, borderRadius: 10 } as ViewStyle,
   loadMoreText: { fontSize: 16, fontWeight: '600', color: '#fff' } as TextStyle,
   authOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, alignItems: 'center', justifyContent: 'center' } as ViewStyle,
