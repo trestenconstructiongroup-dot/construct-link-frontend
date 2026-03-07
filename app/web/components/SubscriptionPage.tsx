@@ -14,6 +14,7 @@ import {
   Linking,
   Platform,
   TextInput,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors, Fonts } from '../../../constants/theme';
@@ -55,6 +56,7 @@ export default function SubscriptionPage() {
   const { token, user } = useAuth();
   const { isDark } = useTheme();
   const colors = isDark ? Colors.dark : Colors.light;
+  const { width } = useWindowDimensions();
 
   const { data: subData, isLoading: subLoading, isError: subError, refetch: refetchSub } = useSubscriptionStatus(token);
   const initMutation = useInitializeSubscription();
@@ -467,7 +469,7 @@ export default function SubscriptionPage() {
           )}
 
         </View>
-        <LandingFooter />
+        <LandingFooter isSmallScreen={width < 768} colors={colors} />
       </ScrollView>
     </WebLayout>
   );
