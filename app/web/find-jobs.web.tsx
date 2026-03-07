@@ -593,11 +593,9 @@ const styles = StyleSheet.create({
     flexBasis: '48%',
     flexGrow: 0,
     flexShrink: 0,
-    display: 'flex',
   } as ViewStyle,
   cardWrapSmall: {
     width: '100%',
-    display: 'flex',
   } as ViewStyle,
   loadMore: {
     alignSelf: 'center',

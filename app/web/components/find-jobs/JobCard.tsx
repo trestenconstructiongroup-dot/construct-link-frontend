@@ -36,7 +36,7 @@ export interface JobCardProps {
 }
 
 const styles = StyleSheet.create({
-  card: { flex: 1, minWidth: 240, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
+  card: { flexGrow: 1, minWidth: 240, padding: 20, borderRadius: 12, borderWidth: 1 } as ViewStyle,
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 } as ViewStyle,
   cardTitle: { fontSize: 18, fontWeight: '700', flex: 1 } as TextStyle,
   badges: { flexDirection: 'row', gap: 6 } as ViewStyle,
