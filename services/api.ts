@@ -67,19 +67,18 @@ type ApiRequestOptions = RequestInit & {
       const text = await res.text();
     
       if (!res.ok) {
-        // Try to parse as JSON for better error messages
+        let errorData: any;
         try {
-          const errorData = JSON.parse(text);
-          const error = new Error(JSON.stringify(errorData));
-          (error as any).status = res.status;
-          (error as any).data = errorData;
-          throw error;
-        } catch (parseError) {
-          // If not JSON, throw with the text
-          const error = new Error(text || `Request failed with status ${res.status}`);
-          (error as any).status = res.status;
-          throw error;
+          errorData = JSON.parse(text);
+        } catch {
+          // Not JSON
         }
+        const error = new Error(
+          errorData ? JSON.stringify(errorData) : text || `Request failed with status ${res.status}`
+        );
+        (error as any).status = res.status;
+        if (errorData) (error as any).data = errorData;
+        throw error;
       }
     
       // Parse response
@@ -1190,7 +1189,14 @@ type ApiRequestOptions = RequestInit & {
       });
     } catch (err: any) {
       // 404 is expected when no recipient is set up
-      if (err?.status === 404) return null;
+      // Check both .status and message content since apiFetch error handling
+      // may not always preserve the status property
+      if (
+        err?.status === 404 ||
+        err?.message?.includes('No payout details configured')
+      ) {
+        return null;
+      }
       throw err;
     }
   }
