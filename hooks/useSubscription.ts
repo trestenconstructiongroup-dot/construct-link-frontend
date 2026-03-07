@@ -20,6 +20,7 @@ export function useSubscriptionStatus(token: string | null) {
     queryKey: ['subscriptionStatus'],
     queryFn: () => getSubscriptionStatus(token!),
     enabled: !!token,
+    retry: false,
   });
 }
 
@@ -55,5 +56,6 @@ export function usePaymentHistory(token: string | null, page = 1) {
     queryKey: ['paymentHistory', page],
     queryFn: () => getPaymentHistory(token!, page),
     enabled: !!token,
+    retry: false,
   });
 }

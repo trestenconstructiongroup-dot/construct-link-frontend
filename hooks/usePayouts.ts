@@ -50,6 +50,7 @@ export function usePayoutList(token: string | null, page = 1) {
     queryKey: ['payouts', page],
     queryFn: () => getPayouts(token!, page),
     enabled: !!token,
+    retry: false,
   });
 }
 

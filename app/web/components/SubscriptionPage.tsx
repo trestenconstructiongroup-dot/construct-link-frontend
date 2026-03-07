@@ -15,7 +15,7 @@ import {
   Platform,
   TextInput,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -53,7 +53,6 @@ const PAYMENT_STATUS_COLORS: Record<string, string> = {
 };
 
 export default function SubscriptionPage() {
-  const router = useRouter();
   const params = useLocalSearchParams<{ payment?: string; reference?: string }>();
   const { token, user } = useAuth();
   const { isDark } = useTheme();
@@ -80,9 +79,8 @@ export default function SubscriptionPage() {
 
   // Auto-verify if redirected back from Paystack
   useEffect(() => {
-    if (params.payment === 'verify' && token) {
-      // Get reference from URL params or localStorage
-      const ref = params.reference || (Platform.OS === 'web' ? new URLSearchParams(window.location.search).get('reference') : null);
+    if (params?.payment === 'verify' && token) {
+      const ref = params?.reference || (Platform.OS === 'web' ? new URLSearchParams(window.location.search).get('reference') : null);
       if (ref) {
         verifyMutation.mutate(
           { token, reference: ref },
@@ -90,7 +88,7 @@ export default function SubscriptionPage() {
         );
       }
     }
-  }, [params.payment]);
+  }, [params?.payment]);
 
   const handleSubscribe = async () => {
     if (!token) return;
@@ -248,7 +246,6 @@ export default function SubscriptionPage() {
               </View>
             ) : (
               <View style={styles.tableContainer}>
-                {/* Table header */}
                 <View style={[styles.tableRow, styles.tableHeader, { borderBottomColor: colors.border }]}>
                   <RNText style={[styles.tableHeaderCell, styles.cellDate, { color: colors.textSecondary, fontFamily: Fonts.accent }]}>Date</RNText>
                   <RNText style={[styles.tableHeaderCell, styles.cellType, { color: colors.textSecondary, fontFamily: Fonts.accent }]}>Type</RNText>
@@ -334,7 +331,6 @@ export default function SubscriptionPage() {
                     </RNText>
                   )}
 
-                  {/* Type toggle */}
                   <View style={styles.toggleRow}>
                     <Pressable
                       style={[
