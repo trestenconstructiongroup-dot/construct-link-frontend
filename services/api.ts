@@ -1055,3 +1055,177 @@ type ApiRequestOptions = RequestInit & {
       authToken: token,
     });
   }
+
+  // ---- Payments ----
+
+  export interface PaymentConfig {
+    public_key: string;
+    plan_code: string;
+    amount: number;
+    currency: string;
+  }
+
+  export interface SubscriptionData {
+    id: number;
+    status: string;
+    paystack_subscription_code: string;
+    current_period_start: string | null;
+    current_period_end: string | null;
+    created_at: string;
+    updated_at: string;
+  }
+
+  export interface SubscriptionStatusResponse {
+    status: string;
+    subscription: SubscriptionData | null;
+  }
+
+  export interface InitializeSubscriptionResponse {
+    authorization_url: string;
+    access_code: string;
+    reference: string;
+  }
+
+  export interface VerifyPaymentResponse {
+    status: string;
+    subscription?: SubscriptionData;
+  }
+
+  export interface PaymentRecord {
+    id: number;
+    payment_type: string;
+    amount: string;
+    currency: string;
+    reference: string;
+    status: string;
+    created_at: string;
+  }
+
+  export interface TransferRecipientData {
+    id: number;
+    recipient_type: string;
+    account_name: string;
+    account_number: string;
+    bank_code: string;
+    created_at: string;
+  }
+
+  export interface PayoutRecord {
+    id: number;
+    amount: string;
+    currency: string;
+    reference: string;
+    reason: string;
+    status: string;
+    created_at: string;
+  }
+
+  export interface PaginatedResponse<T> {
+    count: number;
+    next: number | null;
+    results: T[];
+  }
+
+  /** Get Paystack public config for the frontend. */
+  export function getPaymentConfig(token: string): Promise<PaymentConfig> {
+    return apiFetch("/api/payments/config/", {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  /** Get the current user's subscription status. */
+  export function getSubscriptionStatus(
+    token: string,
+  ): Promise<SubscriptionStatusResponse> {
+    return apiFetch("/api/payments/subscription/", {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  /** Initialize a subscription payment. Returns a Paystack checkout URL. */
+  export function initializeSubscription(
+    token: string,
+    callbackUrl?: string,
+  ): Promise<InitializeSubscriptionResponse> {
+    return apiFetch("/api/payments/subscribe/", {
+      method: "POST",
+      authToken: token,
+      body: JSON.stringify({ callback_url: callbackUrl || "" }),
+    });
+  }
+
+  /** Verify a payment after Paystack checkout redirect. */
+  export function verifyPayment(
+    token: string,
+    reference: string,
+  ): Promise<VerifyPaymentResponse> {
+    return apiFetch("/api/payments/verify/", {
+      method: "POST",
+      authToken: token,
+      body: JSON.stringify({ reference }),
+    });
+  }
+
+  /** Get the user's payment history. */
+  export function getPaymentHistory(
+    token: string,
+    page = 1,
+  ): Promise<PaginatedResponse<PaymentRecord>> {
+    return apiFetch(`/api/payments/history/?page=${page}`, {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  /** Get the user's saved payout/transfer recipient. */
+  export function getTransferRecipient(
+    token: string,
+  ): Promise<TransferRecipientData> {
+    return apiFetch("/api/payments/recipient/", {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  /** Register or update payout details (bank/mobile money). */
+  export function createTransferRecipient(
+    token: string,
+    payload: {
+      recipient_type: string;
+      account_name: string;
+      account_number: string;
+      bank_code?: string;
+    },
+  ): Promise<TransferRecipientData> {
+    return apiFetch("/api/payments/recipient/", {
+      method: "POST",
+      authToken: token,
+      body: JSON.stringify(payload),
+    });
+  }
+
+  /** Get the user's payout history. */
+  export function getPayouts(
+    token: string,
+    page = 1,
+  ): Promise<PaginatedResponse<PayoutRecord>> {
+    return apiFetch(`/api/payments/payouts/?page=${page}`, {
+      method: "GET",
+      authToken: token,
+    });
+  }
+
+  /** Initiate a payout to the user's registered account. */
+  export function initiatePayout(
+    token: string,
+    amount: number,
+    reason?: string,
+  ): Promise<PayoutRecord> {
+    return apiFetch("/api/payments/payout/", {
+      method: "POST",
+      authToken: token,
+      body: JSON.stringify({ amount, reason: reason || "" }),
+    });
+  }
