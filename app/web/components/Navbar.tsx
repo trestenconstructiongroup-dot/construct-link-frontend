@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         gap: 40,
-        zIndex: 1001,
+        zIndex: 1100,
         position: 'relative' as any,
       },
     }),
