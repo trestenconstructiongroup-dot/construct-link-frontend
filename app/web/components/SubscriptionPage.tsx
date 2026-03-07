@@ -15,7 +15,6 @@ import {
   Platform,
   TextInput,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -53,7 +52,6 @@ const PAYMENT_STATUS_COLORS: Record<string, string> = {
 };
 
 export default function SubscriptionPage() {
-  const params = useLocalSearchParams<{ payment?: string; reference?: string }>();
   const { token, user } = useAuth();
   const { isDark } = useTheme();
   const colors = isDark ? Colors.dark : Colors.light;
@@ -79,16 +77,17 @@ export default function SubscriptionPage() {
 
   // Auto-verify if redirected back from Paystack
   useEffect(() => {
-    if (params?.payment === 'verify' && token) {
-      const ref = params?.reference || (Platform.OS === 'web' ? new URLSearchParams(window.location.search).get('reference') : null);
-      if (ref) {
-        verifyMutation.mutate(
-          { token, reference: ref },
-          { onSuccess: () => refetchSub() },
-        );
-      }
+    if (Platform.OS !== 'web' || !token) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const payment = urlParams.get('payment');
+    const ref = urlParams.get('reference');
+    if (payment === 'verify' && ref) {
+      verifyMutation.mutate(
+        { token, reference: ref },
+        { onSuccess: () => refetchSub() },
+      );
     }
-  }, [params?.payment]);
+  }, [token]);
 
   const handleSubscribe = async () => {
     if (!token) return;
