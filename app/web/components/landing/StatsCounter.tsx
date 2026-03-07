@@ -28,39 +28,45 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
+    const scope = containerRef.current;
+
     if (isSmallScreen) {
-      // Mobile: IntersectionObserver
-      const cardTween = gsap.from('.stat-card', {
-        y: 60, opacity: 0, stagger: 0.15, duration: 0.6,
-        ease: 'power3.out', paused: true,
-      });
-      const counterTweens: gsap.core.Tween[] = [];
-      STATS.forEach((stat, i) => {
-        const el = numberRefs.current[i];
-        if (!el) return;
-        const obj = { val: 0 };
-        counterTweens.push(gsap.to(obj, {
-          val: stat.value, duration: 2, ease: 'power1.out', paused: true,
-          onUpdate: () => { el.textContent = Math.floor(obj.val).toLocaleString() + stat.suffix; },
-        }));
-      });
-      const obs = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting) {
-            cardTween.play();
-            counterTweens.forEach((t) => t.play());
-          } else {
-            cardTween.reverse();
-            counterTweens.forEach((t) => t.reverse());
-          }
-        },
-        { threshold: 0.1 },
-      );
-      obs.observe(containerRef.current);
+      // Mobile: IntersectionObserver, scoped to container
+      const ctx = gsap.context(() => {
+        const cardTween = gsap.from('.stat-card', {
+          y: 60, opacity: 0, stagger: 0.15, duration: 0.6,
+          ease: 'power3.out', paused: true,
+        });
+        const counterTweens: gsap.core.Tween[] = [];
+        STATS.forEach((stat, i) => {
+          const el = numberRefs.current[i];
+          if (!el) return;
+          const obj = { val: 0 };
+          counterTweens.push(gsap.to(obj, {
+            val: stat.value, duration: 2, ease: 'power1.out', paused: true,
+            onUpdate: () => { el.textContent = Math.floor(obj.val).toLocaleString() + stat.suffix; },
+          }));
+        });
+        const obs = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) {
+              cardTween.play();
+              counterTweens.forEach((t) => t.play());
+            } else {
+              cardTween.reverse();
+              counterTweens.forEach((t) => t.reverse());
+            }
+          },
+          { threshold: 0.1 },
+        );
+        obs.observe(scope);
+        // Store for cleanup
+        (ctx as any)._obs = obs;
+      }, scope);
+
       return () => {
-        obs.disconnect();
-        cardTween.kill();
-        counterTweens.forEach((t) => t.kill());
+        (ctx as any)._obs?.disconnect();
+        ctx.revert();
       };
     }
 
@@ -69,7 +75,7 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
     const ctx = gsap.context(() => {
       gsap.from('.stat-card', {
         y: 60, opacity: 0, stagger: 0.15, duration: 0.6, ease: 'power3.out',
-        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+        scrollTrigger: { trigger: scope, start: 'top 85%', toggleActions: ta },
       });
       STATS.forEach((stat, i) => {
         const el = numberRefs.current[i];
@@ -77,14 +83,14 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
         const obj = { val: 0 };
         gsap.to(obj, {
           val: stat.value, duration: 2, ease: 'power1.out',
-          scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+          scrollTrigger: { trigger: scope, start: 'top 85%', toggleActions: ta },
           onUpdate: () => { el.textContent = Math.floor(obj.val).toLocaleString() + stat.suffix; },
         });
       });
-    }, containerRef.current);
+    }, scope);
 
     return () => ctx.revert();
-  }, []);
+  }, [isSmallScreen]);
 
   if (Platform.OS !== 'web') {
     return (

@@ -131,39 +131,45 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
   const footerContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (Platform.OS !== 'web') return;
+    if (Platform.OS !== 'web' || !footerContentRef.current) return;
+
+    const scope = footerContentRef.current;
 
     if (isSmallScreen) {
-      // Mobile: IntersectionObserver
-      if (!footerContentRef.current) return;
-      const tween = gsap.from('.footer-reveal', {
-        y: 40, opacity: 0, stagger: 0.1, duration: 0.6,
-        ease: 'power3.out', paused: true,
-      });
-      const obs = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting) { tween.play(); }
-          else { tween.reverse(); }
-        },
-        { threshold: 0.1 },
-      );
-      obs.observe(footerContentRef.current);
-      return () => { obs.disconnect(); tween.kill(); };
+      // Mobile: IntersectionObserver, scoped to container
+      const ctx = gsap.context(() => {
+        const tween = gsap.from('.footer-reveal', {
+          y: 40, opacity: 0, stagger: 0.1, duration: 0.6,
+          ease: 'power3.out', paused: true,
+        });
+        const obs = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) { tween.play(); }
+            else { tween.reverse(); }
+          },
+          { threshold: 0.1 },
+        );
+        obs.observe(scope);
+        (ctx as any)._obs = obs;
+      }, scope);
+
+      return () => {
+        (ctx as any)._obs?.disconnect();
+        ctx.revert();
+      };
     }
 
     // Desktop: ScrollTrigger
     const ta = 'play reverse play reverse';
     const ctx = gsap.context(() => {
-      if (footerContentRef.current) {
-        gsap.from('.footer-reveal', {
-          y: 40, opacity: 0, stagger: 0.1, duration: 0.6, ease: 'power3.out',
-          scrollTrigger: { trigger: footerContentRef.current, start: 'top 90%', toggleActions: ta },
-        });
-      }
-    });
+      gsap.from('.footer-reveal', {
+        y: 40, opacity: 0, stagger: 0.1, duration: 0.6, ease: 'power3.out',
+        scrollTrigger: { trigger: scope, start: 'top 90%', toggleActions: ta },
+      });
+    }, scope);
 
     return () => ctx.revert();
-  }, []);
+  }, [isSmallScreen]);
 
   const footerColumns = isSmallScreen ? (
     <>

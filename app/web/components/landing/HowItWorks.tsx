@@ -24,24 +24,34 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
+    const scope = containerRef.current;
+
     if (isSmallScreen) {
-      // Mobile: IntersectionObserver
-      const t1 = gsap.from('.hiw-heading', {
-        y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', paused: true,
-      });
-      const t2 = gsap.from('.hiw-card', {
-        y: 80, opacity: 0, scale: 0.9, duration: 0.7, stagger: 0.2,
-        ease: 'power3.out', paused: true,
-      });
-      const obs = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting) { t1.play(); t2.play(); }
-          else { t1.reverse(); t2.reverse(); }
-        },
-        { threshold: 0.1 },
-      );
-      obs.observe(containerRef.current);
-      return () => { obs.disconnect(); t1.kill(); t2.kill(); };
+      // Mobile: IntersectionObserver, scoped to container
+      const ctx = gsap.context(() => {
+        const t1 = gsap.from('.hiw-heading', {
+          y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', paused: true,
+        });
+        const t2 = gsap.from('.hiw-card', {
+          y: 80, opacity: 0, scale: 0.9, duration: 0.7, stagger: 0.2,
+          ease: 'power3.out', paused: true,
+        });
+        const obs = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) { t1.play(); t2.play(); }
+            else { t1.reverse(); t2.reverse(); }
+          },
+          { threshold: 0.1 },
+        );
+        obs.observe(scope);
+        // Store for cleanup
+        (ctx as any)._obs = obs;
+      }, scope);
+
+      return () => {
+        (ctx as any)._obs?.disconnect();
+        ctx.revert();
+      };
     }
 
     // Desktop: ScrollTrigger
@@ -49,16 +59,16 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
     const ctx = gsap.context(() => {
       gsap.from('.hiw-heading', {
         y: 40, opacity: 0, duration: 0.6, ease: 'power3.out',
-        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+        scrollTrigger: { trigger: scope, start: 'top 85%', toggleActions: ta },
       });
       gsap.from('.hiw-card', {
         y: 80, opacity: 0, scale: 0.9, duration: 0.7, stagger: 0.2, ease: 'power3.out',
-        scrollTrigger: { trigger: containerRef.current!, start: 'top 80%', toggleActions: ta },
+        scrollTrigger: { trigger: scope, start: 'top 80%', toggleActions: ta },
       });
-    }, containerRef.current);
+    }, scope);
 
     return () => ctx.revert();
-  }, []);
+  }, [isSmallScreen]);
 
   const content = (
     <>

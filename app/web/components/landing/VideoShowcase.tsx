@@ -26,25 +26,34 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
+    const scope = containerRef.current;
+
     if (isSmallScreen) {
-      // Mobile: IntersectionObserver (ScrollTrigger can't detect scroll in RNW containers)
-      const t1 = gsap.from('.vs-word', {
-        y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
-        ease: 'power3.out', paused: true,
-      });
-      const t2 = gsap.from('.vs-video', {
-        opacity: 0, y: 60, scale: 0.95, duration: 0.8,
-        ease: 'power2.out', paused: true,
-      });
-      const obs = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting) { t1.play(); t2.play(); }
-          else { t1.reverse(); t2.reverse(); }
-        },
-        { threshold: 0.1 },
-      );
-      obs.observe(containerRef.current);
-      return () => { obs.disconnect(); t1.kill(); t2.kill(); };
+      // Mobile: IntersectionObserver, scoped to container
+      const ctx = gsap.context(() => {
+        const t1 = gsap.from('.vs-word', {
+          y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
+          ease: 'power3.out', paused: true,
+        });
+        const t2 = gsap.from('.vs-video', {
+          opacity: 0, y: 60, scale: 0.95, duration: 0.8,
+          ease: 'power2.out', paused: true,
+        });
+        const obs = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) { t1.play(); t2.play(); }
+            else { t1.reverse(); t2.reverse(); }
+          },
+          { threshold: 0.1 },
+        );
+        obs.observe(scope);
+        (ctx as any)._obs = obs;
+      }, scope);
+
+      return () => {
+        (ctx as any)._obs?.disconnect();
+        ctx.revert();
+      };
     }
 
     // Desktop: ScrollTrigger
@@ -52,16 +61,16 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
     const ctx = gsap.context(() => {
       gsap.from('.vs-word', {
         y: '100%', opacity: 0, duration: 0.5, stagger: 0.04, ease: 'power3.out',
-        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+        scrollTrigger: { trigger: scope, start: 'top 85%', toggleActions: ta },
       });
       gsap.from('.vs-video', {
         opacity: 0, y: 60, scale: 0.95, duration: 0.8, ease: 'power2.out',
         scrollTrigger: { trigger: '.vs-video', start: 'top 85%', toggleActions: ta },
       });
-    }, containerRef.current);
+    }, scope);
 
     return () => ctx.revert();
-  }, []);
+  }, [isSmallScreen]);
 
   const headingWords = HEADING_TEXT.split(' ');
 

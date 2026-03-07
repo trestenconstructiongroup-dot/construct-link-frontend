@@ -29,36 +29,45 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
+    const scope = containerRef.current;
+
     if (isSmallScreen) {
-      // Mobile: IntersectionObserver for heading + timed auto-scroll for track
-      const headingTween = gsap.from('.tm-letter', {
-        yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.03,
-        ease: 'power4.out', paused: true,
-      });
-      const tweens: gsap.core.Tween[] = [headingTween];
-
-      const track = trackRef.current;
-      if (track) {
-        const cardWidth = window.innerWidth * 0.8;
-        const gap = 32;
-        const totalTrackWidth = TESTIMONIALS.length * (cardWidth + gap) - gap;
-        const viewportWidth = containerRef.current!.offsetWidth;
-        const scrollDistance = Math.max(0, totalTrackWidth - viewportWidth);
-        const trackTween = gsap.to(track, {
-          x: -scrollDistance, duration: 10, ease: 'power1.inOut', paused: true,
+      // Mobile: IntersectionObserver, scoped to container
+      const ctx = gsap.context(() => {
+        const headingTween = gsap.from('.tm-letter', {
+          yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.03,
+          ease: 'power4.out', paused: true,
         });
-        tweens.push(trackTween);
-      }
+        const tweens: gsap.core.Tween[] = [headingTween];
 
-      const obs = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting) { tweens.forEach((t) => t.play()); }
-          else { tweens.forEach((t) => t.reverse()); }
-        },
-        { threshold: 0.1 },
-      );
-      obs.observe(containerRef.current);
-      return () => { obs.disconnect(); tweens.forEach((t) => t.kill()); };
+        const track = trackRef.current;
+        if (track) {
+          const cardWidth = window.innerWidth * 0.8;
+          const gap = 32;
+          const totalTrackWidth = TESTIMONIALS.length * (cardWidth + gap) - gap;
+          const viewportWidth = scope.offsetWidth;
+          const scrollDistance = Math.max(0, totalTrackWidth - viewportWidth);
+          const trackTween = gsap.to(track, {
+            x: -scrollDistance, duration: 10, ease: 'power1.inOut', paused: true,
+          });
+          tweens.push(trackTween);
+        }
+
+        const obs = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) { tweens.forEach((t) => t.play()); }
+            else { tweens.forEach((t) => t.reverse()); }
+          },
+          { threshold: 0.1 },
+        );
+        obs.observe(scope);
+        (ctx as any)._obs = obs;
+      }, scope);
+
+      return () => {
+        (ctx as any)._obs?.disconnect();
+        ctx.revert();
+      };
     }
 
     // Desktop: ScrollTrigger

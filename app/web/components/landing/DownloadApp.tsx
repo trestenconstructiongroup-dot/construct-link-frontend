@@ -27,28 +27,37 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
   useEffect(() => {
     if (Platform.OS !== 'web' || !containerRef.current) return;
 
+    const scope = containerRef.current;
+
     if (isSmallScreen) {
-      // Mobile: IntersectionObserver
-      const t1 = gsap.from('.da-word', {
-        y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
-        ease: 'power3.out', paused: true,
-      });
-      const t2 = gsap.from('.da-sub', {
-        y: 30, opacity: 0, duration: 0.6, ease: 'power2.out', paused: true,
-      });
-      const t3 = gsap.from('.da-badge', {
-        opacity: 0, y: 30, scale: 0.8, stagger: 0.2, duration: 0.6,
-        ease: 'back.out(1.7)', paused: true,
-      });
-      const obs = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting) { t1.play(); t2.play(); t3.play(); }
-          else { t1.reverse(); t2.reverse(); t3.reverse(); }
-        },
-        { threshold: 0.1 },
-      );
-      obs.observe(containerRef.current);
-      return () => { obs.disconnect(); t1.kill(); t2.kill(); t3.kill(); };
+      // Mobile: IntersectionObserver, scoped to container
+      const ctx = gsap.context(() => {
+        const t1 = gsap.from('.da-word', {
+          y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
+          ease: 'power3.out', paused: true,
+        });
+        const t2 = gsap.from('.da-sub', {
+          y: 30, opacity: 0, duration: 0.6, ease: 'power2.out', paused: true,
+        });
+        const t3 = gsap.from('.da-badge', {
+          opacity: 0, y: 30, scale: 0.8, stagger: 0.2, duration: 0.6,
+          ease: 'back.out(1.7)', paused: true,
+        });
+        const obs = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) { t1.play(); t2.play(); t3.play(); }
+            else { t1.reverse(); t2.reverse(); t3.reverse(); }
+          },
+          { threshold: 0.1 },
+        );
+        obs.observe(scope);
+        (ctx as any)._obs = obs;
+      }, scope);
+
+      return () => {
+        (ctx as any)._obs?.disconnect();
+        ctx.revert();
+      };
     }
 
     // Desktop: ScrollTrigger
@@ -56,20 +65,20 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
     const ctx = gsap.context(() => {
       gsap.from('.da-word', {
         y: '100%', opacity: 0, duration: 0.5, stagger: 0.04, ease: 'power3.out',
-        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+        scrollTrigger: { trigger: scope, start: 'top 85%', toggleActions: ta },
       });
       gsap.from('.da-sub', {
         y: 30, opacity: 0, duration: 0.6, ease: 'power2.out',
-        scrollTrigger: { trigger: containerRef.current!, start: 'top 85%', toggleActions: ta },
+        scrollTrigger: { trigger: scope, start: 'top 85%', toggleActions: ta },
       });
       gsap.from('.da-badge', {
         opacity: 0, y: 30, scale: 0.8, stagger: 0.2, duration: 0.6, ease: 'back.out(1.7)',
-        scrollTrigger: { trigger: containerRef.current!, start: 'top 80%', toggleActions: ta },
+        scrollTrigger: { trigger: scope, start: 'top 80%', toggleActions: ta },
       });
-    }, containerRef.current);
+    }, scope);
 
     return () => ctx.revert();
-  }, []);
+  }, [isSmallScreen]);
 
   const headingWords = HEADING_TEXT.split(' ');
 
