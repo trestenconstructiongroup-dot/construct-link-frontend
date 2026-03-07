@@ -360,6 +360,16 @@ export function StaggeredMobileMenu({
                 )}
                 <button
                   type="button"
+                  className="sm-auth-link"
+                  onClick={() => {
+                    onNavItemPress?.('/my-subscription');
+                    onClose();
+                  }}
+                >
+                  My Subscription
+                </button>
+                <button
+                  type="button"
                   className="sm-auth-link sm-auth-link-danger"
                   onClick={() => {
                     onLogout?.();
