@@ -356,6 +356,17 @@ export default function Navbar() {
                     )}
                     <Pressable
                       style={styles.dropdownItem}
+                      onPress={() => {
+                        setIsDropdownOpen(false);
+                        router.push('/my-subscription' as never);
+                      }}
+                    >
+                      <Text style={[styles.dropdownItemText, { color: colors.text }]}>
+                        My Subscription
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.dropdownItem}
                       onPress={handleLogout}
                     >
                       <Text style={[styles.dropdownItemText, { color: colors.error }]}>
@@ -567,6 +578,17 @@ export default function Navbar() {
                   </Text>
                 </Pressable>
               )}
+              <Pressable
+                style={styles.mobileNavLink}
+                onPress={() => {
+                  setIsMobileMenuOpen(false);
+                  router.push('/my-subscription' as never);
+                }}
+              >
+                <Text style={[styles.mobileNavLinkText, { color: colors.text }]}>
+                  My Subscription
+                </Text>
+              </Pressable>
               <Pressable
                 style={styles.mobileLogoutButton}
                 onPress={async () => {
