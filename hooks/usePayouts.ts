@@ -14,11 +14,11 @@ import {
 } from '../services/api';
 
 export function useTransferRecipient(token: string | null) {
-  return useQuery<TransferRecipientData>({
+  return useQuery<TransferRecipientData | null>({
     queryKey: ['transferRecipient'],
     queryFn: () => getTransferRecipient(token!),
     enabled: !!token,
-    retry: false, // 404 is expected when no recipient is set up
+    retry: false,
   });
 }
 

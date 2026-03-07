@@ -1180,13 +1180,19 @@ type ApiRequestOptions = RequestInit & {
   }
 
   /** Get the user's saved payout/transfer recipient. */
-  export function getTransferRecipient(
+  export async function getTransferRecipient(
     token: string,
-  ): Promise<TransferRecipientData> {
-    return apiFetch("/api/payments/recipient/", {
-      method: "GET",
-      authToken: token,
-    });
+  ): Promise<TransferRecipientData | null> {
+    try {
+      return await apiFetch("/api/payments/recipient/", {
+        method: "GET",
+        authToken: token,
+      });
+    } catch (err: any) {
+      // 404 is expected when no recipient is set up
+      if (err?.status === 404) return null;
+      throw err;
+    }
   }
 
   /** Register or update payout details (bank/mobile money). */
