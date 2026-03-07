@@ -81,6 +81,11 @@ type ApiRequestOptions = RequestInit & {
         throw error;
       }
     
+      // 204 No Content or empty body — nothing to parse
+      if (res.status === 204 || !text) {
+        return null;
+      }
+
       // Parse response
       try {
         return JSON.parse(text);
@@ -1183,14 +1188,17 @@ type ApiRequestOptions = RequestInit & {
     token: string,
   ): Promise<TransferRecipientData | null> {
     try {
-      return await apiFetch("/api/payments/recipient/", {
+      const data = await apiFetch("/api/payments/recipient/", {
         method: "GET",
         authToken: token,
       });
+      // Ensure we return null (not "" or a non-object) when there's no recipient
+      if (!data || typeof data !== 'object') {
+        return null;
+      }
+      return data;
     } catch (err: any) {
       // 404 is expected when no recipient is set up
-      // Check both .status and message content since apiFetch error handling
-      // may not always preserve the status property
       if (
         err?.status === 404 ||
         err?.message?.includes('No payout details configured')

@@ -56,12 +56,12 @@ export default function SubscriptionPage() {
   const { isDark } = useTheme();
   const colors = isDark ? Colors.dark : Colors.light;
 
-  const { data: subData, isLoading: subLoading, refetch: refetchSub } = useSubscriptionStatus(token);
+  const { data: subData, isLoading: subLoading, isError: subError, refetch: refetchSub } = useSubscriptionStatus(token);
   const initMutation = useInitializeSubscription();
   const verifyMutation = useVerifyPayment();
-  const { data: historyData, isLoading: historyLoading } = usePaymentHistory(token);
-  const { data: recipientData } = useTransferRecipient(token);
-  const { data: payoutsData } = usePayoutList(token);
+  const { data: historyData, isLoading: historyLoading, isError: historyError } = usePaymentHistory(token);
+  const { data: recipientData, isError: recipientError } = useTransferRecipient(token);
+  const { data: payoutsData, isError: payoutsError } = usePayoutList(token);
 
   // Payout form state
   const [showPayoutForm, setShowPayoutForm] = useState(false);
@@ -151,6 +151,12 @@ export default function SubscriptionPage() {
 
             {subLoading ? (
               <ActivityIndicator size="small" color={BRAND_BLUE} style={{ marginVertical: 20 }} />
+            ) : subError ? (
+              <View style={styles.cardBody}>
+                <RNText style={[styles.errorText, { color: colors.error, fontFamily: Fonts.body }]}>
+                  Unable to load subscription status. Please try again later.
+                </RNText>
+              </View>
             ) : isActive ? (
               <View style={styles.cardBody}>
                 <View style={styles.infoRow}>
@@ -236,6 +242,12 @@ export default function SubscriptionPage() {
 
             {historyLoading ? (
               <ActivityIndicator size="small" color={BRAND_BLUE} style={{ marginVertical: 20 }} />
+            ) : historyError ? (
+              <View style={styles.cardBody}>
+                <RNText style={[styles.errorText, { color: colors.error, fontFamily: Fonts.body }]}>
+                  Unable to load payment history.
+                </RNText>
+              </View>
             ) : !historyData?.results?.length ? (
               <View style={styles.emptyState}>
                 <Ionicons name="document-text-outline" size={40} color={colors.textTertiary} />
@@ -287,7 +299,13 @@ export default function SubscriptionPage() {
                 </View>
               </View>
 
-              {recipientData && !showPayoutForm ? (
+              {recipientError ? (
+                <View style={styles.cardBody}>
+                  <RNText style={[styles.errorText, { color: colors.error, fontFamily: Fonts.body }]}>
+                    Unable to load payout details.
+                  </RNText>
+                </View>
+              ) : recipientData && !showPayoutForm ? (
                 <View style={styles.cardBody}>
                   <View style={styles.infoRow}>
                     <RNText style={[styles.infoLabel, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
