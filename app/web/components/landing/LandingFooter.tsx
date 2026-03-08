@@ -141,7 +141,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
       const ctx = gsap.context(() => {
         const tween = gsap.from('.footer-reveal', {
           y: 40, opacity: 0, stagger: 0.1, duration: 0.6,
-          ease: 'power3.out', paused: true,
+          ease: 'power3.out', paused: true, immediateRender: false,
         });
         obs = new IntersectionObserver(
           ([e]) => {

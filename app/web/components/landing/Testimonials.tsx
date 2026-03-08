@@ -37,7 +37,7 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
       const ctx = gsap.context(() => {
         const headingTween = gsap.from('.tm-letter', {
           yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.03,
-          ease: 'power4.out', paused: true,
+          ease: 'power4.out', paused: true, immediateRender: false,
         });
         const tweens: gsap.core.Tween[] = [headingTween];
 

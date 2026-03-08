@@ -35,14 +35,14 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
       const ctx = gsap.context(() => {
         const t1 = gsap.from('.da-word', {
           y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
-          ease: 'power3.out', paused: true,
+          ease: 'power3.out', paused: true, immediateRender: false,
         });
         const t2 = gsap.from('.da-sub', {
-          y: 30, opacity: 0, duration: 0.6, ease: 'power2.out', paused: true,
+          y: 30, opacity: 0, duration: 0.6, ease: 'power2.out', paused: true, immediateRender: false,
         });
         const t3 = gsap.from('.da-badge', {
           opacity: 0, y: 30, scale: 0.8, stagger: 0.2, duration: 0.6,
-          ease: 'back.out(1.7)', paused: true,
+          ease: 'back.out(1.7)', paused: true, immediateRender: false,
         });
         obs = new IntersectionObserver(
           ([e]) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import Navbar from './components/Navbar';
@@ -21,6 +21,14 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
   const unreadCount = unreadData?.unread_count ?? 0;
 
   const contentPaddingTop = Platform.OS === 'web' ? 80 : 0;
+
+  // Sync <body> background with theme so no white bleed-through in dark mode
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      document.body.style.backgroundColor = colors.background;
+      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    }
+  }, [colors.background, isDark]);
 
   return (
     <View style={styles.container}>

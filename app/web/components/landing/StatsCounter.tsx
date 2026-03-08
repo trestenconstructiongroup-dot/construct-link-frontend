@@ -36,7 +36,7 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
       const ctx = gsap.context(() => {
         const cardTween = gsap.from('.stat-card', {
           y: 60, opacity: 0, stagger: 0.15, duration: 0.6,
-          ease: 'power3.out', paused: true,
+          ease: 'power3.out', paused: true, immediateRender: false,
         });
         const counterTweens: gsap.core.Tween[] = [];
         STATS.forEach((stat, i) => {

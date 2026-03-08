@@ -31,11 +31,11 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
       let obs: IntersectionObserver;
       const ctx = gsap.context(() => {
         const t1 = gsap.from('.hiw-heading', {
-          y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', paused: true,
+          y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', paused: true, immediateRender: false,
         });
         const t2 = gsap.from('.hiw-card', {
           y: 80, opacity: 0, scale: 0.9, duration: 0.7, stagger: 0.2,
-          ease: 'power3.out', paused: true,
+          ease: 'power3.out', paused: true, immediateRender: false,
         });
         obs = new IntersectionObserver(
           ([e]) => {

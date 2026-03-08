@@ -34,11 +34,11 @@ function VideoShowcaseComponent({ isSmallScreen }: VideoShowcaseProps) {
       const ctx = gsap.context(() => {
         const t1 = gsap.from('.vs-word', {
           y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
-          ease: 'power3.out', paused: true,
+          ease: 'power3.out', paused: true, immediateRender: false,
         });
         const t2 = gsap.from('.vs-video', {
           opacity: 0, y: 60, scale: 0.95, duration: 0.8,
-          ease: 'power2.out', paused: true,
+          ease: 'power2.out', paused: true, immediateRender: false,
         });
         obs = new IntersectionObserver(
           ([e]) => {

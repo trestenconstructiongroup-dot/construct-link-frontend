@@ -52,7 +52,7 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
       const ctx = gsap.context(() => {
         const headingTween = gsap.from('.ps-word', {
           y: '100%', opacity: 0, duration: 0.5, stagger: 0.06,
-          ease: 'power3.out', paused: true,
+          ease: 'power3.out', paused: true, immediateRender: false,
         });
         const tweens: gsap.core.Tween[] = [headingTween];
 

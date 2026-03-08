@@ -230,7 +230,7 @@ export default function WebLanding() {
         animateOnView(categoriesRef.current, () =>
           gsap.from('.cat-btn', {
             opacity: 0, scale: 0.6, stagger: 0.08, duration: 0.5,
-            ease: 'back.out(1.7)', paused: true,
+            ease: 'back.out(1.7)', paused: true, immediateRender: false,
           }),
         );
       }
@@ -239,15 +239,15 @@ export default function WebLanding() {
         animateOnView(unlockRef.current, () => [
           gsap.from('.unlock-word', {
             yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.06,
-            ease: 'power4.out', paused: true,
+            ease: 'power4.out', paused: true, immediateRender: false,
           }),
           gsap.from('.unlock-sub', {
             y: 30, opacity: 0, duration: 0.6,
-            ease: 'power2.out', paused: true,
+            ease: 'power2.out', paused: true, immediateRender: false,
           }),
           gsap.from('.unlock-card', {
             opacity: 0, x: 100, duration: 0.8,
-            ease: 'power3.out', paused: true,
+            ease: 'power3.out', paused: true, immediateRender: false,
           }),
         ]);
       }
@@ -256,15 +256,15 @@ export default function WebLanding() {
         animateOnView(faqRef.current, () => [
           gsap.from('.faq-heading', {
             y: 40, opacity: 0, duration: 0.6,
-            ease: 'power3.out', paused: true,
+            ease: 'power3.out', paused: true, immediateRender: false,
           }),
           gsap.from('.faq-item-reveal', {
             y: 40, opacity: 0, stagger: 0.1, duration: 0.5,
-            ease: 'power2.out', paused: true,
+            ease: 'power2.out', paused: true, immediateRender: false,
           }),
           gsap.from('.faq-side-img', {
             opacity: 0, scale: 0.8, duration: 0.8,
-            ease: 'power2.out', paused: true,
+            ease: 'power2.out', paused: true, immediateRender: false,
           }),
         ]);
       }
