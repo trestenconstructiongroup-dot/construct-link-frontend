@@ -8,7 +8,6 @@ import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Colors, Fonts } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
-import HeroCardSwap from './web/components/HeroCardSwap';
 import HeroTextMorpher from './web/components/HeroTextMorpher';
 import { CONSTRUCTION_CATEGORIES, FAQ_ITEMS } from './web/components/landing/_constants';
 import CategoryButton from './web/components/landing/CategoryButton';
@@ -188,7 +187,6 @@ export default function WebLanding() {
 
   // GSAP scroll reveals for inline sections (categories, unlock, FAQ)
   const categoriesRef = useRef<HTMLDivElement>(null);
-  const unlockRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -235,23 +233,6 @@ export default function WebLanding() {
         );
       }
 
-      if (unlockRef.current) {
-        animateOnView(unlockRef.current, () => [
-          gsap.from('.unlock-word', {
-            yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.06,
-            ease: 'power4.out', paused: true, immediateRender: false,
-          }),
-          gsap.from('.unlock-sub', {
-            y: 30, opacity: 0, duration: 0.6,
-            ease: 'power2.out', paused: true, immediateRender: false,
-          }),
-          gsap.from('.unlock-card', {
-            opacity: 0, x: 100, duration: 0.8,
-            ease: 'power3.out', paused: true, immediateRender: false,
-          }),
-        ]);
-      }
-
       if (faqRef.current) {
         animateOnView(faqRef.current, () => [
           gsap.from('.faq-heading', {
@@ -286,36 +267,6 @@ export default function WebLanding() {
           scrollTrigger: {
             trigger: categoriesRef.current,
             start: 'top 85%',
-            toggleActions: ta,
-          },
-        });
-      }
-
-      if (unlockRef.current) {
-        gsap.from('.unlock-word', {
-          yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.06,
-          ease: 'power4.out',
-          scrollTrigger: {
-            trigger: unlockRef.current,
-            start: 'top 85%',
-            toggleActions: ta,
-          },
-        });
-
-        gsap.from('.unlock-sub', {
-          y: 30, opacity: 0, duration: 0.6, ease: 'power2.out',
-          scrollTrigger: {
-            trigger: unlockRef.current,
-            start: 'top 80%',
-            toggleActions: ta,
-          },
-        });
-
-        gsap.from('.unlock-card', {
-          opacity: 0, x: 100, duration: 0.8, ease: 'power3.out',
-          scrollTrigger: {
-            trigger: unlockRef.current,
-            start: 'top 75%',
             toggleActions: ta,
           },
         });
@@ -362,9 +313,6 @@ export default function WebLanding() {
   }, []);
 
   const isSmallScreen = screenWidth < 768;
-  const showHeroImage = screenWidth >= 768;
-
-  const unlockHeadingWords = 'Unlock Opportunities'.split(' ');
 
   return (
     <>
@@ -612,170 +560,6 @@ export default function WebLanding() {
               </View>
             )}
           </View>
-
-          {/* ─── Unlock Opportunities (enhanced with GSAP) ─── */}
-          {Platform.OS === 'web' ? (
-            <div
-              ref={unlockRef}
-              style={{
-                width: '100%',
-                maxWidth: isSmallScreen ? '100%' : 1200,
-                display: 'flex',
-                flexDirection: isSmallScreen ? 'column' : 'row',
-                alignItems: 'center',
-                justifyContent: isSmallScreen ? 'center' : 'space-between',
-                paddingLeft: isSmallScreen ? 16 : 40,
-                paddingRight: isSmallScreen ? 16 : 40,
-                gap: isSmallScreen ? 24 : 32,
-                alignSelf: 'center',
-                margin: '0 auto',
-                marginTop: isSmallScreen ? 48 : 80,
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  maxWidth: isSmallScreen ? '100%' : 540,
-                  width: isSmallScreen ? '100%' : undefined,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: isSmallScreen ? 'center' : undefined,
-                  ...(isSmallScreen
-                    ? {
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}`,
-                        borderRadius: 20,
-                        paddingLeft: 24,
-                        paddingRight: 24,
-                        paddingTop: 28,
-                        paddingBottom: 28,
-                        backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                      }
-                    : {}),
-                }}
-              >
-                {/* word-by-word heading */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: isSmallScreen ? 'center' : 'flex-start',
-                    gap: '0 0.35em',
-                    marginBottom: isSmallScreen ? 12 : 24,
-                  }}
-                >
-                  {unlockHeadingWords.map((word, i) => (
-                    <span key={i} style={{ overflow: 'hidden', display: 'inline-block' }}>
-                      <span
-                        className="unlock-word"
-                        style={{
-                          display: 'inline-block',
-                          fontFamily: Fonts.display,
-                          fontWeight: 700,
-                          color: colors.text,
-                          fontSize: 'clamp(32px, 5vw, 56px)',
-                          textAlign: isSmallScreen ? 'center' : 'left',
-                        }}
-                      >
-                        {word}
-                      </span>
-                    </span>
-                  ))}
-                </div>
-                <span
-                  className="unlock-sub"
-                  style={{
-                    fontSize: 'clamp(16px, 2vw, 20px)',
-                    textAlign: isSmallScreen ? 'center' : 'left',
-                    maxWidth: 700,
-                    marginBottom: isSmallScreen ? 0 : 48,
-                    lineHeight: '28px',
-                    fontWeight: 400,
-                    fontFamily: Fonts.body,
-                    color: colors.text,
-                  }}
-                >
-                  Connect with skilled construction professionals and discover your ideal career opportunities.
-                </span>
-              </div>
-              {showHeroImage && (
-                <div className="unlock-card" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <HeroCardSwap
-                    imageFindWorkers={require('../assets/images/landingPageImages/image17.png')}
-                    imageFindJobs={require('../assets/images/landingPageImages/image11.png')}
-                    imageCreateJobs={require('../assets/images/landingPageImages/image18.png')}
-                    cardWidth={580}
-                    cardHeight={480}
-                    cardBackground={colors.background}
-                    cardTextColor={colors.text}
-                    cardFontFamily={Fonts.sans}
-                    cardMarginBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.18)'}
-                    cardIconRowBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.12)'}
-                    cardIconRowBorderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.2)'}
-                  />
-                </div>
-              )}
-            </div>
-          ) : (
-            <View
-              style={[
-                styles.hero,
-                isSmallScreen && styles.heroStacked,
-              ]}
-            >
-              <View
-                style={[
-                  styles.heroLeft,
-                  isSmallScreen && styles.heroLeftCentered,
-                  isSmallScreen && {
-                    borderWidth: 1,
-                    borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)',
-                    borderRadius: 20,
-                    paddingHorizontal: 24,
-                    paddingVertical: 28,
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                  },
-                ]}
-              >
-                <RNText
-                  style={[
-                    styles.mainHeading,
-                    isSmallScreen && styles.mainHeadingCentered,
-                    isSmallScreen && { marginBottom: 12 },
-                    { color: colors.text },
-                  ]}
-                >
-                  Unlock Opportunities
-                </RNText>
-                <RNText
-                  style={[
-                    styles.subheading,
-                    isSmallScreen && styles.subheadingCentered,
-                    isSmallScreen && { marginBottom: 0 },
-                    { color: colors.text },
-                  ]}
-                >
-                  Connect with skilled construction professionals and discover your ideal career opportunities.
-                </RNText>
-              </View>
-              {showHeroImage && (
-                <View style={styles.heroRight}>
-                  <HeroCardSwap
-                    imageFindWorkers={require('../assets/images/landingPageImages/image17.png')}
-                    imageFindJobs={require('../assets/images/landingPageImages/image11.png')}
-                    imageCreateJobs={require('../assets/images/landingPageImages/image18.png')}
-                    cardWidth={580}
-                    cardHeight={480}
-                    cardBackground={colors.background}
-                    cardTextColor={colors.text}
-                    cardFontFamily={Fonts.sans}
-                    cardMarginBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.18)'}
-                    cardIconRowBackground={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.12)'}
-                    cardIconRowBorderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.2)'}
-                  />
-                </View>
-              )}
-            </View>
-          )}
 
           {/* ─── Download the App (enhanced) ─── */}
           <DownloadApp isSmallScreen={isSmallScreen} />
