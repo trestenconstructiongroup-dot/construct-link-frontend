@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { logout, getUserProfile, login as apiLogin, signup as apiSignup } from '../services/api';
-import type { LoginData, SignupData } from '../services/api';
+import { logout, getUserProfile, login as apiLogin, signup as apiSignup, ssoCheck, ssoSignup } from '../services/api';
+import type { LoginData, SignupData, SsoSignupData } from '../services/api';
 import { supabase } from '../lib/supabase';
 import { logger } from '../utils/logger';
 import {
@@ -26,6 +26,8 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /** True when a Supabase OAuth user has no Django account yet and needs to complete signup. */
+  needsSsoSignup: boolean;
   logout: () => Promise<void>;
   /** Sign in with Google (web: redirects to Google and back). */
   signInWithGoogle: () => Promise<void>;
@@ -37,6 +39,8 @@ interface AuthContextType {
   loginWithEmail: (data: LoginData) => Promise<void>;
   /** Register with email + password (DRF Token auth). */
   signupWithEmail: (data: SignupData) => Promise<void>;
+  /** Complete SSO signup (first-time OAuth users). Requires role selection. */
+  completeSsoSignup: (data: SsoSignupData) => Promise<void>;
   updateUserFromServer: (user: User) => Promise<void>;
 }
 
@@ -46,6 +50,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  /** Temporary Supabase JWT stored while the user completes SSO signup. */
+  const [pendingSsoToken, setPendingSsoToken] = useState<string | null>(null);
 
   // Load auth state: Supabase OAuth callback (hash) or persisted token
   useEffect(() => {
@@ -56,17 +62,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
             try {
-              const profileUser = await getUserProfile(session.access_token);
-              setToken(session.access_token);
-              setUser(profileUser);
-              await setStoredToken(session.access_token);
-              await setStoredUser(JSON.stringify(profileUser));
+              // Check whether this Supabase user already has a Django account
+              const checkResult = await ssoCheck(session.access_token);
+              if (checkResult.exists && checkResult.user && checkResult.token) {
+                // Existing user — authenticate with the DRF token
+                setToken(checkResult.token);
+                setUser(checkResult.user);
+                await setStoredToken(checkResult.token);
+                await setStoredUser(JSON.stringify(checkResult.user));
+              } else {
+                // New SSO user — needs to complete signup (role selection)
+                setPendingSsoToken(session.access_token);
+              }
               setIsLoading(false);
               return;
             } catch (e: any) {
               if (e?.status !== 401) {
-                logger.error('Supabase session but profile fetch failed:', e);
+                logger.error('SSO check failed:', e);
               }
+              // On 401 the Supabase token might be expired; fall through
             }
           }
         }
@@ -117,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setUser(null);
     setToken(null);
+    setPendingSsoToken(null);
     await clearStoredAuth();
   };
 
@@ -172,6 +187,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await setStoredUser(JSON.stringify(result.user));
   };
 
+  const completeSsoSignup = async (data: SsoSignupData) => {
+    if (!pendingSsoToken) {
+      throw new Error('No pending SSO session. Please sign in with a provider first.');
+    }
+    const result = await ssoSignup(pendingSsoToken, data);
+    setPendingSsoToken(null);
+    setToken(result.token);
+    setUser(result.user);
+    await setStoredToken(result.token);
+    await setStoredUser(JSON.stringify(result.user));
+  };
+
   const updateUserFromServer = async (nextUser: User) => {
     setUser(nextUser);
     try {
@@ -188,12 +215,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         isLoading,
         isAuthenticated: !!user && !!token,
+        needsSsoSignup: !!pendingSsoToken && !user,
         logout: handleLogout,
         signInWithGoogle,
         signInWithApple,
         signInWithAzure,
         loginWithEmail,
         signupWithEmail,
+        completeSsoSignup,
         updateUserFromServer,
       }}
     >

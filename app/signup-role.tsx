@@ -17,7 +17,7 @@ type Role = UserRole;
 export default function SignupRolePage() {
   const router = useRouter();
   const { isDark } = useTheme();
-  const { user, token, updateUserFromServer } = useAuth();
+  const { token, needsSsoSignup, completeSsoSignup, updateUserFromServer } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const insets = useSafeAreaInsets();
 
@@ -47,16 +47,23 @@ export default function SignupRolePage() {
       return;
     }
 
-    if (!token) {
+    // SSO users (no Django account yet) use completeSsoSignup;
+    // existing users (already logged in but missing a role) use setUserRole.
+    if (!needsSsoSignup && !token) {
       router.replace('/login');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const updatedUser = await setUserRole(token, selectedRole);
-      // Make sure auth context (and localStorage on web) know about the new role
-      updateUserFromServer(updatedUser as any);
+      if (needsSsoSignup) {
+        // First-time SSO sign-in → create Django account with chosen role
+        await completeSsoSignup({ role: selectedRole });
+      } else {
+        // Already have a Django account → just set the role
+        const updatedUser = await setUserRole(token!, selectedRole);
+        updateUserFromServer(updatedUser as any);
+      }
       router.replace('/');
     } catch (error: any) {
       logger.error('Set role error:', error);
@@ -65,8 +72,8 @@ export default function SignupRolePage() {
       try {
         const errorText = error.message || error.toString();
         const errorData = JSON.parse(errorText);
-        if (errorData.message || errorData.error) {
-          errorMessage = errorData.message || errorData.error;
+        if (errorData.message || errorData.error || errorData.detail) {
+          errorMessage = errorData.message || errorData.error || errorData.detail;
         }
       } catch {
         // ignore parse errors, use default message

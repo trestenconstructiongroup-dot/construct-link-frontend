@@ -180,7 +180,48 @@ type ApiRequestOptions = RequestInit & {
       authToken: token,
       body: JSON.stringify({ role }),
     });
-  }  
+  }
+
+  // ---- SSO auth helpers ----
+
+  export interface SsoCheckResponse {
+    exists: boolean;
+    user?: AuthResponse['user'];
+    token?: string;
+  }
+
+  /**
+   * Check whether the Supabase-authenticated user already has a Django account.
+   * Uses the Supabase JWT as the Bearer token.
+   */
+  export function ssoCheck(supabaseToken: string): Promise<SsoCheckResponse> {
+    return apiFetch("/api/sso/check/", {
+      method: "POST",
+      authToken: supabaseToken,
+      authSchemeHint: "supabase",
+    });
+  }
+
+  export interface SsoSignupData {
+    role: UserRole;
+    full_name?: string;
+  }
+
+  /**
+   * Register a new user from an SSO sign-in (Google / Apple / Azure).
+   * Requires the Supabase JWT and a role selection.
+   */
+  export function ssoSignup(
+    supabaseToken: string,
+    data: SsoSignupData
+  ): Promise<AuthResponse> {
+    return apiFetch("/api/sso/signup/", {
+      method: "POST",
+      authToken: supabaseToken,
+      authSchemeHint: "supabase",
+      body: JSON.stringify(data),
+    });
+  }
 
   // ---- Profile APIs ----
 

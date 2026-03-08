@@ -15,12 +15,20 @@ const queryClient = new QueryClient({
 });
 
 function AuthGate({ children }: PropsWithChildren) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, needsSsoSignup } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     if (isLoading) return;
+
+    // 0) SSO user who has no Django account yet → force signup-role
+    if (needsSsoSignup) {
+      if (pathname !== '/signup-role') {
+        router.replace('/signup-role');
+      }
+      return;
+    }
 
     // 1) Unauthenticated users:
     //    - Can see landing and other public pages
@@ -46,7 +54,7 @@ function AuthGate({ children }: PropsWithChildren) {
     if (hasRole && pathname === '/signup-role') {
       router.replace('/');
     }
-  }, [user, isLoading, pathname, router]);
+  }, [user, isLoading, needsSsoSignup, pathname, router]);
 
   return <>{children}</>;
 }
