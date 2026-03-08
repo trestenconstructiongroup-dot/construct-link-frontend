@@ -588,6 +588,7 @@ const styles = StyleSheet.create({
   cardGridSmall: {
     flexDirection: 'column',
     gap: 12,
+    alignItems: 'center',
   } as ViewStyle,
   cardWrap: {
     flexBasis: '48%',
@@ -596,6 +597,8 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   cardWrapSmall: {
     width: '100%',
+    maxWidth: 500,
+    alignSelf: 'center',
   } as ViewStyle,
   loadMore: {
     alignSelf: 'center',
