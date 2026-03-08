@@ -8,7 +8,6 @@ import { useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Platform,
   Pressable,
   Text as RNText,
@@ -52,7 +51,6 @@ export default function FindJobsWebPage() {
   const {
     results,
     count,
-    nextPage,
     loading,
     loadingMore,
     error: loadError,
@@ -97,24 +95,6 @@ export default function FindJobsWebPage() {
   const fontHeading = Fonts.display;
   const fontBody = Fonts.body;
 
-  const renderItem = useCallback(
-    ({ item }: { item: JobSummary }) => (
-      <View style={isSmall ? styles.cardWrapSmall : styles.cardWrap}>
-        <JobCard
-          job={item}
-          colors={colors}
-          fontHeading={fontHeading}
-          fontBody={fontBody}
-          token={token}
-          user={user}
-          onApplied={handleApplied}
-        />
-      </View>
-    ),
-    [colors, fontHeading, fontBody, token, user, handleApplied, isSmall]
-  );
-
-  const keyExtractor = useCallback((item: JobSummary) => String(item.job_id), []);
 
   if (authLoading) {
     return (
@@ -303,7 +283,7 @@ export default function FindJobsWebPage() {
             </View>
 
             {/* Boundary line then All jobs – wrapped in column so boundary doesn't steal row space */}
-            <View style={styles.mainContentColumn}>
+            <View style={[styles.mainContentColumn, isSmall && styles.mainContentColumnSmall]}>
               <View style={[styles.boundaryLine, { backgroundColor: colors.icon }]} />
               <View style={styles.allJobsSection}>
               <RNText style={[styles.allJobsTitle, { color: colors.text }, { fontFamily: fontHeading as any }]}>
@@ -337,36 +317,21 @@ export default function FindJobsWebPage() {
                     {count} job{count !== 1 ? 's' : ''}
                   </RNText>
                   <View style={[styles.cardGrid, isSmall && styles.cardGridSmall]}>
-                    <FlatList
-                      data={results}
-                      keyExtractor={keyExtractor}
-                      renderItem={renderItem}
-                      scrollEnabled={false}
-                      contentContainerStyle={[styles.cardGrid, isSmall && styles.cardGridSmall]}
-                      onEndReached={handleLoadMore}
-                      onEndReachedThreshold={0.3}
-                      initialNumToRender={12}
-                      maxToRenderPerBatch={12}
-                      windowSize={5}
-                      removeClippedSubviews={Platform.OS !== 'web'}
-                      ListFooterComponent={
-                        hasNextPage ? (
-                          <Pressable
-                            onPress={handleLoadMore}
-                            disabled={loadingMore}
-                            style={[styles.loadMore, { backgroundColor: colors.tint }]}
-                          >
-                            {loadingMore ? (
-                              <ActivityIndicator color="#fff" size="small" />
-                            ) : (
-                              <RNText style={[styles.loadMoreText, { fontFamily: fontBody as any }]}>Load more</RNText>
-                            )}
-                          </Pressable>
-                        ) : null
-                      }
-                    />
+                    {results.map((item) => (
+                      <View key={item.job_id} style={isSmall ? styles.cardWrapSmall : styles.cardWrap}>
+                        <JobCard
+                          job={item}
+                          colors={colors}
+                          fontHeading={fontHeading}
+                          fontBody={fontBody}
+                          token={token}
+                          user={user}
+                          onApplied={handleApplied}
+                        />
+                      </View>
+                    ))}
                   </View>
-                  {nextPage != null && (
+                  {hasNextPage && (
                     <Pressable
                       onPress={handleLoadMore}
                       disabled={loadingMore}
@@ -462,6 +427,9 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     flexDirection: 'column',
+  } as ViewStyle,
+  mainContentColumnSmall: {
+    width: '100%',
   } as ViewStyle,
   sidebar: {
     width: 280,

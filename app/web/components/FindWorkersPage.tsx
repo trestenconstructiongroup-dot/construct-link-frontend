@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
-    FlatList,
     Platform,
     Pressable,
     Text as RNText,
@@ -126,7 +125,6 @@ export default function FindWorkersPage() {
   const {
     results,
     count,
-    nextPage,
     loading,
     loadingMore,
     error: loadError,
@@ -206,20 +204,6 @@ export default function FindWorkersPage() {
     setFiltersOpen((o) => !o);
   }, []);
 
-  const renderItem = useCallback(
-    ({ item }: { item: WorkerSearchResult }) => (
-      <View style={isSmall ? styles.cardWrapSmall : styles.cardWrap}>
-        {isIndividual(item) ? (
-          <IndividualCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
-        ) : (
-          <CompanyCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
-        )}
-      </View>
-    ),
-    [colors, fontHeading, fontBody, handleViewProfile, handleContact, isSmall]
-  );
-
-  const keyExtractor = useCallback((item: WorkerSearchResult) => `${item.type}-${item.user_id}`, []);
 
   if (authLoading) {
     return (
@@ -450,7 +434,7 @@ export default function FindWorkersPage() {
                 )}
               </View>
 
-              <View style={styles.mainContentColumn}>
+              <View style={[styles.mainContentColumn, isSmall && styles.mainContentColumnSmall]}>
                 <View style={[styles.boundaryLine, { backgroundColor: colors.icon }]} />
                 <View style={styles.resultsSection}>
                   <RNText style={[styles.resultsTitle, { color: colors.text }, { fontFamily: (fontHeading as any) }]}>
@@ -478,26 +462,22 @@ export default function FindWorkersPage() {
                       <RNText style={[styles.resultCount, { color: colors.text }, { fontFamily: (fontBody as any) }]}>
                         {count} result{count !== 1 ? 's' : ''}
                       </RNText>
-                      <FlatList
-                        data={results}
-                        keyExtractor={keyExtractor}
-                        renderItem={renderItem}
-                        scrollEnabled={false}
-                        contentContainerStyle={[styles.cardGrid, isSmall && styles.cardGridSmall]}
-                        onEndReached={handleLoadMore}
-                        onEndReachedThreshold={0.3}
-                        initialNumToRender={12}
-                        maxToRenderPerBatch={12}
-                        windowSize={5}
-                        removeClippedSubviews={Platform.OS !== 'web'}
-                        ListFooterComponent={
-                          hasNextPage ? (
-                            <Pressable onPress={handleLoadMore} disabled={loadingMore} style={[styles.loadMore, { backgroundColor: colors.tint }]}>
-                              {loadingMore ? <ActivityIndicator color="#fff" size="small" /> : <RNText style={[styles.loadMoreText, { fontFamily: (fontBody as any) }]}>Load more</RNText>}
-                            </Pressable>
-                          ) : null
-                        }
-                      />
+                      <View style={[styles.cardGrid, isSmall && styles.cardGridSmall]}>
+                        {results.map((item) => (
+                          <View key={`${item.type}-${item.user_id}`} style={isSmall ? styles.cardWrapSmall : styles.cardWrap}>
+                            {isIndividual(item) ? (
+                              <IndividualCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
+                            ) : (
+                              <CompanyCard item={item} colors={colors} fontHeading={fontHeading} fontBody={fontBody} onView={handleViewProfile} onContact={handleContact} />
+                            )}
+                          </View>
+                        ))}
+                      </View>
+                      {hasNextPage && (
+                        <Pressable onPress={handleLoadMore} disabled={loadingMore} style={[styles.loadMore, { backgroundColor: colors.tint }]}>
+                          {loadingMore ? <ActivityIndicator color="#fff" size="small" /> : <RNText style={[styles.loadMoreText, { fontFamily: (fontBody as any) }]}>Load more</RNText>}
+                        </Pressable>
+                      )}
                     </>
                   )}
                 </View>
@@ -527,6 +507,7 @@ const styles = StyleSheet.create({
   mainRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 24 } as ViewStyle,
   mainRowStacked: { flexDirection: 'column', gap: 0 } as ViewStyle,
   mainContentColumn: { flex: 1, minWidth: 0, flexDirection: 'column' } as ViewStyle,
+  mainContentColumnSmall: { width: '100%' } as ViewStyle,
   sidebar: { width: 280, minWidth: 280 } as ViewStyle,
   sidebarHidden: { width: '100%', minWidth: 0 } as ViewStyle,
   filterToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, paddingHorizontal: 16, borderWidth: 1, borderRadius: 8, marginBottom: 12 } as ViewStyle,
