@@ -31,6 +31,7 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
 
     if (isSmallScreen) {
       // Mobile: IntersectionObserver, scoped to container
+      let obs: IntersectionObserver;
       const ctx = gsap.context(() => {
         const t1 = gsap.from('.da-word', {
           y: '100%', opacity: 0, duration: 0.5, stagger: 0.04,
@@ -43,7 +44,7 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
           opacity: 0, y: 30, scale: 0.8, stagger: 0.2, duration: 0.6,
           ease: 'back.out(1.7)', paused: true,
         });
-        const obs = new IntersectionObserver(
+        obs = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting) { t1.play(); t2.play(); t3.play(); }
             else { t1.reverse(); t2.reverse(); t3.reverse(); }
@@ -51,11 +52,10 @@ function DownloadAppComponent({ isSmallScreen }: DownloadAppProps) {
           { threshold: 0.1 },
         );
         obs.observe(scope);
-        (ctx as any)._obs = obs;
       }, scope);
 
       return () => {
-        (ctx as any)._obs?.disconnect();
+        obs?.disconnect();
         ctx.revert();
       };
     }

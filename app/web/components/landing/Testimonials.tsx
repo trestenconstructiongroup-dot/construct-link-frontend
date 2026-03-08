@@ -33,6 +33,7 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
 
     if (isSmallScreen) {
       // Mobile: IntersectionObserver, scoped to container
+      let obs: IntersectionObserver;
       const ctx = gsap.context(() => {
         const headingTween = gsap.from('.tm-letter', {
           yPercent: 120, opacity: 0, duration: 0.5, stagger: 0.03,
@@ -53,7 +54,7 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
           tweens.push(trackTween);
         }
 
-        const obs = new IntersectionObserver(
+        obs = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting) { tweens.forEach((t) => t.play()); }
             else { tweens.forEach((t) => t.reverse()); }
@@ -61,11 +62,10 @@ function TestimonialsComponent({ isSmallScreen }: TestimonialsProps) {
           { threshold: 0.1 },
         );
         obs.observe(scope);
-        (ctx as any)._obs = obs;
       }, scope);
 
       return () => {
-        (ctx as any)._obs?.disconnect();
+        obs?.disconnect();
         ctx.revert();
       };
     }

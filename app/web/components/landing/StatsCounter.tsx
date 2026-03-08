@@ -32,6 +32,7 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
 
     if (isSmallScreen) {
       // Mobile: IntersectionObserver, scoped to container
+      let obs: IntersectionObserver;
       const ctx = gsap.context(() => {
         const cardTween = gsap.from('.stat-card', {
           y: 60, opacity: 0, stagger: 0.15, duration: 0.6,
@@ -47,7 +48,7 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
             onUpdate: () => { el.textContent = Math.floor(obj.val).toLocaleString() + stat.suffix; },
           }));
         });
-        const obs = new IntersectionObserver(
+        obs = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting) {
               cardTween.play();
@@ -60,12 +61,10 @@ function StatsCounterComponent({ isSmallScreen }: StatsCounterProps) {
           { threshold: 0.1 },
         );
         obs.observe(scope);
-        // Store for cleanup
-        (ctx as any)._obs = obs;
       }, scope);
 
       return () => {
-        (ctx as any)._obs?.disconnect();
+        obs?.disconnect();
         ctx.revert();
       };
     }

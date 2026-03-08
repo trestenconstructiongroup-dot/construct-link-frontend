@@ -48,6 +48,7 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
 
     if (isSmallScreen) {
       // Mobile: IntersectionObserver, scoped to container
+      let obs: IntersectionObserver;
       const ctx = gsap.context(() => {
         const headingTween = gsap.from('.ps-word', {
           y: '100%', opacity: 0, duration: 0.5, stagger: 0.06,
@@ -68,7 +69,7 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
           tweens.push(trackTween);
         }
 
-        const obs = new IntersectionObserver(
+        obs = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting) { tweens.forEach((t) => t.play()); }
             else { tweens.forEach((t) => t.reverse()); }
@@ -76,11 +77,10 @@ function ProjectSliderComponent({ isSmallScreen }: ProjectSliderProps) {
           { threshold: 0.1 },
         );
         obs.observe(scope);
-        (ctx as any)._obs = obs;
       }, scope);
 
       return () => {
-        (ctx as any)._obs?.disconnect();
+        obs?.disconnect();
         ctx.revert();
       };
     }

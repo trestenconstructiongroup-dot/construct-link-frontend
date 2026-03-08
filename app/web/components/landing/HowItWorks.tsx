@@ -28,6 +28,7 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
 
     if (isSmallScreen) {
       // Mobile: IntersectionObserver, scoped to container
+      let obs: IntersectionObserver;
       const ctx = gsap.context(() => {
         const t1 = gsap.from('.hiw-heading', {
           y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', paused: true,
@@ -36,7 +37,7 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
           y: 80, opacity: 0, scale: 0.9, duration: 0.7, stagger: 0.2,
           ease: 'power3.out', paused: true,
         });
-        const obs = new IntersectionObserver(
+        obs = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting) { t1.play(); t2.play(); }
             else { t1.reverse(); t2.reverse(); }
@@ -44,12 +45,10 @@ function HowItWorksComponent({ isSmallScreen }: HowItWorksProps) {
           { threshold: 0.1 },
         );
         obs.observe(scope);
-        // Store for cleanup
-        (ctx as any)._obs = obs;
       }, scope);
 
       return () => {
-        (ctx as any)._obs?.disconnect();
+        obs?.disconnect();
         ctx.revert();
       };
     }

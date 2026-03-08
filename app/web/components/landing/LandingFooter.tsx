@@ -137,12 +137,13 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
 
     if (isSmallScreen) {
       // Mobile: IntersectionObserver, scoped to container
+      let obs: IntersectionObserver;
       const ctx = gsap.context(() => {
         const tween = gsap.from('.footer-reveal', {
           y: 40, opacity: 0, stagger: 0.1, duration: 0.6,
           ease: 'power3.out', paused: true,
         });
-        const obs = new IntersectionObserver(
+        obs = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting) { tween.play(); }
             else { tween.reverse(); }
@@ -150,11 +151,10 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
           { threshold: 0.1 },
         );
         obs.observe(scope);
-        (ctx as any)._obs = obs;
       }, scope);
 
       return () => {
-        (ctx as any)._obs?.disconnect();
+        obs?.disconnect();
         ctx.revert();
       };
     }
