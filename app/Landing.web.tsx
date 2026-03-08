@@ -96,17 +96,6 @@ export default function WebLanding() {
           min-height: 100vh !important;
           overflow: visible !important;
         }
-        #root > div,
-        #root > div > div,
-        #root > div > div > div,
-        #root > div > div > div > div,
-        #root > div > div > div > div > div {
-          display: flex !important;
-          flex-direction: column !important;
-          min-height: 0 !important;
-          height: auto !important;
-          overflow: visible !important;
-        }
         html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; }
         html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
       `;

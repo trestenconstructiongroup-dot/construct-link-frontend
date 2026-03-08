@@ -132,32 +132,11 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
 
   useEffect(() => {
     if (Platform.OS !== 'web' || !footerContentRef.current) return;
+    // Skip animation on mobile — footer is at page bottom and the
+    // IntersectionObserver + transform can cause visual artifacts.
+    if (isSmallScreen) return;
 
     const scope = footerContentRef.current;
-
-    if (isSmallScreen) {
-      // Mobile: IntersectionObserver, scoped to container
-      let obs: IntersectionObserver;
-      const ctx = gsap.context(() => {
-        const tween = gsap.from('.footer-reveal', {
-          y: 40, opacity: 0, stagger: 0.1, duration: 0.6,
-          ease: 'power3.out', paused: true, immediateRender: false,
-        });
-        obs = new IntersectionObserver(
-          ([e]) => {
-            if (e.isIntersecting) { tween.play(); }
-            else { tween.reverse(); }
-          },
-          { threshold: 0.1 },
-        );
-        obs.observe(scope);
-      }, scope);
-
-      return () => {
-        obs?.disconnect();
-        ctx.revert();
-      };
-    }
 
     // Desktop: ScrollTrigger
     const ta = 'play reverse play reverse';
