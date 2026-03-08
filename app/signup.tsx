@@ -105,7 +105,8 @@ export default function SignupPage() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: '',
-      full_name: '',
+      first_name: '',
+      last_name: '',
       password: '',
       confirm_password: '',
     },
@@ -240,38 +241,72 @@ export default function SignupPage() {
             )}
           </View>
 
-          {/* Full Name field */}
-          <View style={styles.fieldContainer}>
-            <Controller
-              control={control}
-              name="full_name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      color: colors.text,
-                      borderColor: errors.full_name
-                        ? colors.error
-                        : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
-                    },
-                  ]}
-                  placeholder="Full name"
-                  placeholderTextColor={colors.textTertiary}
-                  autoCapitalize="words"
-                  autoComplete="name"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  editable={!isBusy}
-                />
+          {/* Name fields – side by side */}
+          <View style={styles.nameRow}>
+            <View style={styles.nameField}>
+              <Controller
+                control={control}
+                name="first_name"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.text,
+                        borderColor: errors.first_name
+                          ? colors.error
+                          : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+                      },
+                    ]}
+                    placeholder="First name"
+                    placeholderTextColor={colors.textTertiary}
+                    autoCapitalize="words"
+                    autoComplete="given-name"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    editable={!isBusy}
+                  />
+                )}
+              />
+              {errors.first_name && (
+                <RNText style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.first_name.message}
+                </RNText>
               )}
-            />
-            {errors.full_name && (
-              <RNText style={[styles.fieldError, { color: colors.error }]}>
-                {errors.full_name.message}
-              </RNText>
-            )}
+            </View>
+            <View style={styles.nameField}>
+              <Controller
+                control={control}
+                name="last_name"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.text,
+                        borderColor: errors.last_name
+                          ? colors.error
+                          : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+                      },
+                    ]}
+                    placeholder="Last name"
+                    placeholderTextColor={colors.textTertiary}
+                    autoCapitalize="words"
+                    autoComplete="family-name"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    editable={!isBusy}
+                  />
+                )}
+              />
+              {errors.last_name && (
+                <RNText style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.last_name.message}
+                </RNText>
+              )}
+            </View>
           </View>
 
           {/* Password field */}
@@ -527,6 +562,15 @@ const styles = StyleSheet.create({
   } as TextStyle,
 
   // Form fields
+  nameRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+    marginBottom: 16,
+  } as ViewStyle,
+  nameField: {
+    flex: 1,
+  } as ViewStyle,
   fieldContainer: {
     width: '100%',
     marginBottom: 16,

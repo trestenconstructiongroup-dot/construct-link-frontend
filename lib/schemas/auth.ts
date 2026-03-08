@@ -18,10 +18,14 @@ export const signupSchema = z
       .string()
       .min(1, 'Email is required')
       .email('Please enter a valid email address'),
-    full_name: z
+    first_name: z
       .string()
-      .min(1, 'Full name is required')
-      .min(2, 'Full name must be at least 2 characters'),
+      .min(1, 'First name is required')
+      .min(2, 'First name must be at least 2 characters'),
+    last_name: z
+      .string()
+      .min(1, 'Last name is required')
+      .min(2, 'Last name must be at least 2 characters'),
     password: z
       .string()
       .min(1, 'Password is required')

@@ -112,7 +112,8 @@ type ApiRequestOptions = RequestInit & {
   /** Register a new user with email + password. */
   export interface SignupData {
     email: string;
-    full_name: string;
+    first_name: string;
+    last_name: string;
     password: string;
     confirm_password: string;
     is_worker?: boolean;
@@ -130,6 +131,8 @@ type ApiRequestOptions = RequestInit & {
       id: number;
       email: string;
       username: string;
+      first_name: string;
+      last_name: string;
       full_name: string;
       is_worker: boolean;
       is_company: boolean;
