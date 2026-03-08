@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { logout, getUserProfile, login as apiLogin, signup as apiSignup, ssoCheck, ssoSignup } from '../services/api';
 import type { LoginData, SignupData, SsoSignupData } from '../services/api';
 import { supabase } from '../lib/supabase';
@@ -53,39 +53,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /** Temporary Supabase JWT stored while the user completes SSO signup. */
   const [pendingSsoToken, setPendingSsoToken] = useState<string | null>(null);
 
-  // Load auth state: Supabase OAuth callback (hash) or persisted token
+  // Guard so we only handle one SSO session at a time
+  const handlingSsoRef = useRef(false);
+
+  /**
+   * Given a Supabase access_token, call /api/sso/check/ and update state.
+   * Returns true if auth state was set, false otherwise.
+   */
+  const handleSsoSession = useCallback(async (accessToken: string): Promise<boolean> => {
+    if (handlingSsoRef.current) return false;
+    handlingSsoRef.current = true;
+    try {
+      const checkResult = await ssoCheck(accessToken);
+      if (checkResult.exists && checkResult.user && checkResult.token) {
+        setToken(checkResult.token);
+        setUser(checkResult.user);
+        await setStoredToken(checkResult.token);
+        await setStoredUser(JSON.stringify(checkResult.user));
+      } else {
+        // New SSO user — needs to complete signup (role selection)
+        setPendingSsoToken(accessToken);
+      }
+      return true;
+    } catch (e: any) {
+      logger.error('SSO check failed:', e);
+      return false;
+    } finally {
+      handlingSsoRef.current = false;
+    }
+  }, []);
+
+  // Load auth state on mount + listen for Supabase OAuth callbacks
   useEffect(() => {
+    let isMounted = true;
+
     const loadAuthState = async () => {
       try {
-        // 1) After OAuth redirect, Supabase puts session in URL hash; recover it first
+        // 1) Check if Supabase already has a session (e.g. stored from a previous visit)
         if (supabase) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
-            try {
-              // Check whether this Supabase user already has a Django account
-              const checkResult = await ssoCheck(session.access_token);
-              if (checkResult.exists && checkResult.user && checkResult.token) {
-                // Existing user — authenticate with the DRF token
-                setToken(checkResult.token);
-                setUser(checkResult.user);
-                await setStoredToken(checkResult.token);
-                await setStoredUser(JSON.stringify(checkResult.user));
-              } else {
-                // New SSO user — needs to complete signup (role selection)
-                setPendingSsoToken(session.access_token);
-              }
+            const handled = await handleSsoSession(session.access_token);
+            if (handled && isMounted) {
               setIsLoading(false);
               return;
-            } catch (e: any) {
-              if (e?.status !== 401) {
-                logger.error('SSO check failed:', e);
-              }
-              // On 401 the Supabase token might be expired; fall through
             }
           }
         }
 
-        // 2) Fallback: stored token (localStorage on web, SecureStore on native)
+        // 2) Fallback: stored DRF token (localStorage on web, SecureStore on native)
         const storedToken = await getStoredToken();
         const storedUserJson = await getStoredUser();
 
@@ -94,10 +110,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(JSON.parse(storedUserJson)); // immediate render with stored data
           try {
             const freshUser = await getUserProfile(storedToken);
-            setUser(freshUser); // sync with server
-            await setStoredUser(JSON.stringify(freshUser)); // persist updated state
+            if (isMounted) {
+              setUser(freshUser);
+              await setStoredUser(JSON.stringify(freshUser));
+            }
           } catch (error: any) {
-            if (error?.status === 401) {
+            if (error?.status === 401 && isMounted) {
               await clearStoredAuth();
               setToken(null);
               setUser(null);
@@ -108,11 +126,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logger.error('Error loading auth state:', error);
         await clearStoredAuth();
       }
-      setIsLoading(false);
+      if (isMounted) setIsLoading(false);
     };
 
     loadAuthState();
-  }, []);
+
+    // 3) Listen for Supabase auth events — this catches the OAuth redirect
+    //    callback when getSession() above returns null (session not yet parsed).
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    if (supabase) {
+      const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (!isMounted) return;
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.access_token) {
+          // Avoid double-handling if loadAuthState already processed this session
+          if (handlingSsoRef.current) return;
+          const handled = await handleSsoSession(session.access_token);
+          if (handled && isMounted) {
+            setIsLoading(false);
+          }
+        }
+      });
+      subscription = data.subscription;
+    }
+
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
+  }, [handleSsoSession]);
 
   const handleLogout = async () => {
     if (token) {

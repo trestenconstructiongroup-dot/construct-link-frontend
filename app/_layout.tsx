@@ -5,6 +5,7 @@ import { useEffect, type PropsWithChildren } from 'react';
 import { Platform } from 'react-native';
 import { WebFontLoader } from '../components/WebFontLoader';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import LogoLoader from '../components/LogoLoader';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 
@@ -55,6 +56,8 @@ function AuthGate({ children }: PropsWithChildren) {
       router.replace('/');
     }
   }, [user, isLoading, needsSsoSignup, pathname, router]);
+
+  if (isLoading) return <LogoLoader />;
 
   return <>{children}</>;
 }
