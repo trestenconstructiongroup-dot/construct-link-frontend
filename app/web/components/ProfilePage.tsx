@@ -8,8 +8,8 @@ import {
   Pressable,
   TextInput,
   Platform,
-  useWindowDimensions,
 } from 'react-native';
+import { useClientWidth } from '../../../hooks/useClientWidth';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -255,7 +255,7 @@ export default function ProfilePage() {
   const { isDark } = useTheme();
   const { user, token, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
 
   const [data, setData] = useState<ProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -597,7 +597,7 @@ function ProfileSummaryCard({
 }: SummaryProps) {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
   const isSmallScreen = width < 768;
   const [editing, setEditing] = useState(false);
 

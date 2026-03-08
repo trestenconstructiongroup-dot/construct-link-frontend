@@ -14,8 +14,8 @@ import {
   TextStyle,
   ActivityIndicator,
   Image,
-  useWindowDimensions,
 } from 'react-native';
+import { useClientWidth } from '../../../hooks/useClientWidth';
 import { useRouter } from 'expo-router';
 import WebLayout from '../layout';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -63,7 +63,7 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
   const { isDark } = useTheme();
   const { token, user, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
   const isSmallScreen = width < 600;
   const isLoggedIn = !!token && !!user;
   const isSelf = user?.id != null && userId === user.id;

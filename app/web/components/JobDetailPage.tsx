@@ -16,8 +16,8 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
-  useWindowDimensions,
 } from 'react-native';
+import { useClientWidth } from '../../../hooks/useClientWidth';
 import { useRouter } from 'expo-router';
 import WebLayout from '../layout';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -49,7 +49,7 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
   const { isDark } = useTheme();
   const { token, user, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
   const isLoggedIn = !!token && !!user;
 
   const [job, setJob] = useState<JobDetail | null>(null);

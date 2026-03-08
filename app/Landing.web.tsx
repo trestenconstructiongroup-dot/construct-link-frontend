@@ -2,7 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Asset } from 'expo-asset';
 import { usePathname, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Animated, Image, ImageStyle, Platform, Text as RNText, StyleSheet, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
+import { Animated, Image, ImageStyle, Platform, Text as RNText, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
+import { useClientWidth } from '../hooks/useClientWidth';
 import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Colors, Fonts } from '../constants/theme';
@@ -32,7 +33,7 @@ const HERO_VIDEO = require('../assets/images/transparentVideo/Cyberpunk Idle.mp4
 export default function WebLanding() {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { width: screenWidth } = useWindowDimensions();
+  const screenWidth = useClientWidth();
   const router = useRouter();
   const pathname = usePathname();
   const [heroVideoUri, setHeroVideoUri] = useState<string | null>(null);

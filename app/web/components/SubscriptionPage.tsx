@@ -14,8 +14,8 @@ import {
   Linking,
   Platform,
   TextInput,
-  useWindowDimensions,
 } from 'react-native';
+import { useClientWidth } from '../../../hooks/useClientWidth';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -56,7 +56,7 @@ export default function SubscriptionPage() {
   const { token, user } = useAuth();
   const { isDark } = useTheme();
   const colors = isDark ? Colors.dark : Colors.light;
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
 
   const { data: subData, isLoading: subLoading, isError: subError, refetch: refetchSub } = useSubscriptionStatus(token);
   const initMutation = useInitializeSubscription();

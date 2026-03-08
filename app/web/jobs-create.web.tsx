@@ -10,10 +10,10 @@ import {
     StyleSheet,
     TextInput,
     TextStyle,
-    useWindowDimensions,
     View,
     ViewStyle,
 } from 'react-native';
+import { useClientWidth } from '../../hooks/useClientWidth';
 import { Text } from '../../components/Text';
 import { Colors, Fonts } from '../../constants/theme';
 import LandingFooter from './components/landing/LandingFooter';
@@ -43,7 +43,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
   const { user, token } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
   const router = useRouter();
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
   const isLargeScreen = width >= 1024;
   const isSmallScreen = width < 768;
   const isLoggedIn = !!token && !!user;

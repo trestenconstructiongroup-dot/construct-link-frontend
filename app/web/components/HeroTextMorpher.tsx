@@ -5,7 +5,8 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Text as RNText, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, Text as RNText, StyleSheet, View } from 'react-native';
+import { useClientWidth } from '../../../hooks/useClientWidth';
 import { Fonts } from '../../../constants/theme';
 
 const PHRASES = [
@@ -32,7 +33,7 @@ export default function HeroTextMorpher({
   style,
   showCursor = false,
 }: HeroTextMorpherProps) {
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
   const isSmallScreen = width < 768;
 
   const [displayA, setDisplayA] = useState(PHRASES[0].a);

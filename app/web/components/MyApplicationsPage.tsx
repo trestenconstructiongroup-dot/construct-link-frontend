@@ -13,12 +13,12 @@ import {
   ScrollView,
   StyleSheet,
   TextStyle,
-  useWindowDimensions,
   View,
   ViewStyle,
   Text as RNText,
   Modal,
 } from 'react-native';
+import { useClientWidth } from '../../../hooks/useClientWidth';
 import { Colors, Fonts } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -67,7 +67,7 @@ export default function MyApplicationsPage() {
   const { isDark } = useTheme();
   const { token, user, isLoading: authLoading } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
   const isSmall = width < 768;
   const isLoggedIn = !!token && !!user;
 

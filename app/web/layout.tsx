@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import Navbar from './components/Navbar';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -8,13 +8,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Colors } from '../../constants/theme';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { useUnreadCount } from '../../hooks/useMessaging';
+import { useClientWidth } from '../../hooks/useClientWidth';
 
 export default function WebLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isDark } = useTheme();
   const { token, isAuthenticated } = useAuth();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { width } = useWindowDimensions();
+  const width = useClientWidth();
   const isSmallScreen = width < 768;
   const { data: unreadData } = useUnreadCount(isAuthenticated ? token : null);
   const unreadCount = unreadData?.unread_count ?? 0;
