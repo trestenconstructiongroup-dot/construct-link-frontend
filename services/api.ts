@@ -166,6 +166,7 @@ type ApiRequestOptions = RequestInit & {
     const data = await apiFetch("/api/profile/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
     // /api/profile/ returns { user: {...}, individual_profile, ... }
     // Extract just the user object to match the declared return type
@@ -178,6 +179,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/role/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify({ role }),
     });
   }
@@ -312,6 +314,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -320,6 +323,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/individual/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -327,6 +331,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/company/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -337,6 +342,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/individual/", {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -348,6 +354,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/company/", {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -367,7 +374,7 @@ type ApiRequestOptions = RequestInit & {
     const res = await fetch(`${API_BASE}/api/profile/upload-photo/`, {
       method: "POST",
       headers: {
-        Authorization: buildAuthHeader(token),
+        Authorization: buildAuthHeader(token, "django"),
         "ngrok-skip-browser-warning": "true",
       },
       body: formData,
@@ -390,6 +397,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/experience/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -400,6 +408,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/experience/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -412,6 +421,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/profile/experience/${id}/`, {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -423,6 +433,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/profile/experience/${id}/`, {
       method: "DELETE",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -432,6 +443,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/education/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -442,6 +454,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/education/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -454,6 +467,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/profile/education/${id}/`, {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -465,6 +479,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/profile/education/${id}/`, {
       method: "DELETE",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -476,6 +491,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/company/hiring-focus/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -486,6 +502,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/profile/company/hiring-focus/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -498,6 +515,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/profile/company/hiring-focus/${id}/`, {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -509,6 +527,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/profile/company/hiring-focus/${id}/`, {
       method: "DELETE",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -561,6 +580,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/jobs/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -568,6 +588,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/jobs/${id}/`, {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -597,6 +618,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/jobs/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -620,6 +642,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/jobs/${id}/`, {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -631,6 +654,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/jobs/${id}/`, {
       method: "DELETE",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -717,7 +741,7 @@ type ApiRequestOptions = RequestInit & {
     if (params.page_size != null) sp.set("page_size", String(params.page_size));
     const qs = sp.toString();
     const url = qs ? `/api/jobs/find/?${qs}` : `/api/jobs/find/`;
-    return apiFetch(url, { method: "GET", authToken: token ?? undefined });
+    return apiFetch(url, { method: "GET", authToken: token ?? undefined, authSchemeHint: "django" });
   }
 
   export function getFindJobsFilters(): Promise<FindJobsFilters> {
@@ -738,6 +762,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/jobs/find/${jobId}/`, {
       method: "GET",
       authToken: token ?? undefined,
+      authSchemeHint: "django",
     });
   }
 
@@ -760,6 +785,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/jobs/${jobId}/apply/`, {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(body),
     });
   }
@@ -805,6 +831,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(qs ? `/api/applications/mine/?${qs}` : `/api/applications/mine/`, {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -815,6 +842,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/applications/${applicationId}/withdraw/`, {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -831,6 +859,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(qs ? `/api/jobs/${jobId}/applications/?${qs}` : `/api/jobs/${jobId}/applications/`, {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -842,6 +871,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/applications/${applicationId}/status/`, {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify({ status: newStatus }),
     });
   }
@@ -942,7 +972,7 @@ type ApiRequestOptions = RequestInit & {
     if (params.page_size != null) sp.set("page_size", String(params.page_size));
     const qs = sp.toString();
     const url = qs ? `/api/workers/find/?${qs}` : `/api/workers/find/`;
-    return apiFetch(url, { method: "GET", authToken: token ?? undefined });
+    return apiFetch(url, { method: "GET", authToken: token ?? undefined, authSchemeHint: "django" });
   }
 
   export function getFindWorkersFilters(): Promise<FindWorkersFilters> {
@@ -956,6 +986,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/workers/find/${userId}/`, {
       method: "GET",
       authToken: token ?? undefined,
+      authSchemeHint: "django",
     });
   }
 
@@ -987,6 +1018,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/reviews/${userId}/`, {
       method: "GET",
       authToken: token ?? undefined,
+      authSchemeHint: "django",
     });
   }
 
@@ -997,6 +1029,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/reviews/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -1045,6 +1078,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/messages/?page=${page}`, {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1055,6 +1089,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/messages/conversations/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify({ other_user_id: otherUserId }),
     });
   }
@@ -1067,6 +1102,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/messages/${conversationId}/?page=${page}`, {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1078,6 +1114,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/messages/${conversationId}/send/`, {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify({ content }),
     });
   }
@@ -1089,6 +1126,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/messages/${conversationId}/read/`, {
       method: "PATCH",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1098,6 +1136,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/messages/unread-count/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1176,6 +1215,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/payments/config/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1186,6 +1226,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/payments/subscription/", {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1197,6 +1238,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/payments/subscribe/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify({ callback_url: callbackUrl || "" }),
     });
   }
@@ -1209,6 +1251,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/payments/verify/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify({ reference }),
     });
   }
@@ -1221,6 +1264,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/payments/history/?page=${page}`, {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1232,6 +1276,7 @@ type ApiRequestOptions = RequestInit & {
       const data = await apiFetch("/api/payments/recipient/", {
         method: "GET",
         authToken: token,
+        authSchemeHint: "django",
       });
       // Ensure we return null (not "" or a non-object) when there's no recipient
       if (!data || typeof data !== 'object') {
@@ -1263,6 +1308,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/payments/recipient/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify(payload),
     });
   }
@@ -1275,6 +1321,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch(`/api/payments/payouts/?page=${page}`, {
       method: "GET",
       authToken: token,
+      authSchemeHint: "django",
     });
   }
 
@@ -1287,6 +1334,7 @@ type ApiRequestOptions = RequestInit & {
     return apiFetch("/api/payments/payout/", {
       method: "POST",
       authToken: token,
+      authSchemeHint: "django",
       body: JSON.stringify({ amount, reason: reason || "" }),
     });
   }
