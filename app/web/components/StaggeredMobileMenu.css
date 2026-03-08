@@ -65,9 +65,16 @@
   flex-direction: column;
   padding: 6em 2em 2em 2em;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   z-index: 10;
   pointer-events: auto;
   font-family: var(--sm-font), sans-serif;
+}
+
+.staggered-mobile-panel::-webkit-scrollbar {
+  display: none;
 }
 
 [data-position='left'] .staggered-mobile-panel {
