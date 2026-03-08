@@ -45,9 +45,13 @@ const styles = StyleSheet.create({
   footerColBrandSmall: {
     alignItems: 'center',
     gap: 10,
+    width: '100%',
   } as ViewStyle,
   footerCol: {
     flex: 1,
+  } as ViewStyle,
+  footerColCentered: {
+    alignItems: 'center',
   } as ViewStyle,
   footerBrand: {
     fontWeight: '700',
@@ -105,6 +109,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(148, 163, 184, 0.15)',
   } as ViewStyle,
+  footerMetaRowSmall: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  } as ViewStyle,
   footerMeta: {
     fontSize: 12,
   } as TextStyle,
@@ -119,7 +127,9 @@ const styles = StyleSheet.create({
   footerBrandRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 12,
+    flexWrap: 'wrap',
   } as ViewStyle,
   footerLogo: {
     width: 52,
@@ -176,7 +186,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         </View>
       </View>
       <View style={styles.footerColumnsRowSmall}>
-        <View style={styles.footerCol} {...webId('landing-footer-col-links')}>
+        <View style={[styles.footerCol, styles.footerColCentered]} {...webId('landing-footer-col-links')}>
           <RNText style={[styles.footerColTitle, styles.footerTextCentered, { color: colors.text }]}>
             Quick Links
           </RNText>
@@ -185,7 +195,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
           <Text style={[styles.footerLink, styles.footerLinkCentered, { color: colors.text }]}>Find Workers</Text>
           <Text style={[styles.footerLink, styles.footerLinkCentered, { color: colors.text }]}>How It Works</Text>
         </View>
-        <View style={styles.footerCol} {...webId('landing-footer-col-support')}>
+        <View style={[styles.footerCol, styles.footerColCentered]} {...webId('landing-footer-col-support')}>
           <RNText style={[styles.footerColTitle, styles.footerTextCentered, { color: colors.text }]}>
             Support
           </RNText>
@@ -248,8 +258,8 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
             {footerColumns}
           </div>
           <div className="footer-reveal">
-            <View style={styles.footerMetaRow} {...webId('landing-footer-meta')}>
-              <RNText style={[styles.footerMeta, { color: colors.text }]}>
+            <View style={[styles.footerMetaRow, isSmallScreen && styles.footerMetaRowSmall]} {...webId('landing-footer-meta')}>
+              <RNText style={[styles.footerMeta, isSmallScreen && styles.footerTextCentered, { color: colors.text }]}>
                 © {new Date().getFullYear()}{' '}
                 <RNText style={styles.footerMetaBrand}>Tresten Construction Group Inc</RNText>. Built for
                 construction work, by people who've been on site.{' '}
