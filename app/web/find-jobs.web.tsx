@@ -60,7 +60,7 @@ export default function FindJobsWebPage() {
     updateJobInCache,
   } = useFindJobs(params, token ?? null, isLoggedIn);
 
-  const [filtersOpen, setFiltersOpen] = useState(!isSmall);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);

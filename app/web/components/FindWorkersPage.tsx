@@ -57,7 +57,7 @@ export default function FindWorkersPage() {
 
   const { filtersData } = useFindWorkersFilters(isLoggedIn);
 
-  const [filtersOpen, setFiltersOpen] = useState(!isSmall);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [resultType, setResultType] = useState<'all' | 'individual' | 'company'>('all');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
