@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { DotLottieReact, setWasmUrl } from '@lottiefiles/dotlottie-react';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     Animated,
@@ -37,6 +37,8 @@ import {
     type JobType,
     type PaymentType,
 } from './components/jobs-create/_constants';
+
+setWasmUrl('/dotlottie-player.wasm');
 
 export default function CreateJobWebPage({ editJobId = null }: { editJobId?: number | null }) {
   const { isDark } = useTheme();

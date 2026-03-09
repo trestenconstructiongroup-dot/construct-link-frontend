@@ -4,13 +4,15 @@
  */
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { DotLottieReact, setWasmUrl } from '@lottiefiles/dotlottie-react';
 import { usePathname, useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import FuzzyText from '../components/FuzzyText';
 import { Colors, Fonts } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
 import WebLayout from './web/layout';
+
+setWasmUrl('/dotlottie-player.wasm');
 
 const webFonts = {
   heading: Fonts.display,
