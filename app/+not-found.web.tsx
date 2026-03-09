@@ -4,6 +4,7 @@
  */
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { usePathname, useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import FuzzyText from '../components/FuzzyText';
@@ -30,6 +31,16 @@ export default function NotFoundScreenWeb() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
       >
+        {/* Lottie 404 animation */}
+        <View style={styles.lottieContainer}>
+          <DotLottieReact
+            src="/images/transparentVideo/404.json"
+            autoplay
+            loop
+            style={{ width: '100%', height: '100%' }}
+          />
+        </View>
+
         {/* FuzzyText 404 */}
         <View style={styles.fuzzyContainer}>
           <FuzzyText
@@ -85,6 +96,13 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web'
       ? ({ minHeight: '100vh' } as any)
       : null),
+  },
+  lottieContainer: {
+    width: 300,
+    height: 250,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
   },
   fuzzyContainer: {
     alignItems: 'center',
