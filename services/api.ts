@@ -1,3 +1,5 @@
+import { triggerUnauthorized } from "../utils/authEvents";
+
 const API_BASE = process.env.EXPO_PUBLIC_BACKEND_API_BASE!;
 
 type AuthScheme = "django" | "supabase";
@@ -67,6 +69,9 @@ type ApiRequestOptions = RequestInit & {
       const text = await res.text();
     
       if (!res.ok) {
+        if (res.status === 401) {
+          triggerUnauthorized();
+        }
         let errorData: any;
         try {
           errorData = JSON.parse(text);

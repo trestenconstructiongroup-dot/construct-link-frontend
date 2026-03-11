@@ -4,9 +4,11 @@ import { Stack, usePathname, useRouter } from 'expo-router';
 import { useEffect, type PropsWithChildren } from 'react';
 import { Platform } from 'react-native';
 import { WebFontLoader } from '../components/WebFontLoader';
+import { Auth401Handler } from '../components/Auth401Handler';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import LogoLoader from '../components/LogoLoader';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { useInactivityLogout } from '../hooks/useInactivityLogout';
 import { ThemeProvider } from '../contexts/ThemeContext';
 
 const queryClient = new QueryClient({
@@ -19,6 +21,8 @@ function AuthGate({ children }: PropsWithChildren) {
   const { user, isLoading, needsSsoSignup } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  useInactivityLogout({ enabled: !!user });
 
   useEffect(() => {
     if (isLoading) return;
@@ -68,6 +72,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AuthProvider>
+            <Auth401Handler />
             <WebFontLoader />
             <AuthGate>
               <Stack

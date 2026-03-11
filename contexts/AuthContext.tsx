@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [handleSsoSession]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     if (token) {
       try {
         await logout(token);
@@ -175,7 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setPendingSsoToken(null);
     await clearStoredAuth();
-  };
+  }, [token]);
 
   const signInWithGoogle = async () => {
     if (!supabase) {
