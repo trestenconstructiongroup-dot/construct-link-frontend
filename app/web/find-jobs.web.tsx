@@ -5,7 +5,7 @@
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -47,7 +47,26 @@ export default function FindJobsWebPage() {
   const isLoggedIn = !!token && !!user;
 
   const { filtersData } = useFindJobsFilters(isLoggedIn);
-  const params = useMemo(() => ({}), []);
+
+  const [appliedSkills, setAppliedSkills] = useState<string[]>([]);
+
+  // Read ?skills= from URL on mount (e.g. from landing category button)
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const s = urlParams.get('skills');
+    if (s) {
+      const parsed = s.split(',').map((v) => v.trim()).filter(Boolean);
+      setAppliedSkills(parsed);
+      setSelectedSkills(parsed);
+    }
+  }, []);
+
+  const params = useMemo(
+    () => (appliedSkills.length ? { skills: appliedSkills.join(',') } : {}),
+    [appliedSkills]
+  );
+
   const {
     results,
     count,
@@ -81,7 +100,11 @@ export default function FindJobsWebPage() {
   }, [hasNextPage, loadingMore, fetchNextPage]);
 
   const toggleSkill = useCallback((s: string) => {
-    setSelectedSkills((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+    setSelectedSkills((prev) => {
+      const next = prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s];
+      setAppliedSkills(next);
+      return next;
+    });
   }, []);
 
   const toggleRole = useCallback((r: string) => {
@@ -268,6 +291,7 @@ export default function FindJobsWebPage() {
                   <Pressable
                     onPress={() => {
                       setSelectedSkills([]);
+                      setAppliedSkills([]);
                       setSelectedRoles([]);
                       setJobType('');
                       setPayMin('');

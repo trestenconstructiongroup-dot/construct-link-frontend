@@ -82,7 +82,7 @@ export default function FindWorkersPage() {
   const [appliedTeamSizeMin, setAppliedTeamSizeMin] = useState('');
   const [appliedSort, setAppliedSort] = useState('recent');
 
-  // Read ?search= from URL (e.g. from hero search bar)
+  // Read ?search= and ?category= from URL on mount
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const urlParams = new URLSearchParams(window.location.search);
@@ -90,6 +90,11 @@ export default function FindWorkersPage() {
     if (q) {
       setSearch(q);
       setAppliedSearch(q);
+    }
+    const cat = urlParams.get('category');
+    if (cat) {
+      setCategory(cat);
+      setAppliedCategory(cat);
     }
   }, []);
 
@@ -314,6 +319,7 @@ export default function FindWorkersPage() {
                         <RNText style={[styles.filterLabel, { color: colors.text }]}>Category</RNText>
                         <View style={[styles.selectWrap, { borderColor: colors.icon }]}>
                           <select
+                            title="Category"
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
                             style={{ width: '100%', padding: 10, background: colors.background, color: colors.text, border: 'none', fontFamily: fontBody, fontSize: 14 } as any}
@@ -371,6 +377,7 @@ export default function FindWorkersPage() {
                         <RNText style={[styles.filterLabel, { color: colors.text }]}>Company type</RNText>
                         <View style={[styles.selectWrap, { borderColor: colors.icon }]}>
                           <select
+                            title="Company type"
                             value={companyType}
                             onChange={(e) => setCompanyType(e.target.value)}
                             style={{ width: '100%', padding: 10, background: colors.background, color: colors.text, border: 'none', fontFamily: fontBody, fontSize: 14 } as any}
@@ -413,6 +420,7 @@ export default function FindWorkersPage() {
                       <RNText style={[styles.filterLabel, { color: colors.text }]}>Sort</RNText>
                       <View style={[styles.selectWrap, { borderColor: colors.icon }]}>
                         <select
+                          title="Sort order"
                           value={sort}
                           onChange={(e) => setSort(e.target.value)}
                           style={{ width: '100%', padding: 10, background: colors.background, color: colors.text, border: 'none', fontFamily: fontBody, fontSize: 14 } as any}

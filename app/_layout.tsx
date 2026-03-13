@@ -10,6 +10,7 @@ import LogoLoader from '../components/LogoLoader';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useInactivityLogout } from '../hooks/useInactivityLogout';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import { popCategoryIntent } from '../utils/categoryIntent';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,8 +57,21 @@ function AuthGate({ children }: PropsWithChildren) {
 
     // 3) Logged-in user WITH a role:
     //    - Should never see /signup-role again
+    //    - Honour any pending category intent saved before login/signup
     if (hasRole && pathname === '/signup-role') {
       router.replace('/');
+      return;
+    }
+
+    if (hasRole && Platform.OS === 'web') {
+      const intent = popCategoryIntent();
+      if (intent) {
+        const path =
+          intent.destination === 'find-workers'
+            ? `/find-workers?category=${encodeURIComponent(intent.category)}`
+            : `/find-jobs?skills=${encodeURIComponent(intent.category)}`;
+        router.replace(path);
+      }
     }
   }, [user, isLoading, needsSsoSignup, pathname, router]);
 

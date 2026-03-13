@@ -26,6 +26,7 @@ export interface CategoryButtonProps {
   colors: typeof Colors.light | typeof Colors.dark;
   isCompact: boolean;
   buttonId?: string;
+  onPress?: () => void;
 }
 
 const styles = StyleSheet.create({
@@ -126,6 +127,7 @@ function CategoryButtonComponent({
   colors,
   isCompact,
   buttonId,
+  onPress,
 }: CategoryButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -147,6 +149,7 @@ function CategoryButtonComponent({
       ]}
       onHoverIn={onHoverIn}
       onHoverOut={onHoverOut}
+      onPress={onPress}
       {...(buttonId ? { nativeID: buttonId } : {})}
       {...(Platform.OS === 'web' ? { className: 'cat-btn' } as any : {})}
     >

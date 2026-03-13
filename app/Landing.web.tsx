@@ -7,7 +7,9 @@ import { useClientWidth } from '../hooks/useClientWidth';
 import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Colors, Fonts } from '../constants/theme';
+import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { saveCategoryIntent } from '../utils/categoryIntent';
 import HeroTextMorpher from './web/components/HeroTextMorpher';
 import { CONSTRUCTION_CATEGORIES, FAQ_ITEMS } from './web/components/landing/_constants';
 import CategoryButton from './web/components/landing/CategoryButton';
@@ -35,10 +37,14 @@ export default function WebLanding() {
   const screenWidth = useClientWidth();
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuth();
   const [heroVideoUri, setHeroVideoUri] = useState<string | null>(null);
   const heroVideoRef = useRef<HTMLVideoElement | null>(null);
   const heroVideoContainerRef = useRef<HTMLDivElement | null>(null);
   const [heroSearchValue, setHeroSearchValue] = useState('');
+
+  // Category picker state (shown when unauthenticated user clicks a category button)
+  const [activePicker, setActivePicker] = useState<string | null>(null);
 
   // Hero entrance animation (kept as-is)
   const heroOpacity = useRef(new Animated.Value(0)).current;
@@ -303,6 +309,39 @@ export default function WebLanding() {
 
   const isSmallScreen = screenWidth < 768;
 
+  /**
+   * Called when a category button is pressed.
+   *
+   * Logged-in workers  → /find-jobs?skills=<category>
+   * Logged-in companies → /find-workers?category=<category>
+   * Unauthenticated    → show a mini picker ("Find Workers" / "Browse Jobs")
+   */
+  function handleCategoryPress(category: string) {
+    if (user?.is_worker) {
+      router.push(`/find-jobs?skills=${encodeURIComponent(category)}`);
+    } else if (user?.is_company) {
+      router.push(`/find-workers?category=${encodeURIComponent(category)}`);
+    } else {
+      // Show picker: same button toggled off = close picker
+      setActivePicker((prev) => (prev === category ? null : category));
+    }
+  }
+
+  function handlePickerDestination(category: string, destination: 'find-workers' | 'find-jobs') {
+    setActivePicker(null);
+    if (user) {
+      // Authenticated but no role yet (edge case) — just navigate
+      const path =
+        destination === 'find-workers'
+          ? `/find-workers?category=${encodeURIComponent(category)}`
+          : `/find-jobs?skills=${encodeURIComponent(category)}`;
+      router.push(path);
+    } else {
+      saveCategoryIntent({ category, destination });
+      router.push('/login');
+    }
+  }
+
   return (
     <>
       <PageLoader />
@@ -520,18 +559,89 @@ export default function WebLanding() {
 
           {/* ─── Category Buttons Grid (enhanced) ─── */}
           <View style={[styles.categoriesSection, isSmallScreen && styles.categoriesSectionCompact]}>
+            {/* Backdrop — closes the picker when the user clicks outside */}
+            {activePicker !== null && Platform.OS === 'web' && (
+              <div
+                onClick={() => setActivePicker(null)}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  zIndex: 99,
+                }}
+              />
+            )}
             {Platform.OS === 'web' ? (
               <div ref={categoriesRef} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                 <View style={[styles.categoriesGrid, isSmallScreen && styles.categoriesGridCompact]}>
                   {CONSTRUCTION_CATEGORIES.map((category, index) => (
-                    <CategoryButton
-                      key={index}
-                      label={category}
-                      isDark={isDark}
-                      colors={colors}
-                      isCompact={isSmallScreen}
-                      buttonId={`landing-cat-${index}`}
-                    />
+                    <View key={index} style={{ position: 'relative' } as any}>
+                      <CategoryButton
+                        label={category}
+                        isDark={isDark}
+                        colors={colors}
+                        isCompact={isSmallScreen}
+                        buttonId={`landing-cat-${index}`}
+                        onPress={() => handleCategoryPress(category)}
+                      />
+                      {/* Destination picker popover */}
+                      {activePicker === category && (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            position: 'absolute',
+                            top: '110%',
+                            left: 0,
+                            zIndex: 100,
+                            background: isDark ? '#1e293b' : '#ffffff',
+                            borderRadius: 12,
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+                            padding: '12px 16px',
+                            minWidth: 200,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                          }}
+                        >
+                          <span style={{ color: colors.text as string, fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                            Browse {category} as…
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handlePickerDestination(category, 'find-workers')}
+                            style={{
+                              background: Colors.light.accentMuted,
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: 8,
+                              padding: '10px 14px',
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              fontWeight: 500,
+                              textAlign: 'left',
+                            }}
+                          >
+                            🔍 Find Workers
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handlePickerDestination(category, 'find-jobs')}
+                            style={{
+                              background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                              color: colors.text as string,
+                              border: 'none',
+                              borderRadius: 8,
+                              padding: '10px 14px',
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              fontWeight: 500,
+                              textAlign: 'left',
+                            }}
+                          >
+                            💼 Browse Jobs
+                          </button>
+                        </div>
+                      )}
+                    </View>
                   ))}
                 </View>
               </div>
@@ -544,6 +654,7 @@ export default function WebLanding() {
                     isDark={isDark}
                     colors={colors}
                     isCompact={isSmallScreen}
+                    onPress={() => handleCategoryPress(category)}
                   />
                 ))}
               </View>
