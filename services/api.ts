@@ -1155,6 +1155,7 @@ type ApiRequestOptions = RequestInit & {
     plan_code: string;
     amount: number;
     currency: string;
+    channels: string[];
   }
 
   export interface SubscriptionData {

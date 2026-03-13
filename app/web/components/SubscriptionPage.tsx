@@ -214,6 +214,24 @@ export default function SubscriptionPage() {
                     </RNText>
                   )}
                 </Pressable>
+
+                {/* Accepted payment methods */}
+                <View style={styles.paymentMethodsRow}>
+                  {[
+                    { label: 'Visa / Mastercard', icon: 'card-outline' as const },
+                    { label: 'M-Pesa', icon: 'phone-portrait-outline' as const },
+                    { label: 'Airtel Money', icon: 'phone-portrait-outline' as const },
+                    { label: 'M-Pesa Till', icon: 'business-outline' as const },
+                  ].map(({ label, icon }) => (
+                    <View key={label} style={[styles.paymentMethodChip, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+                      <Ionicons name={icon} size={13} color={colors.textSecondary} />
+                      <RNText style={[styles.paymentMethodText, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
+                        {label}
+                      </RNText>
+                    </View>
+                  ))}
+                </View>
+
                 {initMutation.isError && (
                   <RNText style={[styles.errorText, { color: colors.error }]}>
                     Something went wrong. Please try again.
@@ -602,6 +620,25 @@ const styles = StyleSheet.create({
   },
   verifyingText: {
     fontSize: 14,
+  },
+  paymentMethodsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 14,
+    marginBottom: 4,
+  },
+  paymentMethodChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  paymentMethodText: {
+    fontSize: 12,
   },
 
   // Empty state
