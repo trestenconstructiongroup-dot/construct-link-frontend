@@ -9,6 +9,9 @@ import {
   setStoredToken,
   setStoredUser,
   clearStoredAuth,
+  getLastActiveTime,
+  setLastActiveTime,
+  SESSION_TIMEOUT_MS,
 } from '../utils/tokenStorage';
 
 interface User {
@@ -89,12 +92,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loadAuthState = async () => {
       try {
+        // 0) Enforce session inactivity timeout before restoring any auth state.
+        //    If the user was last active more than SESSION_TIMEOUT_MS ago, treat the
+        //    session as expired regardless of what is stored.
+        const lastActive = await getLastActiveTime();
+        if (lastActive !== null && Date.now() - lastActive > SESSION_TIMEOUT_MS) {
+          logger.debug('Session expired due to inactivity — clearing stored auth.');
+          await clearStoredAuth();
+          if (isMounted) setIsLoading(false);
+          return;
+        }
+
         // 1) Check if Supabase already has a session (e.g. stored from a previous visit)
         if (supabase) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.access_token) {
             const handled = await handleSsoSession(session.access_token);
             if (handled && isMounted) {
+              setLastActiveTime();
               setIsLoading(false);
               return;
             }
@@ -113,9 +128,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (isMounted) {
               setUser(freshUser);
               await setStoredUser(JSON.stringify(freshUser));
+              setLastActiveTime();
             }
           } catch (error: any) {
-            if (error?.status === 401 && isMounted) {
+            // Any failure to validate the stored token — treat as expired and clear.
+            if (isMounted) {
               await clearStoredAuth();
               setToken(null);
               setUser(null);
@@ -219,6 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user);
     await setStoredToken(result.token);
     await setStoredUser(JSON.stringify(result.user));
+    setLastActiveTime();
   };
 
   const signupWithEmail = async (data: SignupData) => {
@@ -227,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user);
     await setStoredToken(result.token);
     await setStoredUser(JSON.stringify(result.user));
+    setLastActiveTime();
   };
 
   const completeSsoSignup = async (data: SsoSignupData) => {
@@ -239,6 +258,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user);
     await setStoredToken(result.token);
     await setStoredUser(JSON.stringify(result.user));
+    setLastActiveTime();
   };
 
   const updateUserFromServer = async (nextUser: User) => {
