@@ -1219,6 +1219,10 @@ type ApiRequestOptions = RequestInit & {
     results: T[];
   }
 
+  export interface ClearPaymentHistoryResponse {
+    deleted: number;
+  }
+
   /** Get Paystack public config for the frontend. */
   export function getPaymentConfig(token: string): Promise<PaymentConfig> {
     return apiFetch("/api/payments/config/", {
@@ -1272,6 +1276,29 @@ type ApiRequestOptions = RequestInit & {
   ): Promise<PaginatedResponse<PaymentRecord>> {
     return apiFetch(`/api/payments/history/?page=${page}`, {
       method: "GET",
+      authToken: token,
+      authSchemeHint: "django",
+    });
+  }
+
+  /** Delete one payment history row. */
+  export function deletePayment(
+    token: string,
+    paymentId: number,
+  ): Promise<null> {
+    return apiFetch(`/api/payments/history/${paymentId}/`, {
+      method: "DELETE",
+      authToken: token,
+      authSchemeHint: "django",
+    });
+  }
+
+  /** Delete all payment history rows for the current user. */
+  export function clearPaymentHistory(
+    token: string,
+  ): Promise<ClearPaymentHistoryResponse> {
+    return apiFetch("/api/payments/history/", {
+      method: "DELETE",
       authToken: token,
       authSchemeHint: "django",
     });

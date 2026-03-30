@@ -8,6 +8,8 @@ import {
   initializeSubscription,
   verifyPayment,
   getPaymentHistory,
+  deletePayment,
+  clearPaymentHistory,
   type SubscriptionStatusResponse,
   type InitializeSubscriptionResponse,
   type VerifyPaymentResponse,
@@ -57,5 +59,31 @@ export function usePaymentHistory(token: string | null, page = 1) {
     queryFn: () => getPaymentHistory(token!, page),
     enabled: !!token,
     retry: false,
+  });
+}
+
+export function useDeletePayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    null,
+    Error,
+    { token: string; paymentId: number }
+  >({
+    mutationFn: ({ token, paymentId }) => deletePayment(token, paymentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['paymentHistory'] });
+    },
+  });
+}
+
+export function useClearPaymentHistory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (token: string) => clearPaymentHistory(token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['paymentHistory'] });
+    },
   });
 }

@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -25,6 +26,8 @@ import {
   useInitializeSubscription,
   useVerifyPayment,
   usePaymentHistory,
+  useDeletePayment,
+  useClearPaymentHistory,
 } from '../../../hooks/useSubscription';
 import {
   useTransferRecipient,
@@ -52,6 +55,21 @@ const PAYMENT_STATUS_COLORS: Record<string, string> = {
   abandoned: '#6b7280',
 };
 
+function paymentErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    try {
+      const parsed = JSON.parse(err.message);
+      if (parsed?.detail) {
+        return typeof parsed.detail === 'string' ? parsed.detail : JSON.stringify(parsed.detail);
+      }
+    } catch {
+      return err.message;
+    }
+    return err.message;
+  }
+  return 'Something went wrong. Please try again.';
+}
+
 export default function SubscriptionPage() {
   const { token, user } = useAuth();
   const { isDark } = useTheme();
@@ -62,6 +80,8 @@ export default function SubscriptionPage() {
   const initMutation = useInitializeSubscription();
   const verifyMutation = useVerifyPayment();
   const { data: historyData, isLoading: historyLoading, isError: historyError } = usePaymentHistory(token);
+  const deletePaymentMutation = useDeletePayment();
+  const clearPaymentHistoryMutation = useClearPaymentHistory();
   const { data: recipientData, isError: recipientError } = useTransferRecipient(token);
   const { data: payoutsData, isError: payoutsError } = usePayoutList(token);
 
@@ -123,6 +143,50 @@ export default function SubscriptionPage() {
       setAccountNumber('');
       setBankCode('');
     } catch { /* handled by mutation state */ }
+  };
+
+  const historyBusy =
+    deletePaymentMutation.isPending || clearPaymentHistoryMutation.isPending;
+
+  const confirmDeletePayment = (paymentId: number) => {
+    Alert.alert(
+      'Remove this entry?',
+      'This removes it from your payment history.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            if (!token) return;
+            deletePaymentMutation.mutate(
+              { token, paymentId },
+              { onError: (e) => Alert.alert('Error', paymentErrorMessage(e)) },
+            );
+          },
+        },
+      ],
+    );
+  };
+
+  const confirmClearHistory = () => {
+    Alert.alert(
+      'Clear payment history',
+      'This removes all entries from your payment history. This does not cancel your subscription in Paystack. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear all',
+          style: 'destructive',
+          onPress: () => {
+            if (!token) return;
+            clearPaymentHistoryMutation.mutate(token, {
+              onError: (e) => Alert.alert('Error', paymentErrorMessage(e)),
+            });
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -258,6 +322,22 @@ export default function SubscriptionPage() {
                   Payment History
                 </RNText>
               </View>
+              {!historyLoading && !historyError && (historyData?.results?.length ?? 0) > 0 ? (
+                <Pressable
+                  onPress={confirmClearHistory}
+                  disabled={historyBusy}
+                  style={({ pressed }) => [
+                    styles.clearHistoryButton,
+                    { opacity: historyBusy ? 0.5 : pressed ? 0.75 : 1 },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Clear all payment history"
+                >
+                  <RNText style={[styles.clearHistoryText, { color: colors.error, fontFamily: Fonts.accent }]}>
+                    Clear history
+                  </RNText>
+                </Pressable>
+              ) : null}
             </View>
 
             {historyLoading ? (
@@ -282,6 +362,7 @@ export default function SubscriptionPage() {
                   <RNText style={[styles.tableHeaderCell, styles.cellType, { color: colors.textSecondary, fontFamily: Fonts.accent }]}>Type</RNText>
                   <RNText style={[styles.tableHeaderCell, styles.cellAmount, { color: colors.textSecondary, fontFamily: Fonts.accent }]}>Amount</RNText>
                   <RNText style={[styles.tableHeaderCell, styles.cellStatus, { color: colors.textSecondary, fontFamily: Fonts.accent }]}>Status</RNText>
+                  <View style={styles.cellAction} accessibilityLabel="Actions" />
                 </View>
                 {historyData.results.map((payment) => (
                   <View key={payment.id} style={[styles.tableRow, { borderBottomColor: colors.border }]}>
@@ -300,6 +381,18 @@ export default function SubscriptionPage() {
                           {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                         </RNText>
                       </View>
+                    </View>
+                    <View style={styles.cellAction}>
+                      <Pressable
+                        onPress={() => confirmDeletePayment(payment.id)}
+                        disabled={historyBusy}
+                        style={({ pressed }) => [{ opacity: historyBusy ? 0.45 : pressed ? 0.7 : 1 }]}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel="Delete this payment entry"
+                      >
+                        <Ionicons name="trash-outline" size={20} color={colors.error} />
+                      </Pressable>
                     </View>
                   </View>
                 ))}
@@ -535,6 +628,14 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
+  clearHistoryButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+  },
+  clearHistoryText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   cardBody: {
     paddingHorizontal: 20,
     paddingBottom: 20,
@@ -674,10 +775,15 @@ const styles = StyleSheet.create({
   tableCell: {
     fontSize: 14,
   },
-  cellDate: { flex: 2 },
-  cellType: { flex: 2 },
-  cellAmount: { flex: 2 },
-  cellStatus: { flex: 1.5, alignItems: 'flex-end' as const },
+  cellDate: { flex: 1.75 },
+  cellType: { flex: 1.75 },
+  cellAmount: { flex: 1.75 },
+  cellStatus: { flex: 1.35, alignItems: 'flex-end' as const },
+  cellAction: {
+    flex: 0.75,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
   paymentStatusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
