@@ -98,8 +98,10 @@ export default function LoginPage() {
       // AuthGate handles navigation automatically
     } catch (error: any) {
       let message = 'Login failed. Please try again.';
-      try {
-        const errorData = error.data || JSON.parse(error.message);
+      const errorData = error?.data ?? (() => {
+        try { return JSON.parse(error?.message); } catch { return null; }
+      })();
+      if (errorData) {
         if (errorData.non_field_errors) {
           message = Array.isArray(errorData.non_field_errors)
             ? errorData.non_field_errors[0]
@@ -111,8 +113,6 @@ export default function LoginPage() {
         } else if (errorData.detail) {
           message = errorData.detail;
         }
-      } catch {
-        // use default message
       }
       setFormError(message);
     }

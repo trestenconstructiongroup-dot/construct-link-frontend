@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/react-query';
 import { uploadProfilePhoto } from '../services/api';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 interface UploadPhotoVariables {
   token: string;
   file: File;
@@ -16,8 +19,15 @@ export function useUploadPhoto(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ token, file }: UploadPhotoVariables) =>
-      uploadProfilePhoto(token, file),
+    mutationFn: ({ token, file }: UploadPhotoVariables) => {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        return Promise.reject(new Error('Only JPEG, PNG, and WebP images are supported.'));
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        return Promise.reject(new Error('Image must be smaller than 5 MB.'));
+      }
+      return uploadProfilePhoto(token, file);
+    },
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: ['individualProfile'] });
       queryClient.invalidateQueries({ queryKey: ['companyProfile'] });

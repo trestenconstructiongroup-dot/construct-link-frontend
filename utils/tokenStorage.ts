@@ -59,15 +59,16 @@ export async function clearStoredAuth(): Promise<void> {
 /**
  * Stamps the current time as the last known user activity.
  * Web: synchronous localStorage write.
- * Native: async SecureStore write (fire-and-forget is acceptable).
+ * Native: awaits SecureStore write to ensure the timestamp is persisted
+ * before the OS may suspend or reclaim the app.
  */
-export function setLastActiveTime(): void {
+export async function setLastActiveTime(): Promise<void> {
   const value = String(Date.now());
   if (Platform.OS === 'web') {
     localStorage.setItem(LAST_ACTIVE_KEY, value);
     return;
   }
-  SecureStore?.setItemAsync(LAST_ACTIVE_KEY, value);
+  await SecureStore?.setItemAsync(LAST_ACTIVE_KEY, value);
 }
 
 /** Reads the last active timestamp. Returns null if never set. */

@@ -119,8 +119,10 @@ export default function SignupPage() {
       // AuthGate detects new user has no role -> redirects to /signup-role
     } catch (error: any) {
       let message = 'Signup failed. Please try again.';
-      try {
-        const errorData = error.data || JSON.parse(error.message);
+      const errorData = error?.data ?? (() => {
+        try { return JSON.parse(error?.message); } catch { return null; }
+      })();
+      if (errorData) {
         if (errorData.email) {
           message = Array.isArray(errorData.email)
             ? errorData.email[0]
@@ -136,8 +138,6 @@ export default function SignupPage() {
         } else if (errorData.detail) {
           message = errorData.detail;
         }
-      } catch {
-        // use default message
       }
       setFormError(message);
     }

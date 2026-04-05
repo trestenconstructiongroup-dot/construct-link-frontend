@@ -13,16 +13,8 @@ import {
   setLastActiveTime,
   SESSION_TIMEOUT_MS,
 } from '../utils/tokenStorage';
-
-interface User {
-  id: number;
-  email: string;
-  username: string;
-  full_name: string;
-  is_worker: boolean;
-  is_company: boolean;
-  created_at: string;
-}
+import { userSchema } from '../lib/schemas/user';
+import type { User } from '../lib/schemas/user';
 
 interface AuthContextType {
   user: User | null;
@@ -109,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (session?.access_token) {
             const handled = await handleSsoSession(session.access_token);
             if (handled && isMounted) {
-              setLastActiveTime();
+              await setLastActiveTime();
               setIsLoading(false);
               return;
             }
@@ -121,14 +113,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const storedUserJson = await getStoredUser();
 
         if (storedToken && storedUserJson) {
-          setToken(storedToken);
-          setUser(JSON.parse(storedUserJson)); // immediate render with stored data
+          const parsed = userSchema.safeParse(JSON.parse(storedUserJson));
+          if (!parsed.success) {
+            // Stored user data doesn't match current schema — force re-authentication
+            logger.debug('Stored user schema mismatch — clearing auth state.');
+            await clearStoredAuth();
+            if (isMounted) setIsLoading(false);
+            return;
+          }
+          if (isMounted) {
+            setToken(storedToken);
+            setUser(parsed.data);
+          }
           try {
             const freshUser = await getUserProfile(storedToken);
             if (isMounted) {
               setUser(freshUser);
               await setStoredUser(JSON.stringify(freshUser));
-              setLastActiveTime();
+              await setLastActiveTime();
             }
           } catch (error: any) {
             // Any failure to validate the stored token — treat as expired and clear.
@@ -236,7 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user);
     await setStoredToken(result.token);
     await setStoredUser(JSON.stringify(result.user));
-    setLastActiveTime();
+    await setLastActiveTime();
   };
 
   const signupWithEmail = async (data: SignupData) => {
@@ -245,7 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user);
     await setStoredToken(result.token);
     await setStoredUser(JSON.stringify(result.user));
-    setLastActiveTime();
+    await setLastActiveTime();
   };
 
   const completeSsoSignup = async (data: SsoSignupData) => {
@@ -258,7 +260,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user);
     await setStoredToken(result.token);
     await setStoredUser(JSON.stringify(result.user));
-    setLastActiveTime();
+    await setLastActiveTime();
   };
 
   const updateUserFromServer = async (nextUser: User) => {

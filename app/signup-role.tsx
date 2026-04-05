@@ -10,6 +10,7 @@ import { Text as RNText } from 'react-native';
 import ThemeToggle from '../components/ThemeToggle';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { setUserRole, UserRole } from '../services/api';
+import { parseApiError } from '../utils/errors';
 import { logger } from '../utils/logger';
 
 type Role = UserRole;
@@ -65,21 +66,9 @@ export default function SignupRolePage() {
         updateUserFromServer(updatedUser as any);
       }
       router.replace('/');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Set role error:', error);
-      let errorMessage = 'Unable to save your role. Please try again.';
-
-      try {
-        const errorText = error.message || error.toString();
-        const errorData = JSON.parse(errorText);
-        if (errorData.message || errorData.error || errorData.detail) {
-          errorMessage = errorData.message || errorData.error || errorData.detail;
-        }
-      } catch {
-        // ignore parse errors, use default message
-      }
-
-      Alert.alert('Signup Error', errorMessage);
+      Alert.alert('Signup Error', parseApiError(error, 'Unable to save your role. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }
