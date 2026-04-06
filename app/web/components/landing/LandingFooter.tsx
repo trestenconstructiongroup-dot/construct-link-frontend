@@ -2,10 +2,10 @@
  * Landing footer – columns, meta row, and staggered scroll reveal.
  */
 
-import React, { useEffect, useRef } from 'react';
-import { Image, Platform, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
 import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import React, { useEffect, useRef } from 'react';
+import { Image, Platform, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
 import { Text } from '../../../../components/Text';
 import { Colors, Fonts } from '../../../../constants/theme';
 
@@ -181,7 +181,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         </RNText>
         <View style={styles.footerContactRow}>
           <Text style={[styles.footerMeta, styles.footerTextCentered, { color: colors.text }]}>
-            +254 738 560 675 · info@trestenconstruction.com
+            +254 743 570 897 · info@trestenconstruction.com
           </Text>
         </View>
       </View>
@@ -225,7 +225,7 @@ function LandingFooterComponent({ isSmallScreen, colors }: LandingFooterProps) {
         </RNText>
         <View style={styles.footerContactRow}>
           <Text style={[styles.footerMeta, { color: colors.text }]}>
-            +254 738 560 675 · info@trestenconstruction.com
+            +254 743 570 897 · info@trestenconstruction.com
           </Text>
         </View>
       </View>
