@@ -6,7 +6,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -36,6 +35,7 @@ import {
 } from '../../../hooks/usePayouts';
 import WebLayout from '../layout';
 import LandingFooter from './landing/LandingFooter';
+import { confirmDestructive, showErrorAlert } from '../../../utils/platformDialogs';
 
 const BRAND_BLUE = Colors.light.accentMuted;
 
@@ -149,44 +149,33 @@ export default function SubscriptionPage() {
     deletePaymentMutation.isPending || clearPaymentHistoryMutation.isPending;
 
   const confirmDeletePayment = (paymentId: number) => {
-    Alert.alert(
-      'Remove this entry?',
-      'This removes it from your payment history.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () => {
-            if (!token) return;
-            deletePaymentMutation.mutate(
-              { token, paymentId },
-              { onError: (e) => Alert.alert('Error', paymentErrorMessage(e)) },
-            );
-          },
-        },
-      ],
-    );
+    confirmDestructive({
+      title: 'Remove this entry?',
+      message: 'This removes it from your payment history.',
+      confirmLabel: 'Remove',
+      onConfirm: () => {
+        if (!token) return;
+        deletePaymentMutation.mutate(
+          { token, paymentId },
+          { onError: (e) => showErrorAlert('Error', paymentErrorMessage(e)) },
+        );
+      },
+    });
   };
 
   const confirmClearHistory = () => {
-    Alert.alert(
-      'Clear payment history',
-      'This removes all entries from your payment history. This does not cancel your subscription in Paystack. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear all',
-          style: 'destructive',
-          onPress: () => {
-            if (!token) return;
-            clearPaymentHistoryMutation.mutate(token, {
-              onError: (e) => Alert.alert('Error', paymentErrorMessage(e)),
-            });
-          },
-        },
-      ],
-    );
+    confirmDestructive({
+      title: 'Clear payment history',
+      message:
+        'This removes all entries from your payment history. This does not cancel your subscription in Paystack. This cannot be undone.',
+      confirmLabel: 'Clear all',
+      onConfirm: () => {
+        if (!token) return;
+        clearPaymentHistoryMutation.mutate(token, {
+          onError: (e) => showErrorAlert('Error', paymentErrorMessage(e)),
+        });
+      },
+    });
   };
 
   return (
