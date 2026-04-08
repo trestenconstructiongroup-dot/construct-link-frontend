@@ -242,7 +242,7 @@ export default function SubscriptionPage() {
                     Price
                   </RNText>
                   <RNText style={[styles.infoValue, { color: colors.text, fontFamily: Fonts.accent }]}>
-                    KES 1,000 / month
+                    KSH 1,000 / annum
                   </RNText>
                 </View>
                 {subData?.subscription?.current_period_end && (
@@ -263,10 +263,10 @@ export default function SubscriptionPage() {
                 </RNText>
                 <View style={styles.priceRow}>
                   <RNText style={[styles.priceAmount, { color: colors.text, fontFamily: Fonts.display }]}>
-                    KES 1,000
+                    KSH 1,000
                   </RNText>
                   <RNText style={[styles.pricePeriod, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
-                    / month
+                    / annum
                   </RNText>
                 </View>
                 <Pressable

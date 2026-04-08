@@ -90,7 +90,7 @@ export default function SubscriptionBanner() {
         Upgrade to Premium
       </Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
-        Get full access to all features for KES 1,000/month
+        Get full access to all features for KSH 1,000 / annum
       </Text>
       <TouchableOpacity
         style={[styles.button, { backgroundColor: colors.accent }]}
