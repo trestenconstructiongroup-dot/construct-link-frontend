@@ -192,6 +192,8 @@ export default function WorkersPage() {
         categories_list: [],
         company_types_list: [],
         location_suggestions: [],
+        kenya_counties: [],
+        county_suggestions: [],
       });
     }
   }, []);

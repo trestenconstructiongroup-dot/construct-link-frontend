@@ -28,6 +28,7 @@ import type { JobSummary } from '../../services/api';
 import JobCard from './components/find-jobs/JobCard';
 import LandingFooter from './components/landing/LandingFooter';
 import WebLayout from './layout';
+import { KENYA_COUNTIES } from '../../constants/kenyaCounties';
 
 const BRAND_BLUE = Colors.light.accentMuted;
 const JOB_TYPES = ['one_time', 'short_project', 'long_term'] as const;
@@ -48,6 +49,15 @@ export default function FindJobsWebPage() {
 
   const { filtersData } = useFindJobsFilters(isLoggedIn);
 
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [jobType, setJobType] = useState<string>('');
+  const [payMin, setPayMin] = useState<string>('');
+  const [payMax, setPayMax] = useState<string>('');
+  const [location, setLocation] = useState('');
+  const [county, setCounty] = useState('');
   const [appliedSkills, setAppliedSkills] = useState<string[]>([]);
 
   // Read ?skills= from URL on mount (e.g. from landing category button)
@@ -63,8 +73,17 @@ export default function FindJobsWebPage() {
   }, []);
 
   const params = useMemo(
-    () => (appliedSkills.length ? { skills: appliedSkills.join(',') } : {}),
-    [appliedSkills]
+    () => ({
+      search: search.trim() || undefined,
+      skills: appliedSkills.length ? appliedSkills.join(',') : undefined,
+      roles: selectedRoles.length ? selectedRoles.join(',') : undefined,
+      job_type: jobType || undefined,
+      pay_min: payMin ? Number(payMin) : undefined,
+      pay_max: payMax ? Number(payMax) : undefined,
+      location: location.trim() || undefined,
+      county: county || undefined,
+    }),
+    [search, appliedSkills, selectedRoles, jobType, payMin, payMax, location, county],
   );
 
   const {
@@ -78,15 +97,6 @@ export default function FindJobsWebPage() {
     refetch,
     updateJobInCache,
   } = useFindJobs(params, token ?? null, isLoggedIn);
-
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [jobType, setJobType] = useState<string>('');
-  const [payMin, setPayMin] = useState<string>('');
-  const [payMax, setPayMax] = useState<string>('');
-  const [location, setLocation] = useState('');
 
   const handleApplied = useCallback(
     (jobId: number, applications_count: number, has_applied: boolean) => {
@@ -233,6 +243,8 @@ export default function FindJobsWebPage() {
                     <RNText style={[styles.filterLabel, { color: colors.text }]}>Job type</RNText>
                     <View style={[styles.selectWrap, { borderColor: colors.icon }]}>
                       <select
+                        title="Job type filter"
+                        aria-label="Job type filter"
                         value={jobType}
                         onChange={(e) => setJobType(e.target.value)}
                         style={{
@@ -248,6 +260,37 @@ export default function FindJobsWebPage() {
                         <option value=""> </option>
                         {JOB_TYPES.map((t) => (
                           <option key={t} value={t}>{JOB_TYPE_LABELS[t] || t}</option>
+                        ))}
+                      </select>
+                    </View>
+                  </View>
+
+                  <View style={styles.filterBlock}>
+                    <RNText style={[styles.filterLabel, { color: colors.text }]}>Kenya county</RNText>
+                    <View style={[styles.selectWrap, { borderColor: colors.icon }]}>
+                      <select
+                        title="Kenya county filter"
+                        aria-label="Kenya county filter"
+                        value={county}
+                        onChange={(e) => setCounty(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: 10,
+                          background: colors.background,
+                          color: colors.text,
+                          border: 'none',
+                          fontFamily: fontBody,
+                          fontSize: 14,
+                        } as any}
+                      >
+                        <option value="">All counties</option>
+                        {(filtersData.kenya_counties?.length
+                          ? filtersData.kenya_counties
+                          : KENYA_COUNTIES.map((c) => ({ slug: c.slug, name: c.name }))
+                        ).map((c) => (
+                          <option key={c.slug} value={c.slug}>
+                            {c.name}
+                          </option>
                         ))}
                       </select>
                     </View>
@@ -275,18 +318,16 @@ export default function FindJobsWebPage() {
                     </View>
                   </View>
 
-                  {filtersData.location_suggestions.length > 0 && (
-                    <View style={styles.filterBlock}>
-                      <RNText style={[styles.filterLabel, { color: colors.text }]}>Location</RNText>
-                      <TextInput
-                        style={[styles.locationInput, { color: colors.text, borderColor: colors.icon }]}
-                        placeholder="City or region"
-                        placeholderTextColor={colors.icon}
-                        value={location}
-                        onChangeText={setLocation}
-                      />
-                    </View>
-                  )}
+                  <View style={styles.filterBlock}>
+                    <RNText style={[styles.filterLabel, { color: colors.text }]}>Location text</RNText>
+                    <TextInput
+                      style={[styles.locationInput, { color: colors.text, borderColor: colors.icon }]}
+                      placeholder="Town, area, or legacy text"
+                      placeholderTextColor={colors.icon}
+                      value={location}
+                      onChangeText={setLocation}
+                    />
+                  </View>
 
                   <Pressable
                     onPress={() => {
@@ -297,6 +338,7 @@ export default function FindJobsWebPage() {
                       setPayMin('');
                       setPayMax('');
                       setLocation('');
+                      setCounty('');
                     }}
                     style={[styles.clearBtn, { borderColor: colors.icon }]}
                   >

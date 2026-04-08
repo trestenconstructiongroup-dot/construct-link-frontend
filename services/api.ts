@@ -243,6 +243,8 @@ type ApiRequestOptions = RequestInit & {
     skills: { name: string; standardized?: boolean }[];
     bio: string;
     experience_years?: number;
+    kenya_county?: string;
+    location_locality?: string;
     location: string;
     photo_url: string;
     hourly_rate?: string | null;
@@ -262,6 +264,8 @@ type ApiRequestOptions = RequestInit & {
     description: string;
     website: string;
     team_size?: number;
+    kenya_county?: string;
+    location_locality?: string;
     location: string;
     logo_url: string;
     founded_year?: number | null;
@@ -570,6 +574,8 @@ type ApiRequestOptions = RequestInit & {
     job_type: "one_time" | "short_project" | "long_term";
     required_skills: string[];
     description: string;
+    kenya_county?: string;
+    location_locality?: string;
     location: string;
     start_date: string | null;
     deadline: string | null;
@@ -680,6 +686,8 @@ type ApiRequestOptions = RequestInit & {
     posted_by_id: number;
     posted_by_name: string;
     employer_type: "individual" | "company";
+    kenya_county?: string;
+    location_locality?: string;
     location_text: string;
     latitude?: number | null;
     longitude?: number | null;
@@ -712,6 +720,11 @@ type ApiRequestOptions = RequestInit & {
     results: JobSummary[];
   }
 
+  export interface KenyaCountyRef {
+    slug: string;
+    name: string;
+  }
+
   export interface FindJobsFilters {
     skills_list: string[];
     roles_list: string[];
@@ -719,6 +732,8 @@ type ApiRequestOptions = RequestInit & {
     pay_range_min: number;
     pay_range_max: number;
     location_suggestions: string[];
+    kenya_counties: KenyaCountyRef[];
+    county_suggestions: string[];
   }
 
   export interface FindJobsParams {
@@ -729,6 +744,8 @@ type ApiRequestOptions = RequestInit & {
     pay_min?: number;
     pay_max?: number;
     location?: string;
+    /** Kenya county slug (exact match) */
+    county?: string;
     page?: number;
     page_size?: number;
   }
@@ -745,6 +762,7 @@ type ApiRequestOptions = RequestInit & {
     if (params.pay_min != null) sp.set("pay_min", String(params.pay_min));
     if (params.pay_max != null) sp.set("pay_max", String(params.pay_max));
     if (params.location) sp.set("location", params.location);
+    if (params.county) sp.set("county", params.county);
     if (params.page != null) sp.set("page", String(params.page));
     if (params.page_size != null) sp.set("page_size", String(params.page_size));
     const qs = sp.toString();
@@ -900,6 +918,8 @@ type ApiRequestOptions = RequestInit & {
     hourly_rate: string | null;
     daily_rate: string | null;
     location: string;
+    kenya_county?: string;
+    location_locality?: string;
     availability: string;
     tagline: string;
     // Detail-only fields (returned by find_worker_detail)
@@ -924,6 +944,8 @@ type ApiRequestOptions = RequestInit & {
     certifications: string[];
     min_project_budget: string | null;
     tagline: string;
+    kenya_county?: string;
+    location_locality?: string;
   }
 
   export type WorkerSearchResult =
@@ -942,6 +964,8 @@ type ApiRequestOptions = RequestInit & {
     categories_list: string[];
     company_types_list: string[];
     location_suggestions: string[];
+    kenya_counties: KenyaCountyRef[];
+    county_suggestions: string[];
   }
 
   export interface FindWorkersParams {
@@ -953,6 +977,8 @@ type ApiRequestOptions = RequestInit & {
     years_min?: number;
     years_max?: number;
     location?: string;
+    /** Kenya county slug (exact match) */
+    county?: string;
     company_type?: string;
     team_size_min?: number;
     sort?: string;
@@ -973,6 +999,7 @@ type ApiRequestOptions = RequestInit & {
     if (params.years_min != null) sp.set("years_min", String(params.years_min));
     if (params.years_max != null) sp.set("years_max", String(params.years_max));
     if (params.location) sp.set("location", params.location);
+    if (params.county) sp.set("county", params.county);
     if (params.company_type) sp.set("company_type", params.company_type);
     if (params.team_size_min != null) sp.set("team_size_min", String(params.team_size_min));
     if (params.sort) sp.set("sort", params.sort);

@@ -28,6 +28,7 @@ import {
     type Job,
 } from '../../services/api';
 import WebLayout from '../web/layout';
+import { KenyaCountyPicker } from '../../components/KenyaCountyPicker';
 import {
     CATEGORY_SKILL_SUGGESTIONS,
     JOB_CATEGORIES,
@@ -37,6 +38,7 @@ import {
     type JobType,
     type PaymentType,
 } from './components/jobs-create/_constants';
+import { getKenyaCountyName } from '../../constants/kenyaCounties';
 
 setWasmUrl('/dotlottie-player.wasm');
 
@@ -66,7 +68,8 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
 
   const [description, setDescription] = useState('');
 
-  const [location, setLocation] = useState('');
+  const [kenyaCounty, setKenyaCounty] = useState('');
+  const [locationLocality, setLocationLocality] = useState('');
   const [startDate, setStartDate] = useState('');
   const [deadline, setDeadline] = useState('');
 
@@ -101,7 +104,8 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
         setJobType((job.job_type as JobType) || 'one_time');
         setRequiredSkills(job.required_skills ?? []);
         setDescription(job.description ?? '');
-        setLocation(job.location ?? '');
+        setKenyaCounty(job.kenya_county ?? '');
+        setLocationLocality(job.location_locality ?? '');
         setStartDate(parseDate(job.start_date));
         setDeadline(parseDate(job.deadline));
         setPaymentType((job.payment_type as PaymentType) || 'fixed');
@@ -165,7 +169,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
   const validateForPublish = () => {
     if (!jobTitle.trim()) return 'Job title is required.';
     if (!categories.length) return 'At least one category is required.';
-    if (!location.trim()) return 'Location is required.';
+    if (!kenyaCounty.trim()) return 'Select a Kenya county for this job.';
     if (!description.trim()) return 'Please add a short job description.';
     if (!paymentType) return 'Payment type is required.';
     return null;
@@ -193,7 +197,8 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
         job_type: jobType,
         required_skills: requiredSkills,
         description,
-        location,
+        kenya_county: kenyaCounty,
+        location_locality: locationLocality,
         start_date: startDate || null,
         deadline: deadline || null,
         payment_type: paymentType,
@@ -720,13 +725,26 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                   </View>
 
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Location
+                    Kenya county
+                  </Text>
+                  <KenyaCountyPicker
+                    value={kenyaCounty}
+                    onChange={setKenyaCounty}
+                    placeholder="Select county"
+                    textColor={colors.text}
+                    mutedColor="#9ca3af"
+                    borderColor="rgba(148,163,184,0.45)"
+                    surfaceColor={isDark ? 'rgba(15,23,42,0.95)' : '#ffffff'}
+                    accentColor={colors.tint}
+                  />
+                  <Text style={[styles.label, { color: colors.text, marginTop: 12 }]}>
+                    Town / site (optional)
                   </Text>
                   <TextInput
                     style={[styles.input, { color: colors.text }]}
-                    value={location}
-                    onChangeText={setLocation}
-                    placeholder="e.g. Nairobi, Industrial Area – On-site"
+                    value={locationLocality}
+                    onChangeText={setLocationLocality}
+                    placeholder="e.g. Westlands, Industrial Area"
                     placeholderTextColor="#9ca3af"
                   />
 
@@ -947,7 +965,14 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                     Location
                   </Text>
                   <Text style={{ color: colors.text, marginBottom: 8 }}>
-                    {location || '—'}
+                    {(() => {
+                      const cname = getKenyaCountyName(kenyaCounty);
+                      if (!cname && !locationLocality.trim()) return '—';
+                      if (locationLocality.trim() && cname) {
+                        return `${locationLocality.trim()}, ${cname}`;
+                      }
+                      return cname || locationLocality.trim() || '—';
+                    })()}
                   </Text>
 
                   <Text style={[styles.label, { color: colors.text }]}>

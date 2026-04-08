@@ -17,6 +17,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { Colors, Fonts } from '../../../constants/theme';
 import { Text } from '../../../components/Text';
 import LandingFooter from './landing/LandingFooter';
+import { KenyaCountyPicker } from '../../../components/KenyaCountyPicker';
 import {
   getFullProfile,
   updateIndividualProfile,
@@ -47,6 +48,8 @@ type IndividualProfile = {
   skills: Skill[];
   bio: string;
   experience_years?: number;
+  kenya_county?: string;
+  location_locality?: string;
   location: string;
   photo_url: string;
   hourly_rate?: string | null;
@@ -63,6 +66,8 @@ type CompanyProfile = {
   description: string;
   website: string;
   team_size?: number;
+  kenya_county?: string;
+  location_locality?: string;
   location: string;
   logo_url: string;
   founded_year?: number | null;
@@ -609,9 +614,25 @@ function ProfileSummaryCard({
   const [headline, setHeadline] = useState(
     accountType === 'company' ? company?.description || '' : individual?.headline || '',
   );
-  const [location, setLocation] = useState(
-    (accountType === 'company' ? company?.location : individual?.location) || '',
+  const [kenyaCounty, setKenyaCounty] = useState(
+    (accountType === 'company' ? company?.kenya_county : individual?.kenya_county) || '',
   );
+  const [locationLocality, setLocationLocality] = useState(
+    (accountType === 'company' ? company?.location_locality : individual?.location_locality) || '',
+  );
+
+  useEffect(() => {
+    if (accountType === 'company' && company) {
+      setKenyaCounty(company.kenya_county || '');
+      setLocationLocality(company.location_locality || '');
+    } else if (accountType === 'individual' && individual) {
+      setKenyaCounty(individual.kenya_county || '');
+      setLocationLocality(individual.location_locality || '');
+    }
+  }, [accountType, company?.id, individual?.id, company?.kenya_county, individual?.kenya_county]);
+
+  const displayLocation =
+    (accountType === 'company' ? company?.location : individual?.location) || '';
 
   const badge =
     accountType === 'individual'
@@ -623,8 +644,13 @@ function ProfileSummaryCard({
   const handleSave = async () => {
     const payload: any =
       accountType === 'company'
-        ? { company_name: name, description: headline, location }
-        : { name, headline, location };
+        ? {
+            company_name: name,
+            description: headline,
+            kenya_county: kenyaCounty,
+            location_locality: locationLocality,
+          }
+        : { name, headline, kenya_county: kenyaCounty, location_locality: locationLocality };
     await onSave(payload);
     setEditing(false);
   };
@@ -732,11 +758,24 @@ function ProfileSummaryCard({
                 }
                 placeholderTextColor="#9ca3af"
               />
+              <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.75, marginBottom: 6 }]}>
+                Location (Kenya)
+              </Text>
+              <KenyaCountyPicker
+                value={kenyaCounty}
+                onChange={setKenyaCounty}
+                placeholder="Select county"
+                textColor={colors.text}
+                mutedColor="#9ca3af"
+                borderColor="rgba(148,163,184,0.5)"
+                surfaceColor={isDark ? 'rgba(15,23,42,0.95)' : '#fff'}
+                accentColor={colors.accent}
+              />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
-                value={location}
-                onChangeText={setLocation}
-                placeholder="City, Country"
+                style={[styles.input, { color: colors.text, marginTop: 10 }]}
+                value={locationLocality}
+                onChangeText={setLocationLocality}
+                placeholder="Town / estate / area (optional)"
                 placeholderTextColor="#9ca3af"
               />
             </>
@@ -750,9 +789,9 @@ function ProfileSummaryCard({
                   {headline}
                 </Text>
               ) : null}
-              {location ? (
+              {displayLocation ? (
                 <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.7 }]}>
-                  {location}
+                  {displayLocation}
                 </Text>
               ) : null}
             </>

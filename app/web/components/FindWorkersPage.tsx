@@ -28,6 +28,7 @@ import WebLayout from '../layout';
 import CompanyCard from './find-workers/CompanyCard';
 import IndividualCard from './find-workers/IndividualCard';
 import LandingFooter from './landing/LandingFooter';
+import { KENYA_COUNTIES } from '../../../constants/kenyaCounties';
 
 const BRAND_BLUE = Colors.light.accentMuted;
 const EXPERIENCE_LEVELS = ['beginner', 'intermediate', 'expert', 'master'] as const;
@@ -66,6 +67,7 @@ export default function FindWorkersPage() {
   const [yearsMin, setYearsMin] = useState('');
   const [yearsMax, setYearsMax] = useState('');
   const [location, setLocation] = useState('');
+  const [county, setCounty] = useState('');
   const [companyType, setCompanyType] = useState('');
   const [teamSizeMin, setTeamSizeMin] = useState('');
   const [sort, setSort] = useState('recent');
@@ -78,6 +80,7 @@ export default function FindWorkersPage() {
   const [appliedYearsMin, setAppliedYearsMin] = useState('');
   const [appliedYearsMax, setAppliedYearsMax] = useState('');
   const [appliedLocation, setAppliedLocation] = useState('');
+  const [appliedCounty, setAppliedCounty] = useState('');
   const [appliedCompanyType, setAppliedCompanyType] = useState('');
   const [appliedTeamSizeMin, setAppliedTeamSizeMin] = useState('');
   const [appliedSort, setAppliedSort] = useState('recent');
@@ -108,6 +111,7 @@ export default function FindWorkersPage() {
       years_min: appliedYearsMin ? Number(appliedYearsMin) : undefined,
       years_max: appliedYearsMax ? Number(appliedYearsMax) : undefined,
       location: appliedLocation || undefined,
+      county: appliedCounty || undefined,
       company_type: appliedCompanyType || undefined,
       team_size_min: appliedTeamSizeMin ? Number(appliedTeamSizeMin) : undefined,
       sort: appliedSort,
@@ -121,6 +125,7 @@ export default function FindWorkersPage() {
       appliedYearsMin,
       appliedYearsMax,
       appliedLocation,
+      appliedCounty,
       appliedCompanyType,
       appliedTeamSizeMin,
       appliedSort,
@@ -167,10 +172,11 @@ export default function FindWorkersPage() {
     setAppliedYearsMin(yearsMin);
     setAppliedYearsMax(yearsMax);
     setAppliedLocation(location);
+    setAppliedCounty(county);
     setAppliedCompanyType(companyType);
     setAppliedTeamSizeMin(teamSizeMin);
     setAppliedSort(sort);
-  }, [search, resultType, selectedSkills, category, experienceLevel, yearsMin, yearsMax, location, companyType, teamSizeMin, sort]);
+  }, [search, resultType, selectedSkills, category, experienceLevel, yearsMin, yearsMax, location, county, companyType, teamSizeMin, sort]);
 
   const handleLoadMore = useCallback(() => {
     if (hasNextPage && !loadingMore) fetchNextPage();
@@ -189,6 +195,7 @@ export default function FindWorkersPage() {
     setYearsMin('');
     setYearsMax('');
     setLocation('');
+    setCounty('');
     setCompanyType('');
     setTeamSizeMin('');
     setSort('recent');
@@ -200,6 +207,7 @@ export default function FindWorkersPage() {
     setAppliedYearsMin('');
     setAppliedYearsMax('');
     setAppliedLocation('');
+    setAppliedCounty('');
     setAppliedCompanyType('');
     setAppliedTeamSizeMin('');
     setAppliedSort('recent');
@@ -403,18 +411,36 @@ export default function FindWorkersPage() {
                       />
                     </View>
 
-                    {filtersData.location_suggestions.length > 0 && (
-                      <View style={styles.filterBlock}>
-                        <RNText style={[styles.filterLabel, { color: colors.text }]}>Location</RNText>
-                        <TextInput
-                          style={[styles.locationInput, { color: colors.text, borderColor: colors.icon }]}
-                          placeholder="City or region"
-                          placeholderTextColor={colors.icon}
-                          value={location}
-                          onChangeText={setLocation}
-                        />
+                    <View style={styles.filterBlock}>
+                      <RNText style={[styles.filterLabel, { color: colors.text }]}>Kenya county</RNText>
+                      <View style={[styles.selectWrap, { borderColor: colors.icon }]}>
+                        <select
+                          title="Kenya county"
+                          value={county}
+                          onChange={(e) => setCounty(e.target.value)}
+                          style={{ width: '100%', padding: 10, background: colors.background, color: colors.text, border: 'none', fontFamily: fontBody, fontSize: 14 } as any}
+                        >
+                          <option value="">All counties</option>
+                          {(filtersData.kenya_counties?.length
+                            ? filtersData.kenya_counties
+                            : KENYA_COUNTIES.map((c) => ({ slug: c.slug, name: c.name }))
+                          ).map((c) => (
+                            <option key={c.slug} value={c.slug}>{c.name}</option>
+                          ))}
+                        </select>
                       </View>
-                    )}
+                    </View>
+
+                    <View style={styles.filterBlock}>
+                      <RNText style={[styles.filterLabel, { color: colors.text }]}>Location text</RNText>
+                      <TextInput
+                        style={[styles.locationInput, { color: colors.text, borderColor: colors.icon }]}
+                        placeholder="Town, area, or legacy text"
+                        placeholderTextColor={colors.icon}
+                        value={location}
+                        onChangeText={setLocation}
+                      />
+                    </View>
 
                     <View style={styles.filterBlock}>
                       <RNText style={[styles.filterLabel, { color: colors.text }]}>Sort</RNText>

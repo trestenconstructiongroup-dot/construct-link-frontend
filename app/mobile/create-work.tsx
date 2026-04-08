@@ -13,6 +13,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Colors, Fonts } from '../../constants/theme';
 import { Text } from '../../components/Text';
+import { KenyaCountyPicker } from '../../components/KenyaCountyPicker';
 import {
   createJob,
   JobMode,
@@ -93,7 +94,8 @@ export default function CreateWorkPage() {
   const [customSkill, setCustomSkill] = useState('');
   const [description, setDescription] = useState('');
 
-  const [location, setLocation] = useState('');
+  const [kenyaCounty, setKenyaCounty] = useState('');
+  const [locationLocality, setLocationLocality] = useState('');
   const [startDate, setStartDate] = useState('');
   const [deadline, setDeadline] = useState('');
 
@@ -110,7 +112,7 @@ export default function CreateWorkPage() {
   const validateForPublish = () => {
     if (!jobTitle.trim()) return 'Job title is required.';
     if (!categories.length) return 'At least one category is required.';
-    if (!location.trim()) return 'Location is required.';
+    if (!kenyaCounty.trim()) return 'Select a Kenya county for this job.';
     if (!description.trim()) return 'Please add a short job description.';
     if (!paymentType) return 'Payment type is required.';
     return null;
@@ -199,7 +201,8 @@ export default function CreateWorkPage() {
         job_type: jobType,
         required_skills: requiredSkills,
         description,
-        location,
+        kenya_county: kenyaCounty,
+        location_locality: locationLocality,
         start_date: startDate || null,
         deadline: deadline || null,
         payment_type: paymentType,
@@ -510,12 +513,25 @@ export default function CreateWorkPage() {
             Location & payment
           </Text>
 
-          <Text style={[styles.label, { color: colors.text }]}>Location</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Kenya county</Text>
+          <KenyaCountyPicker
+            value={kenyaCounty}
+            onChange={setKenyaCounty}
+            placeholder="Select county"
+            textColor={colors.text}
+            mutedColor="#9ca3af"
+            borderColor="rgba(148,163,184,0.45)"
+            surfaceColor={isDark ? 'rgba(15,23,42,0.95)' : '#ffffff'}
+            accentColor={colors.tint}
+          />
+          <Text style={[styles.label, { color: colors.text, marginTop: 12 }]}>
+            Town / site (optional)
+          </Text>
           <TextInput
             style={[styles.input, styles.inputSingleLine, { color: colors.text }]}
-            value={location}
-            onChangeText={setLocation}
-            placeholder="City or site"
+            value={locationLocality}
+            onChangeText={setLocationLocality}
+            placeholder="e.g. Westlands"
             placeholderTextColor="#9ca3af"
             numberOfLines={1}
           />

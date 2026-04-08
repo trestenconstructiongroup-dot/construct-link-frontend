@@ -17,6 +17,8 @@ export function useFindJobsFilters(enabled = true) {
           pay_range_min: 0,
           pay_range_max: 0,
           location_suggestions: [],
+          kenya_counties: [],
+          county_suggestions: [],
         };
       }
     },
