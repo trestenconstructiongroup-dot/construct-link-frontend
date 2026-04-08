@@ -581,6 +581,14 @@ export default function ProfilePage() {
   );
 }
 
+/**
+ * Hybrid profile UX: the summary card and About section(s) mount with the edit form visible.
+ * Skills, rates, certifications, experience, education, and company detail sections still start
+ * collapsed until the user taps Edit (keeps the page shorter).
+ */
+const PROFILE_SUMMARY_DEFAULT_EDITING = true;
+const PROFILE_ABOUT_DEFAULT_EDITING = true;
+
 type SummaryProps = {
   accountType: 'individual' | 'company' | 'unassigned';
   user: ProfileResponse['user'];
@@ -604,7 +612,7 @@ function ProfileSummaryCard({
   const colors = Colors[isDark ? 'dark' : 'light'];
   const width = useClientWidth();
   const isSmallScreen = width < 768;
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(PROFILE_SUMMARY_DEFAULT_EDITING);
 
   const [name, setName] = useState(
     accountType === 'company'
@@ -975,7 +983,7 @@ type AboutProps = {
 function AboutSection({ profile, onSave }: AboutProps) {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(PROFILE_ABOUT_DEFAULT_EDITING);
   const [bio, setBio] = useState(profile.bio || '');
 
   const handleSave = async () => {
@@ -1041,7 +1049,7 @@ type CompanyAboutProps = {
 function CompanyAboutSection({ profile, onSave }: CompanyAboutProps) {
   const { isDark } = useTheme();
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(PROFILE_ABOUT_DEFAULT_EDITING);
   const [description, setDescription] = useState(profile.description || '');
 
   const handleSave = async () => {
