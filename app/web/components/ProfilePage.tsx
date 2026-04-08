@@ -19,6 +19,16 @@ import { Text } from '../../../components/Text';
 import LandingFooter from './landing/LandingFooter';
 import { KenyaCountyPicker } from '../../../components/KenyaCountyPicker';
 import {
+  ProfileSectionCard,
+  ProfileSectionHeader,
+  ProfileHeaderDivider,
+  ProfilePrimaryButton,
+  ProfileOutlineButton,
+  ProfileFooterRow,
+  ProfileEmptyHint,
+  ProfileFieldLabel,
+} from './profile/ProfileSectionChrome';
+import {
   getFullProfile,
   updateIndividualProfile,
   updateCompanyProfile,
@@ -707,22 +717,13 @@ function ProfileSummaryCard({
   );
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
+    <ProfileSectionCard isDark={isDark} featured>
       {Platform.OS === 'web' && (
         <input
           ref={fileInputRef as any}
           type="file"
           accept="image/jpeg,image/png,image/webp"
+          aria-label="Upload profile photo"
           style={{ display: 'none' }}
           onChange={handleFileChange as any}
         />
@@ -814,25 +815,21 @@ function ProfileSummaryCard({
 
       <View style={styles.summaryActions}>
         <Pressable style={styles.photoButton} onPress={handlePickPhoto} disabled={uploading}>
-          <Text style={[styles.actionText, { color: colors.text, opacity: uploading ? 0.5 : 0.85 }]}>
+          <Text style={[styles.actionText, { color: colors.accent, opacity: uploading ? 0.5 : 1 }]}>
             {uploading ? 'Uploading...' : 'Edit profile photo'}
           </Text>
         </Pressable>
-        <Pressable
-          style={[styles.editButton, { borderColor: '#ffffff33' }]}
+        <ProfileOutlineButton
+          label={editing ? 'Cancel' : 'Edit summary'}
           onPress={() => setEditing((prev) => !prev)}
-        >
-          <Text style={[styles.actionText, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit summary'}
-          </Text>
-        </Pressable>
-        {editing && (
-          <Pressable style={styles.saveButton} onPress={handleSave}>
-            <Text style={[styles.actionText, { color: '#0f172a' }]}>Save</Text>
-          </Pressable>
-        )}
+          colors={colors}
+          isDark={isDark}
+        />
+        {editing ? (
+          <ProfilePrimaryButton label="Save" onPress={handleSave} colors={colors} />
+        ) : null}
       </View>
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -872,31 +869,21 @@ function SkillsSection({ profile, onSave }: SkillsProps) {
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Skills</Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Skills"
+        subtitle="What you do best — helps the right companies find you."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
 
       <View style={styles.chipRow}>
         {selected.length === 0 && !editing ? (
-          <Text style={[styles.emptyText, { color: colors.text }]}>
+          <ProfileEmptyHint colors={colors}>
             Add the skills you want companies to find you for.
-          </Text>
+          </ProfileEmptyHint>
         ) : null}
         {selected.map((skill) => (
           <View
@@ -958,20 +945,14 @@ function SkillsSection({ profile, onSave }: SkillsProps) {
               placeholder="Add another skill"
               placeholderTextColor="#9ca3af"
             />
-            <Pressable style={styles.saveButton} onPress={handleAddCustom}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>Add</Text>
-            </Pressable>
+            <ProfileOutlineButton label="Add" onPress={handleAddCustom} colors={colors} isDark={isDark} />
           </View>
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>
-                Save skills
-              </Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton label="Save skills" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -992,27 +973,15 @@ function AboutSection({ profile, onSave }: AboutProps) {
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View className="header">
-        <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>About</Text>
-          <Pressable onPress={() => setEditing((prev) => !prev)}>
-            <Text style={[styles.cardAction, { color: colors.text }]}>
-              {editing ? 'Cancel' : 'Edit'}
-            </Text>
-          </Pressable>
-        </View>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="About"
+        subtitle="Introduce yourself — experience, projects, and what you're looking for."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
       {editing ? (
         <>
           <TextInput
@@ -1021,23 +990,24 @@ function AboutSection({ profile, onSave }: AboutProps) {
             onChangeText={setBio}
             multiline
             numberOfLines={5}
-            placeholder="Tell companies a bit about your experience, projects and what you’re looking for."
+            placeholder="Your story for clients and teams"
             placeholderTextColor="#9ca3af"
           />
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>
-                Save about
-              </Text>
-            </Pressable>
-          </View>
+          <Text style={[styles.helperBelowField, { color: colors.textSecondary }]}>
+            A few clear sentences help the right opportunities find you.
+          </Text>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton label="Save about" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </>
+      ) : bio.trim() ? (
+        <Text style={[styles.bodyText, { color: colors.text }]}>{bio}</Text>
       ) : (
-        <Text style={[styles.bodyText, { color: colors.text }]}>
-          {bio || 'Use this space to introduce yourself to potential clients and teams.'}
-        </Text>
+        <ProfileEmptyHint colors={colors}>
+          Use this space to introduce yourself to potential clients and teams.
+        </ProfileEmptyHint>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -1058,27 +1028,15 @@ function CompanyAboutSection({ profile, onSave }: CompanyAboutProps) {
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>
-          About this company
-        </Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="About this company"
+        subtitle="Mission, clients, and what sets your team apart."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
       {editing ? (
         <>
           <TextInput
@@ -1087,23 +1045,21 @@ function CompanyAboutSection({ profile, onSave }: CompanyAboutProps) {
             onChangeText={setDescription}
             multiline
             numberOfLines={5}
-            placeholder="Describe the kind of work you deliver, your clients and what makes your team different."
+            placeholder="What you build, who you serve, why you're different"
             placeholderTextColor="#9ca3af"
           />
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>
-                Save
-              </Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton label="Save" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </>
+      ) : description.trim() ? (
+        <Text style={[styles.bodyText, { color: colors.text }]}>{description}</Text>
       ) : (
-        <Text style={[styles.bodyText, { color: colors.text }]}>
-          {description || 'Share your mission, the type of projects you run and the crews you are looking for.'}
-        </Text>
+        <ProfileEmptyHint colors={colors}>
+          Share your mission, the type of projects you run and the crews you are looking for.
+        </ProfileEmptyHint>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -1152,25 +1108,15 @@ function CompanyDetailsSection({ profile, hiringFocus, onSaveProfile }: CompanyD
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Company details</Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Company details"
+        subtitle="Type, website, team size — the basics clients and workers see first."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
 
       {!editing && (
         <>
@@ -1250,9 +1196,7 @@ function CompanyDetailsSection({ profile, hiringFocus, onSaveProfile }: CompanyD
 
       {editing && (
         <>
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
-            Company type
-          </Text>
+          <ProfileFieldLabel colors={colors}>Company type</ProfileFieldLabel>
           <View style={[styles.chipRow, { marginTop: 4, marginBottom: 12 }]}>
             {COMPANY_TYPE_OPTIONS.map((type) => {
               const active = companyTypes.includes(type);
@@ -1282,9 +1226,7 @@ function CompanyDetailsSection({ profile, hiringFocus, onSaveProfile }: CompanyD
             })}
           </View>
 
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
-            Website
-          </Text>
+          <ProfileFieldLabel colors={colors}>Website</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text, marginBottom: 12 }]}
             value={website}
@@ -1293,9 +1235,7 @@ function CompanyDetailsSection({ profile, hiringFocus, onSaveProfile }: CompanyD
             placeholderTextColor="#9ca3af"
           />
 
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
-            Team size
-          </Text>
+          <ProfileFieldLabel colors={colors}>Team size</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text, marginBottom: 12 }]}
             value={teamSize}
@@ -1305,14 +1245,12 @@ function CompanyDetailsSection({ profile, hiringFocus, onSaveProfile }: CompanyD
             placeholderTextColor="#9ca3af"
           />
 
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save details</Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton label="Save details" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -1340,31 +1278,21 @@ function CompanyHiringFocusSection({
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Hiring focus</Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Close' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Hiring focus"
+        subtitle="Roles and trades you hire most — helps workers self-match."
+        actionLabel={editing ? 'Close' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
 
       {items.length === 0 ? (
-        <Text style={[styles.bodyText, { color: colors.text }]}>
-          Highlight the key roles or trades you regularly hire for (for example:
-          Skilled Electricians, HVAC technicians, Site supervisors).
-        </Text>
+        <ProfileEmptyHint colors={colors}>
+          Highlight the key roles or trades you regularly hire for (for example: Skilled Electricians,
+          HVAC technicians, Site supervisors).
+        </ProfileEmptyHint>
       ) : (
         items.map((focus) => (
           <View
@@ -1395,14 +1323,12 @@ function CompanyHiringFocusSection({
             placeholder="e.g. Skilled Electricians, Site Supervisors"
             placeholderTextColor="#9ca3af"
           />
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleAdd}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>Add role</Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton label="Add role" onPress={handleAdd} colors={colors} />
+          </ProfileFooterRow>
         </View>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 const AVAILABILITY_OPTIONS = [
@@ -1438,25 +1364,15 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
   const currentLabel = AVAILABILITY_OPTIONS.find((o) => o.value === availability)?.label || 'Not set';
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Rates & Availability</Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Rates & availability"
+        subtitle="Optional — set expectations before the first conversation."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
 
       {!editing ? (
         <View style={{ gap: 8 }}>
@@ -1472,7 +1388,7 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
         </View>
       ) : (
         <View style={{ gap: 8 }}>
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Hourly rate ($)</Text>
+          <ProfileFieldLabel colors={colors}>Hourly rate ($)</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text }]}
             value={String(hourlyRate ?? '')}
@@ -1481,7 +1397,7 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
             keyboardType="numeric"
             placeholderTextColor="#9ca3af"
           />
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Daily rate ($)</Text>
+          <ProfileFieldLabel colors={colors}>Daily rate ($)</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text }]}
             value={String(dailyRate ?? '')}
@@ -1490,7 +1406,7 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
             keyboardType="numeric"
             placeholderTextColor="#9ca3af"
           />
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Availability</Text>
+          <ProfileFieldLabel colors={colors}>Availability</ProfileFieldLabel>
           <View style={styles.chipRow}>
             {AVAILABILITY_OPTIONS.map((opt) => {
               const active = availability === opt.value;
@@ -1514,14 +1430,12 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
               );
             })}
           </View>
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save</Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton label="Save" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </View>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -1560,30 +1474,20 @@ function CertificationsSection({ certifications, onSave }: CertificationsSection
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Certifications</Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Certifications"
+        subtitle="Licenses and credentials that back up your expertise."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
 
       {items.length === 0 && !editing ? (
-        <Text style={[styles.bodyText, { color: colors.text }]}>
+        <ProfileEmptyHint colors={colors}>
           Add certifications like OSHA 30, LEED, PMP, or trade licenses.
-        </Text>
+        </ProfileEmptyHint>
       ) : (
         items.map((cert, i) => (
           <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -1630,17 +1534,13 @@ function CertificationsSection({ certifications, onSave }: CertificationsSection
               placeholderTextColor="#9ca3af"
             />
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)' }]} onPress={handleAdd}>
-              <Text style={[styles.actionText, { color: colors.text }]}>+ Add</Text>
-            </Pressable>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save certifications</Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfileOutlineButton label="+ Add" onPress={handleAdd} colors={colors} isDark={isDark} />
+            <ProfilePrimaryButton label="Save certifications" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </View>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -1675,30 +1575,21 @@ function WorkProcessSection({ steps, onSave }: WorkProcessSectionProps) {
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>How I Work</Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="How I work"
+        subtitle="Your typical steps — builds trust before the first call."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
 
       {items.length === 0 && !editing ? (
-        <Text style={[styles.bodyText, { color: colors.text }]}>
-          Outline your work process so clients know what to expect (e.g. 1. Consultation, 2. Estimate, 3. Execution).
-        </Text>
+        <ProfileEmptyHint colors={colors}>
+          Outline your work process so clients know what to expect (e.g. 1. Consultation, 2. Estimate, 3.
+          Execution).
+        </ProfileEmptyHint>
       ) : (
         items.map((step, i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10, gap: 10 }}>
@@ -1736,17 +1627,13 @@ function WorkProcessSection({ steps, onSave }: WorkProcessSectionProps) {
             placeholder="Brief description (optional)"
             placeholderTextColor="#9ca3af"
           />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)' }]} onPress={handleAdd}>
-              <Text style={[styles.actionText, { color: colors.text }]}>+ Add step</Text>
-            </Pressable>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save work process</Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfileOutlineButton label="+ Add step" onPress={handleAdd} colors={colors} isDark={isDark} />
+            <ProfilePrimaryButton label="Save work process" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </View>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -1799,25 +1686,15 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
   };
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Company Extras</Text>
-        <Pressable onPress={() => setEditing((prev) => !prev)}>
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Company extras"
+        subtitle="Founded year, budgets, certs, and standout projects."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={() => setEditing((prev) => !prev)}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
 
       {!editing ? (
         <View style={{ gap: 8 }}>
@@ -1852,7 +1729,7 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
         </View>
       ) : (
         <View style={{ gap: 10 }}>
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Founded year</Text>
+          <ProfileFieldLabel colors={colors}>Founded year</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text }]}
             value={foundedYear}
@@ -1862,7 +1739,7 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
             placeholderTextColor="#9ca3af"
           />
 
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Min project budget ($)</Text>
+          <ProfileFieldLabel colors={colors}>Min project budget ($)</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text }]}
             value={String(minBudget ?? '')}
@@ -1872,7 +1749,7 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
             placeholderTextColor="#9ca3af"
           />
 
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>Certifications</Text>
+          <ProfileFieldLabel colors={colors}>Certifications</ProfileFieldLabel>
           <View style={styles.chipRow}>
             {certs.map((c, i) => (
               <Pressable key={i} onPress={() => setCerts(certs.filter((_, j) => j !== i))}
@@ -1891,12 +1768,10 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
               placeholder="Add certification"
               placeholderTextColor="#9ca3af"
             />
-            <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)' }]} onPress={handleAddCert}>
-              <Text style={[styles.actionText, { color: colors.text }]}>Add</Text>
-            </Pressable>
+            <ProfileOutlineButton label="Add" onPress={handleAddCert} colors={colors} isDark={isDark} />
           </View>
 
-          <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8, marginTop: 4 }]}>Notable Projects</Text>
+          <ProfileFieldLabel colors={colors}>Notable projects</ProfileFieldLabel>
           {projects.map((p, i) => (
             <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text style={[styles.bodyText, { color: colors.text, flex: 1 }]}>{p.name}</Text>
@@ -1928,18 +1803,18 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
               placeholderTextColor="#9ca3af"
             />
           </View>
-          <Pressable style={[styles.editButton, { borderColor: 'rgba(148,163,184,0.6)', alignSelf: 'flex-start' }]} onPress={handleAddProject}>
-            <Text style={[styles.actionText, { color: colors.text }]}>+ Add project</Text>
-          </Pressable>
-
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>Save extras</Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfileOutlineButton
+              label="+ Add project"
+              onPress={handleAddProject}
+              colors={colors}
+              isDark={isDark}
+            />
+            <ProfilePrimaryButton label="Save extras" onPress={handleSave} colors={colors} />
+          </ProfileFooterRow>
         </View>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -1997,37 +1872,27 @@ function ExperienceSection({ items, onAdd, onUpdate, onDelete }: ExperienceSecti
     setEditing(false);
   };
 
+  const toggleEditing = () => {
+    setEditing((prev) => {
+      if (prev) resetForm();
+      return !prev;
+    });
+  };
+
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Experience</Text>
-        <Pressable
-          onPress={() => {
-            setEditing((prev) => !prev);
-            if (editing) {
-              resetForm();
-            }
-          }}
-        >
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Experience"
+        subtitle="Roles and projects that show your track record."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={toggleEditing}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
       {items.length === 0 ? (
-        <Text style={[styles.bodyText, { color: colors.text }]}>
-          Add your past roles and projects so companies can see where you’ve worked.
-        </Text>
+        <ProfileEmptyHint colors={colors}>
+          Add your past roles and projects so companies can see your work history.
+        </ProfileEmptyHint>
       ) : (
         items.map((exp) => (
           <View key={exp.id} style={{ marginBottom: 12 }}>
@@ -2098,16 +1963,16 @@ function ExperienceSection({ items, onAdd, onUpdate, onDelete }: ExperienceSecti
             placeholder="Briefly describe the work you did (optional)."
             placeholderTextColor="#9ca3af"
           />
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>
-                {editingId != null ? 'Update experience' : 'Save experience'}
-              </Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton
+              label={editingId != null ? 'Update experience' : 'Save experience'}
+              onPress={handleSave}
+              colors={colors}
+            />
+          </ProfileFooterRow>
         </View>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -2177,37 +2042,27 @@ function EducationSection({ items, onAdd, onUpdate, onDelete }: EducationSection
     setEditing(false);
   };
 
+  const toggleEditing = () => {
+    setEditing((prev) => {
+      if (prev) resetForm();
+      return !prev;
+    });
+  };
+
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? 'rgba(15,23,42,0.9)' : '#ffffff',
-          ...(Platform.OS !== 'web' && !isDark
-            ? { borderWidth: 1, borderColor: 'rgba(15,23,42,0.12)' }
-            : {}),
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Education</Text>
-        <Pressable
-          onPress={() => {
-            setEditing((prev) => !prev);
-            if (editing) {
-              resetForm();
-            }
-          }}
-        >
-          <Text style={[styles.cardAction, { color: colors.text }]}>
-            {editing ? 'Cancel' : 'Edit'}
-          </Text>
-        </Pressable>
-      </View>
+    <ProfileSectionCard isDark={isDark}>
+      <ProfileSectionHeader
+        title="Education"
+        subtitle="Schools, diplomas, and trade programs."
+        actionLabel={editing ? 'Cancel' : 'Edit'}
+        onAction={toggleEditing}
+        colors={colors}
+      />
+      <ProfileHeaderDivider isDark={isDark} />
       {items.length === 0 ? (
-        <Text style={[styles.bodyText, { color: colors.text }]}>
+        <ProfileEmptyHint colors={colors}>
           List your trade school, university or certification training.
-        </Text>
+        </ProfileEmptyHint>
       ) : (
         items.map((edu) => (
           <View key={edu.id} style={{ marginBottom: 12 }}>
@@ -2287,16 +2142,16 @@ function EducationSection({ items, onAdd, onUpdate, onDelete }: EducationSection
               placeholderTextColor="#9ca3af"
             />
           </View>
-          <View style={styles.sectionActions}>
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={[styles.actionText, { color: '#0f172a' }]}>
-                {editingId != null ? 'Update education' : 'Save education'}
-              </Text>
-            </Pressable>
-          </View>
+          <ProfileFooterRow>
+            <ProfilePrimaryButton
+              label={editingId != null ? 'Update education' : 'Save education'}
+              onPress={handleSave}
+              colors={colors}
+            />
+          </ProfileFooterRow>
         </View>
       )}
-    </View>
+    </ProfileSectionCard>
   );
 }
 
@@ -2312,7 +2167,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'web' ? 120 : 16,
     paddingHorizontal: Platform.OS === 'web' ? 48 : 16,
     paddingBottom: Platform.OS === 'web' ? 40 : 100,
-    gap: 16,
+    gap: 20,
     maxWidth: 1100,
     width: '100%',
     alignSelf: 'center',
@@ -2470,6 +2325,12 @@ const styles = StyleSheet.create({
   bodyText: {
     fontSize: 15,
     lineHeight: 22,
+  },
+  helperBelowField: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 6,
+    marginBottom: 2,
   },
   activitiesScroll: {
     marginHorizontal: -4,
