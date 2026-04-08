@@ -11,7 +11,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { Colors, Fonts } from '../../../constants/theme';
+import { Colors, Fonts } from '../../../../constants/theme';
 
 export type ProfileThemeColors = (typeof Colors)['light'];
 
