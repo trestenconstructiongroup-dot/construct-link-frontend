@@ -19,6 +19,7 @@ import {
   JobMode,
   JobStatus,
 } from '../../services/api';
+import { DEFAULT_JOB_CURRENCY } from '../../utils/formatCurrency';
 
 const JOB_CATEGORIES = [
   'Mason',
@@ -208,6 +209,7 @@ export default function CreateWorkPage() {
         payment_type: paymentType,
         budget_min: budgetMin ? budgetMin : null,
         budget_max: budgetMax ? budgetMax : null,
+        currency: DEFAULT_JOB_CURRENCY,
         allow_direct_messages: allowDMs,
         allow_phone_contact: allowPhone,
         status,
@@ -605,7 +607,7 @@ export default function CreateWorkPage() {
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.label, { color: colors.text }]}>
-                  Budget min
+                  Budget min (KES)
                 </Text>
                 <TextInput
                   style={[styles.input, styles.inputSingleLine, { color: colors.text }]}
@@ -619,7 +621,7 @@ export default function CreateWorkPage() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.label, { color: colors.text }]}>
-                  Budget max
+                  Budget max (KES)
                 </Text>
                 <TextInput
                   style={[styles.input, styles.inputSingleLine, { color: colors.text }]}

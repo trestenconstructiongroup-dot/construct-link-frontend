@@ -31,6 +31,7 @@ import {
   type JobDetail,
   type JobSummaryRole,
 } from '../../../services/api';
+import { formatJobPayLabel } from '../../../utils/formatCurrency';
 
 const BRAND_BLUE = Colors.light.accentMuted;
 const JOB_TYPE_LABELS: Record<string, string> = {
@@ -300,7 +301,12 @@ export default function JobDetailPage({ jobId }: { jobId: number | null }) {
                   <RNText style={[styles.detailLabel, { color: colors.icon }]}>Pay</RNText>
                   <RNText style={[styles.detailValue, { color: colors.text }]}>
                     {job.pay_min || job.pay_max
-                      ? `${job.currency} ${job.pay_min ?? '?'} - ${job.pay_max ?? '?'} (${PAY_TYPE_LABELS[job.pay_type] || job.pay_type})`
+                      ? formatJobPayLabel(
+                          job.currency,
+                          job.pay_min,
+                          job.pay_max,
+                          PAY_TYPE_LABELS[job.pay_type] || job.pay_type,
+                        )
                       : 'Not specified'}
                   </RNText>
                 </View>

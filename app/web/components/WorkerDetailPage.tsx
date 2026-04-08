@@ -248,7 +248,11 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
 
                 <RNText style={[styles.detailLabel, { color: colors.icon }]}>Rate</RNText>
                 <RNText style={[styles.detailValue, { color: colors.text }]}>
-                  {data.hourly_rate ? `$${data.hourly_rate}/hr` : data.daily_rate ? `$${data.daily_rate}/day` : 'Contact for rate'}
+                  {data.hourly_rate
+                    ? `KES ${data.hourly_rate}/hr`
+                    : data.daily_rate
+                      ? `KES ${data.daily_rate}/day`
+                      : 'Contact for rate'}
                 </RNText>
               </View>
 
@@ -380,7 +384,9 @@ export default function WorkerDetailPage({ userId }: { userId: number | null }) 
                 {data.min_project_budget != null && (
                   <>
                     <RNText style={[styles.detailLabel, { color: colors.icon }]}>Min Project Budget</RNText>
-                    <RNText style={[styles.detailValue, { color: colors.text }]}>${data.min_project_budget}</RNText>
+                    <RNText style={[styles.detailValue, { color: colors.text }]}>
+                      KES {data.min_project_budget}
+                    </RNText>
                   </>
                 )}
                 {data.rating != null && (

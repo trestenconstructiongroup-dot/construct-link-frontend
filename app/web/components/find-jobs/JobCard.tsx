@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { Colors } from '../../../../constants/theme';
 import { applyJob, type JobSummary, type JobSummaryRole } from '../../../../services/api';
+import { formatJobPayLabel } from '../../../../utils/formatCurrency';
 
 const BRAND_BLUE = Colors.light.accentMuted;
 const PAY_TYPE_LABELS: Record<string, string> = {
@@ -158,7 +159,12 @@ function JobCardComponent({
 
   const payLabel =
     job.pay_min || job.pay_max
-      ? `${job.currency} ${job.pay_min ?? '?'} - ${job.pay_max ?? '?'} (${PAY_TYPE_LABELS[job.pay_type] || job.pay_type})`
+      ? formatJobPayLabel(
+          job.currency,
+          job.pay_min,
+          job.pay_max,
+          PAY_TYPE_LABELS[job.pay_type] || job.pay_type,
+        )
       : 'Pay not specified';
 
   return (

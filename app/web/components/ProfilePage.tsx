@@ -1377,10 +1377,10 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
       {!editing ? (
         <View style={{ gap: 8 }}>
           <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
-            Hourly rate: {profile.hourly_rate ? `$${profile.hourly_rate}/hr` : 'Not set'}
+            Hourly rate: {profile.hourly_rate ? `KES ${profile.hourly_rate}/hr` : 'Not set'}
           </Text>
           <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
-            Daily rate: {profile.daily_rate ? `$${profile.daily_rate}/day` : 'Not set'}
+            Daily rate: {profile.daily_rate ? `KES ${profile.daily_rate}/day` : 'Not set'}
           </Text>
           <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
             Availability: {currentLabel}
@@ -1388,7 +1388,7 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
         </View>
       ) : (
         <View style={{ gap: 8 }}>
-          <ProfileFieldLabel colors={colors}>Hourly rate ($)</ProfileFieldLabel>
+          <ProfileFieldLabel colors={colors}>Hourly rate (KES)</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text }]}
             value={String(hourlyRate ?? '')}
@@ -1397,7 +1397,7 @@ function RatesAvailabilitySection({ profile, onSave }: RatesAvailabilityProps) {
             keyboardType="numeric"
             placeholderTextColor="#9ca3af"
           />
-          <ProfileFieldLabel colors={colors}>Daily rate ($)</ProfileFieldLabel>
+          <ProfileFieldLabel colors={colors}>Daily rate (KES)</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text }]}
             value={String(dailyRate ?? '')}
@@ -1702,7 +1702,7 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
             Founded: {profile.founded_year || 'Not set'}
           </Text>
           <Text style={[styles.summaryMeta, { color: colors.text, opacity: 0.8 }]}>
-            Min project budget: {profile.min_project_budget ? `$${profile.min_project_budget}` : 'Not set'}
+            Min project budget: {profile.min_project_budget ? `KES ${profile.min_project_budget}` : 'Not set'}
           </Text>
           {certs.length > 0 && (
             <View>
@@ -1739,7 +1739,7 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
             placeholderTextColor="#9ca3af"
           />
 
-          <ProfileFieldLabel colors={colors}>Min project budget ($)</ProfileFieldLabel>
+          <ProfileFieldLabel colors={colors}>Min project budget (KES)</ProfileFieldLabel>
           <TextInput
             style={[styles.input, { color: colors.text }]}
             value={String(minBudget ?? '')}
@@ -1792,7 +1792,7 @@ function CompanyExtrasSection({ profile, onSave }: CompanyExtrasProps) {
               style={[styles.input, { flex: 1, color: colors.text }]}
               value={projValue}
               onChangeText={setProjValue}
-              placeholder="Value (e.g. $2M)"
+              placeholder="Value (e.g. KES 2M)"
               placeholderTextColor="#9ca3af"
             />
             <TextInput

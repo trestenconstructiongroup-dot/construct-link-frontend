@@ -7,6 +7,7 @@ import React from 'react';
 import { Image, ImageStyle, Pressable, Text as RNText, StyleSheet, View, type TextStyle, type ViewStyle } from 'react-native';
 import { Colors } from '../../../../constants/theme';
 import type { WorkerSearchResultIndividual } from '../../../../services/api';
+import { formatIndividualRateLabel } from '../../../../utils/formatCurrency';
 
 const EXPERIENCE_LABELS: Record<string, string> = {
   beginner: 'Beginner',
@@ -62,11 +63,7 @@ const styles = StyleSheet.create({
 });
 
 function IndividualCardComponent({ item, colors, fontHeading, fontBody, onView, onContact }: IndividualCardProps) {
-  const rateLabel = item.hourly_rate
-    ? `$${item.hourly_rate}/hr`
-    : item.daily_rate
-    ? `$${item.daily_rate}/day`
-    : 'Contact for rate';
+  const rateLabel = formatIndividualRateLabel(item);
   const expLabel = item.experience_years != null
     ? `${EXPERIENCE_LABELS[item.experience_level] || item.experience_level} · ${item.experience_years} yrs`
     : (EXPERIENCE_LABELS[item.experience_level] || item.experience_level || '—');

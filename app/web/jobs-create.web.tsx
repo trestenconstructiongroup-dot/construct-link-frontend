@@ -39,6 +39,7 @@ import {
     type PaymentType,
 } from './components/jobs-create/_constants';
 import { getKenyaCountyName } from '../../constants/kenyaCounties';
+import { DEFAULT_JOB_CURRENCY } from '../../utils/formatCurrency';
 
 setWasmUrl('/dotlottie-player.wasm');
 
@@ -204,6 +205,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
         payment_type: paymentType,
         budget_min: budgetMin ? budgetMin : null,
         budget_max: budgetMax ? budgetMax : null,
+        currency: DEFAULT_JOB_CURRENCY,
         allow_direct_messages: allowDMs,
         allow_phone_contact: allowPhone,
         status,
@@ -843,7 +845,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                     >
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.label, { color: colors.text }]}>
-                          Budget min
+                          Budget min (KES)
                         </Text>
                         <TextInput
                           style={[styles.input, { color: colors.text }]}
@@ -856,7 +858,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.label, { color: colors.text }]}>
-                          Budget max
+                          Budget max (KES)
                         </Text>
                         <TextInput
                           style={[styles.input, { color: colors.text }]}
@@ -985,7 +987,7 @@ export default function CreateJobWebPage({ editJobId = null }: { editJobId?: num
                       ? 'Hourly rate'
                       : 'Negotiable'}
                     {budgetMin || budgetMax
-                      ? ` · ${budgetMin || '—'} - ${budgetMax || '—'}`
+                      ? ` · KES ${budgetMin || '—'} - ${budgetMax || '—'}`
                       : ''}
                   </Text>
 

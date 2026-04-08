@@ -582,6 +582,7 @@ type ApiRequestOptions = RequestInit & {
     payment_type: "fixed" | "hourly" | "negotiable";
     budget_min: string | null;
     budget_max: string | null;
+    currency?: string;
     allow_direct_messages: boolean;
     allow_phone_contact: boolean;
     status: JobStatus;

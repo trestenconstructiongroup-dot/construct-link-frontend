@@ -28,6 +28,7 @@ import {
   type WorkerSearchResultCompany,
   type FindWorkersFilters as FindWorkersFiltersType,
 } from '../../services/api';
+import { formatIndividualRateLabel } from '../../utils/formatCurrency';
 
 const PAGE_SIZE = 12;
 const BRAND_BLUE = Colors.light.accentMuted;
@@ -56,7 +57,10 @@ function IndividualCard({
   colors: typeof Colors.light;
   onView: () => void;
 }) {
-  const rateLabel = item.hourly_rate || item.daily_rate ? `Rate: ${item.hourly_rate || item.daily_rate || '—'}` : 'Contact for rate';
+  const rateLabel =
+    item.hourly_rate || item.daily_rate
+      ? `Rate: ${formatIndividualRateLabel(item)}`
+      : 'Contact for rate';
   const expLabel = item.experience_years != null
     ? `${EXPERIENCE_LABELS[item.experience_level] || item.experience_level} · ${item.experience_years} yrs`
     : (EXPERIENCE_LABELS[item.experience_level] || item.experience_level || '—');

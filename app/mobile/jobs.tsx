@@ -29,6 +29,7 @@ import {
   type JobSummaryRole,
   type FindJobsFilters as FindJobsFiltersType,
 } from '../../services/api';
+import { formatJobPayLabel } from '../../utils/formatCurrency';
 
 const PAGE_SIZE = 12;
 const BRAND_BLUE = Colors.light.accentMuted;
@@ -112,7 +113,12 @@ function JobCard({
 
   const payLabel =
     job.pay_min || job.pay_max
-      ? `${job.currency} ${job.pay_min ?? '?'} - ${job.pay_max ?? '?'} (${PAY_TYPE_LABELS[job.pay_type] || job.pay_type})`
+      ? formatJobPayLabel(
+          job.currency,
+          job.pay_min,
+          job.pay_max,
+          PAY_TYPE_LABELS[job.pay_type] || job.pay_type,
+        )
       : 'Pay not specified';
 
   return (
